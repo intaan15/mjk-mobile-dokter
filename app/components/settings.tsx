@@ -41,38 +41,12 @@ export default function Settings() {
     setModalVisible(true);
   };
 
-  // const [modalConfig, setModalConfig] = useState({
-  //   message: "",
-  //   confirmText: "",
-  //   onConfirm: () => {},
-  // });
-
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
-
-  // const showDeleteModal = () => {
-  //   setModalConfig({
-  //     message: "Anda yakin akan menghapus akun?",
-  //     confirmText: "Hapus",
-  //     onConfirm: () => console.log("Akun dihapus"),
-  //   });
-  //   toggleModal();
-  // };
-
-  // const showLogoutModal = () => {
-  //   setModalConfig({
-  //     message: "Anda yakin ingin keluar?",
-  //     confirmText: "Keluar",
-  //     onConfirm: () => console.log("Logout sukses"),
-  //   });
-  //   toggleModal();
-  // };
-
   const imageContext = useImage();
   const profileImage = imageContext?.profileImage;
   const setImage = imageContext?.setImage;
-  // const [modalVisible, setModalImageVisible] = useState(false);
 
   const { openGallery, openCamera } = ImagePickerComponent({
     onImageSelected: setImage,
@@ -80,13 +54,13 @@ export default function Settings() {
 
   // Handler baru yang gabung pick image + tutup modal
   const handlePickImage = async () => {
-    await openGallery(); // buka galeri
-    setModalVisible(false); // tutup modal
+    await openGallery();
+    setModalVisible(false); 
   };
 
   const handleOpenCamera = async () => {
-    await openCamera(); // buka kamera
-    setModalVisible(false); // tutup modal
+    await openCamera(); 
+    setModalVisible(false); 
   };
 
   return (
@@ -169,18 +143,6 @@ export default function Settings() {
           />
         </ModalTemplate>
 
-        {/* <ImageModal
-          visible={modalVisible}
-          onClose={() => setModalImageVisible(false)}
-          onPickImage={() => {
-            openGallery();
-            setModalImageVisible(false);
-          }}
-          onOpenCamera={() => {
-            openCamera();
-            setModalImageVisible(false);
-          }}
-        /> */}
       </View>
     </View>
   );

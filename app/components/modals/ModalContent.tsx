@@ -64,15 +64,22 @@ const ModalContent: React.FC<ModalContentProps> = ({
   switch (modalType) {
     case "konfirm":
       return (
-        <View>
-          <TouchableOpacity onPress={onClose} 
-          className="text-center text-lg font-bold text-gray-700">
-            Jadwal anda berhasil diubah
+        <View className=" items-center">
+          <TouchableOpacity
+            onPress={onClose}
+            className="text-center text-lg font-bold text-gray-700"
+          >
+            <Text>Jadwal anda berhasil diubah</Text>
           </TouchableOpacity>
 
           <View className="w-full h-1 bg-skyDark my-5" />
 
-          <TouchableOpacity onPress={onClose} className=" text-center text-skyDark font-medium">Oke</TouchableOpacity>
+          <TouchableOpacity
+            onPress={onClose}
+            className=" text-center text-skyDark font-medium"
+          >
+            <Text>Oke</Text>
+          </TouchableOpacity>
         </View>
       );
 

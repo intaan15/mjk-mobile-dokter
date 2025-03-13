@@ -10,6 +10,8 @@ export default function Index() {
 
   useEffect(() => {
     const handleStartup = async () => {
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+
       const token = await SecureStore.getItemAsync("userToken");
 
       if (token) {
@@ -20,24 +22,16 @@ export default function Index() {
               headers: { Authorization: `Bearer ${token}` },
             }
           );
-          // delay 2 detik, lalu masuk home
-          setTimeout(() => {
-            setIsLoading(false);
-            router.replace("/(tabs)/home");
-          }, 2000);
+          router.replace("/(tabs)/home");
         } catch (error) {
           await SecureStore.deleteItemAsync("userToken");
-          setTimeout(() => {
-            setIsLoading(false);
-            router.replace("/screens/signin");
-          }, 2000);
+          router.replace("/screens/signin");
         }
       } else {
-        setTimeout(() => {
-          setIsLoading(false);
-          router.replace("/screens/signin");
-        }, 2000);
+        router.replace("/screens/signin");
       }
+
+      setIsLoading(false);
     };
 
     handleStartup();
