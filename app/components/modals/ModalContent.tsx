@@ -7,6 +7,8 @@ import ImagePickerComponent, {
   useImage,
   ImageProvider,
 } from "@/components/picker/imagepicker";
+import * as SecureStore from "expo-secure-store";
+import { useRouter } from "expo-router";
 
 interface ModalContentProps {
   modalType: string;
@@ -61,7 +63,37 @@ const ModalContent: React.FC<ModalContentProps> = ({
     const profileImage = imageContext?.profileImage;
     const setImage = imageContext?.setImage;
 
+const router = useRouter();
+  const handleLogout = async () => {
+    await SecureStore.deleteItemAsync("userToken");
+    onClose?.(); // nutup modal
+    router.replace("/screens/signin"); // redirect ke halaman login
+  };
+
   switch (modalType) {
+    case "keluarakun":
+      return (
+        <View>
+          <Text className="text-center text-lg font-bold text-gray-700">
+            Anda yakin akan keluar?
+          </Text>
+
+          <View className="flex flex-row justify-between items-center mt-5 px-20">
+            <TouchableOpacity onPress={onClose}>
+              <Text className=" text-center text-skyDark font-medium">
+                Batal
+              </Text>
+            </TouchableOpacity>
+            <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
+            <TouchableOpacity onPress={handleLogout}>
+              <Text className=" text-center text-red-500 font-medium">
+                Keluar
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      );
+
     case "konfirm":
       return (
         <View className=" items-center">
@@ -149,29 +181,6 @@ const ModalContent: React.FC<ModalContentProps> = ({
             >
               <Text className=" text-center text-red-500 font-medium">
                 Hapus
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      );
-
-    case "keluarakun":
-      return (
-        <View>
-          <Text className="text-center text-lg font-bold text-gray-700">
-            Anda yakin akan keluar?
-          </Text>
-
-          <View className="flex flex-row justify-between items-center mt-5 px-20">
-            <TouchableOpacity onPress={onClose}>
-              <Text className=" text-center text-skyDark font-medium">
-                Batal
-              </Text>
-            </TouchableOpacity>
-            <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
-            <TouchableOpacity onPress={onClose}>
-              <Text className=" text-center text-red-500 font-medium">
-                Keluar
               </Text>
             </TouchableOpacity>
           </View>
