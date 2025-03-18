@@ -34,27 +34,27 @@ export default function SignIn() {
             keyboardShouldPersistTaps="handled"
           >
             {/* Logo & Title */}
-            <View className="items-center mb-6">
+            <View className="items-center mb-24">
               <Image
                 className="w-44 h-48"
                 source={require("../../assets/images/logo.png")}
                 resizeMode="contain"
               />
-              <Text className="text-4xl font-bold text-blue-900">Login</Text>
+              <Text className="text-4xl font-bold text-blue-900">Masuk</Text>
             </View>
 
             {/* Form */}
             <View className="w-full max-w-sm flex items-center">
               <View className="flex flex-col gap-4 w-full">
-                <Text>Username/STR</Text>
+                <Text>Nama Pengguna atau STR</Text>
                 <TextInput
-                  placeholder="Enter email address"
+                  placeholder="Masukkan Nama Pengguna atau STR"
                   className="bg-transparent border border-black text-black px-4 py-3 rounded-md"
                   placeholderTextColor="#ccc"
                 />
-                <Text>Password</Text>
+                <Text>Kata Sandi</Text>
                 <TextInput
-                  placeholder="Enter password"
+                  placeholder="Masukkan Kata Sandi"
                   secureTextEntry
                   className="bg-transparent border border-black text-black px-4 py-3 rounded-md"
                   placeholderTextColor="#ccc"
@@ -63,7 +63,7 @@ export default function SignIn() {
 
               {/* Tombol Login */}
               <Button
-                text="Login"
+                text="Masuk"
                 variant="success"
                 className="w-5/6 mt-6"
                 onPress={() => router.push("./homescreen")}
