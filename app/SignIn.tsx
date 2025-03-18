@@ -1,52 +1,19 @@
-import { View, Text, ScrollView, Image, Dimensions } from "react-native";
-import React from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { View, Text, StyleSheet } from 'react-native'
+import React from 'react'
 
-const { width } = Dimensions.get("window"); // Ambil lebar layar
-
-const SignIn = () => {
+export default function SignIn() {
   return (
-    <SafeAreaView className="flex-1">
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <View className="flex-1 justify-center items-center w-full">
-          {/* Logo di pojok kanan atas */}
-          <Image
-            source={require("./../assets/images/logomjk.png")}
-            className="absolute top-0 right-0 m-4 h-16 w-16"
-            resizeMode="contain"
-          />
+    <View style={styles.container}>
+      <Text>Ini adalah halaman Sign In</Text>
+    </View>
+  )
+}
 
-          {/* Logo utama di tengah */}
-          <Image
-            source={require("./../assets/images/logo.png")}
-            className="h-48 w-96"
-            resizeMode="contain"
-          />
-          <Text className="text-2xl font-bold mt-4 text-blue-900">
-            MOJOKERTO SEHAT
-          </Text>
-          <Text className="text-sm text-gray-600">By timtujuh UNEJ</Text>
-
-          {/* Iconsplash di bawah */}
-          <Image
-            source={require("./../assets/images/iconsplash.png")}
-            className="absolute bottom-0 h-{120} w-{width}"
-            style={{
-              width: width, 
-            }}
-            resizeMode="cover"
-          />
-
-          {/* Tulisan Version di atas iconsplash */}
-          <Text
-          className="absolute bottom-10 text-black text-sm font-bold"
-          >
-            Version 1.0.0.0
-          </Text>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-};
-
-export default SignIn;
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#F5FCFF',
+    }
+})
