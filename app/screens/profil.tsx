@@ -10,6 +10,8 @@ import React from "react";
 import { useRouter } from "expo-router";
 import Navbar from "../components/navbar";
 import Background from "../components/background";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 const { width } = Dimensions.get("window");
 
@@ -18,78 +20,6 @@ const chats = [
     id: 1,
     user: "Rayhanita",
     message: "Selamat pagi dokter",
-    date: "17/03/25",
-  },
-  {
-    id: 2,
-    user: "Fahri",
-    message: "Bagaimana hasil tes kemarin?",
-    date: "17/03/25",
-  },
-  {
-    id: 3,
-    user: "Aisyah",
-    message: "Terima kasih dokter atas bantuannya.",
-    date: "17/03/25",
-  },
-  {
-    id: 4,
-    user: "Budi",
-    message: "Saya merasa lebih baik sekarang.",
-    date: "17/03/25",
-  },
-  {
-    id: 5,
-    user: "Budi",
-    message: "Saya merasa lebih baik sekarang.",
-    date: "17/03/25",
-  },
-  {
-    id: 6,
-    user: "Budi",
-    message: "Saya merasa lebih baik sekarang.",
-    date: "17/03/25",
-  },
-  {
-    id: 7,
-    user: "Budi",
-    message: "Saya merasa lebih baik sekarang.",
-    date: "17/03/25",
-  },
-  {
-    id: 8,
-    user: "Budi",
-    message: "Saya merasa lebih baik sekarang.",
-    date: "17/03/25",
-  },
-  {
-    id: 9,
-    user: "Budi",
-    message: "Saya merasa lebih baik sekarang.",
-    date: "17/03/25",
-  },
-  {
-    id: 10,
-    user: "Budi",
-    message: "Saya merasa lebih baik sekarang.",
-    date: "17/03/25",
-  },
-  {
-    id: 11,
-    user: "Budi",
-    message: "Saya merasa lebih baik sekarang.",
-    date: "17/03/25",
-  },
-  {
-    id: 12,
-    user: "Budi",
-    message: "Saya merasa lebih baik sekarang.",
-    date: "17/03/25",
-  },
-  {
-    id: 13,
-    user: "Budi",
-    message: "Saya merasa lebih baik sekarang.",
     date: "17/03/25",
   },
 ];
@@ -104,17 +34,30 @@ export default function HomeScreen() {
 
         {/* Header */}
         <View className="relative pt-12 bg-skyLight rounded-b-[50px] py-28">
-          <View className="absolute inset-0 flex items-center justify-between flex-row px-12">
-            <Text className="text-skyDark text-2xl font-bold">
-              Selamat datang, {"\n"}dr Rayhan Izzuddin
-            </Text>
-            <Image
-              className="h-10 w-12"
-              source={require("../../assets/images/logo.png")}
-              resizeMode="contain"
-            />
-          </View>
-        </View>
+                  <View className="absolute inset-0 flex items-center justify-between flex-row px-12">
+                    <Text className="text-skyDark text-2xl font-bold">
+                      Selamat datang, {"\n"}dr Rayhan Izzuddin
+                    </Text>
+                    <Image
+                      className="h-10 w-12"
+                      source={require("../../assets/images/logo.png")}
+                      resizeMode="contain"
+                    />
+                  </View>
+                </View>
+
+        {/* menu */}
+        {/* <View className="flex flex-row justify-between  mx-6 rounded-xl border-2">
+          <TouchableOpacity className="flex-1 items-center h-full border-r-2 border-black">
+            <Text className=" py-4">Menunggu</Text>
+          </TouchableOpacity>
+          <TouchableOpacity className="flex-1 items-center h-full border-r-2 border-black">
+            <Text className=" py-4">Diterima</Text>
+          </TouchableOpacity>
+          <TouchableOpacity className="flex-1 items-center h-full">
+            <Text className=" py-4">Ditolak</Text>
+          </TouchableOpacity>
+        </View> */}
 
         {/* Chat List */}
         <View className="flex-1">

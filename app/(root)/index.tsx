@@ -10,7 +10,7 @@ export default function Index() {
     setTimeout(() => {
       setIsShowSplash(false);
       router.replace("/screens/signin"); // Pindah ke halaman SignIn
-    }, 1000);
+    }, 3000);
   }, []);
 
   return <>{isShowSplash ? <SplashScreen /> : null}</>;
