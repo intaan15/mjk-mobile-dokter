@@ -18,7 +18,7 @@ const { width } = Dimensions.get("window");
 const chats = [
   {
     id: 1,
-    user: "Rayhanita",
+    user: "Zuditanit",
     message: "Selamat pagi dokter",
     date: "17/03/25",
   },
@@ -70,7 +70,7 @@ export default function HomeScreen() {
               >
                 <View className="flex flex-row items-center">
                   <Image
-                    source={require("../../assets/images/foto.jpg")}
+                    source={require("../../assets/images/foto.jpeg")}
                     className="h-16 w-16 rounded-full border border-gray-300"
                     resizeMode="cover"
                   />

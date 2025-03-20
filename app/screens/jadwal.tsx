@@ -6,27 +6,70 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "expo-router";
 import Navbar from "../components/navbar";
 import Background from "../components/background";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-
+import AntDesign from "@expo/vector-icons/AntDesign";
+import TabButton from "../components/tabbutton";
 
 const { width } = Dimensions.get("window");
 
-const chats = [
+// Data Dummy dengan Status
+const JadwalDummy = [
   {
     id: 1,
-    user: "Rayhanita",
-    message: "Selamat pagi dokter",
-    date: "17/03/25",
+    user: "Zuditanit",
+    message:
+      "Selamat pagi dokter. Keluhan yang saya alami adalah nyeri di bagian dada sebelah kiri dan sesak di malam hari.",
+    time: "13.00",
+    date: "Kamis, 20 Maret 2025",
+    status: "Menunggu", 
+  },
+  {
+    id: 2,
+    user: "Zuditanit",
+    message:
+      "Selamat pagi dokter. Keluhan yang saya alami adalah nyeri di bagian dada sebelah kiri dan sesak di malam hari.",
+    time: "13.00",
+    date: "Kamis, 20 Maret 2025",
+    status: "Menunggu", 
+  },
+  {
+    id: 3,
+    user: "Zuditanit",
+    message:
+      "Selamat pagi dokter. Keluhan yang saya alami adalah nyeri di bagian dada sebelah kiri dan sesak di malam hari.",
+    time: "13.00",
+    date: "Kamis, 20 Maret 2025",
+    status: "Menunggu", 
+  },
+  {
+    id: 4,
+    user: "Zuditanit",
+    message:
+      "Selamat pagi dokter. Keluhan yang saya alami adalah nyeri di bagian dada sebelah kiri dan sesak di malam hari.",
+    time: "13.00",
+    date: "Kamis, 20 Maret 2025",
+    status: "Menunggu", 
   },
 ];
 
-export default function HomeScreen() {
+
+
+export default function JadwalScreen() {
   const router = useRouter();
+  const [selectedTab, setSelectedTab] = useState("Menunggu");
+  const [Jadwals, setJadwal] = useState(JadwalDummy);
+
+  const updateJadwalStatus = (id, newStatus) => {
+    setJadwal((prevJadwal) =>
+      prevJadwal.map((jadwal) =>
+        jadwal.id === id ? { ...jadwal, status: newStatus } : jadwal
+      )
+    );
+  };
 
   return (
     <Background>
@@ -36,13 +79,12 @@ export default function HomeScreen() {
         {/* Header */}
         <View className="flex flex-row justify-between items-center mb-4 w-full px-5 py-5 pt-10">
           <View className="flex flex-row items-center">
-            <TouchableOpacity
-              onPress={() => router.back()}
-              className="flex flex-row items-center"
-            >
+            <TouchableOpacity onPress={() => router.replace("./homescreen")}>
               <MaterialIcons name="arrow-back-ios" size={24} color="#025F96" />
             </TouchableOpacity>
-            <Text className="text-skyDark font-bold text-xl">Rayhanita</Text>
+            <Text className="text-skyDark font-bold text-xl ml-2">
+              Zuditanit
+            </Text>
           </View>
           <Image
             className="h-10 w-12"
@@ -51,48 +93,90 @@ export default function HomeScreen() {
           />
         </View>
 
-        {/* menu */}
-        <View className="flex flex-row justify-between  mx-6 rounded-xl border-2">
-          <TouchableOpacity className="flex-1 items-center h-full border-r-2 border-black">
-            <Text className=" py-4">Menunggu</Text>
-          </TouchableOpacity>
-          <TouchableOpacity className="flex-1 items-center h-full border-r-2 border-black">
-            <Text className=" py-4">Diterima</Text>
-          </TouchableOpacity>
-          <TouchableOpacity className="flex-1 items-center h-full">
-            <Text className=" py-4">Ditolak</Text>
-          </TouchableOpacity>
+        {/* Menu Tab */}
+        <View className="flex flex-row mx-6 rounded-xl border-2 border-skyDark overflow-hidden">
+          {["Menunggu", "Diterima", "Ditolak"].map((tab) => (
+            <TabButton
+              key={tab}
+              label={tab}
+              isActive={selectedTab === tab}
+              onPress={() => setSelectedTab(tab)}
+            />
+          ))}
         </View>
 
-        {/* Chat List */}
+        {/* Jadwal List */}
         <View className="flex-1">
-          <ScrollView className="px-6 py-4">
-            {chats.map((chat) => (
-              <TouchableOpacity
-                key={chat.id}
-                className="flex flex-col"
-                onPress={() => router.push("./chat")}
-              >
-                <View className="flex flex-row items-center">
-                  <Image
-                    source={require("../../assets/images/foto.jpg")}
-                    className="h-16 w-16 rounded-full border border-gray-300"
-                    resizeMode="cover"
-                  />
-                  <View className="ml-4 flex-1">
-                    <View className="flex flex-row justify-between">
-                      <Text className="font-semibold text-lg">{chat.user}</Text>
-                      <Text className="text-gray-500 text-sm">{chat.date}</Text>
+          <ScrollView
+            className="px-6 py-4"
+            contentContainerStyle={{ paddingBottom: 100 }}
+          >
+            {Jadwals
+              .filter((jadwal) => jadwal.status === selectedTab)
+              .map((jadwal) => (
+                <View
+                  key={jadwal.id}
+                  className="flex flex-col mb-4 bg-Warm p-2 rounded-xl shadow-black"
+                  style={{
+                    shadowOffset: { width: 0, height: -20 },
+                    shadowOpacity: 0.2,
+                    shadowRadius: 11,
+                    elevation: 15,
+                  }}
+                >
+                  <View className="flex flex-row items-center">
+                    <Image
+                      source={require("../../assets/images/foto.jpeg")}
+                      className="h-24 w-24 rounded-full border border-gray-300"
+                      resizeMode="cover"
+                    />
+                    <View className="ml-4 flex-1">
+                      <Text className="font-semibold text-lg text-skyDark">
+                        {jadwal.user}
+                      </Text>
+                      <Image
+                        source={require("../../assets/images/Line.png")}
+                        className="w-full my-2"
+                      />
+                      <Text className="font-semibold text-lg text-skyDark">
+                        {jadwal.date}
+                      </Text>
+                      <Text className="font-semibold text-lg text-skyDark">
+                        {jadwal.time}
+                      </Text>
                     </View>
-                    <Text className="text-gray-700 mt-1">{chat.message}</Text>
                   </View>
+                  <Text className="text-gray-700 mt-1 px-4 text-justify">
+                    {jadwal.message}
+                  </Text>
+                  {selectedTab === "Menunggu" && (
+                    <View className="flex flex-row justify-between px-10 mt-2 mb-4 items-center">
+                      <TouchableOpacity
+                        className="bg-red-500 rounded-xl px-4 py-2 flex flex-row items-center justify-center gap-2"
+                        onPress={() => updateJadwalStatus(jadwal.id, "Ditolak")}
+                      >
+                        <AntDesign
+                          name="closecircleo"
+                          size={20}
+                          color="white"
+                        />
+                        <Text className=" text-white">Tolak</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        className="bg-green-500 rounded-xl px-4 py-2 flex flex-row items-center justify-center gap-2"
+                        onPress={() => updateJadwalStatus(jadwal.id, "Diterima")}
+                      >
+                        <AntDesign
+                          name="checkcircleo"
+                          size={20}
+                          color="white"
+                        />
+                        <Text className=" text-white">Terima</Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
                 </View>
-                <Image
-                  source={require("../../assets/images/Line.png")}
-                  className="w-full my-2"
-                />
-              </TouchableOpacity>
-            ))}
+              ))}
           </ScrollView>
         </View>
       </View>
