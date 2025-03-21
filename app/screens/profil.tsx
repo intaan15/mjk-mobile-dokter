@@ -19,7 +19,7 @@ const DataDummy = {
   nama: "Dr Izzu Adit Intan Nita",
   username: "Zuditanit",
   email: "zuditanit@gmail.com",
-  no_tlp: "08123712953",
+  no_tlp: "08123712953234",
   spesialis: "Jantung",
 };
 
