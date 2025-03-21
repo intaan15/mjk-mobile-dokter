@@ -45,7 +45,7 @@ export default function ChatScreen() {
                   />
                 </TouchableOpacity>
                 <Text className="text-skyDark font-bold text-xl">
-                  Rayhanita
+                  Zuditanit
                 </Text>
               </View>
               <Image

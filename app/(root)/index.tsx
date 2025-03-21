@@ -9,8 +9,8 @@ export default function Index() {
   useEffect(() => {
     setTimeout(() => {
       setIsShowSplash(false);
-      router.replace("/screens/signin"); // Pindah ke halaman SignIn
-    }, 3000);
+      router.replace("/screens/profil"); // Pindah ke halaman SignIn
+    }, 0);
   }, []);
 
   return <>{isShowSplash ? <SplashScreen /> : null}</>;
