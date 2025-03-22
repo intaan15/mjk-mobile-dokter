@@ -9,7 +9,7 @@ export default function Index() {
   useEffect(() => {
     setTimeout(() => {
       setIsShowSplash(false);
-      router.replace("/screens/profil"); // Pindah ke halaman SignIn
+      router.replace("/screens/ubahjadwal"); // Pindah ke halaman SignIn
     }, 0);
   }, []);
 
