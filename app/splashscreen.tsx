@@ -13,14 +13,14 @@ export default function SplashScreen() {
           <View className="flex-1 justify-center items-center w-full">
             {/* Logo di pojok kanan atas */}
             <Image
-              source={require("./../../assets/images/logomjk.png")}
+              source={require("./../assets/images/logomjk.png")}
               className="absolute top-0 right-0 m-4 h-16 w-16"
               resizeMode="contain"
             />
   
             {/* Logo utama di tengah */}
             <Image
-              source={require("./../../assets/images/logo.png")}
+              source={require("./../assets/images/logo.png")}
               className="h-48 w-96"
               resizeMode="contain"
             />
@@ -31,7 +31,7 @@ export default function SplashScreen() {
   
             {/* Iconsplash di bawah */}
             <Image
-              source={require("./../../assets/images/iconsplash.png")}
+              source={require("./../assets/images/iconsplash.png")}
               className="absolute bottom-0 h-{120} w-{width}"
               style={{
                 width: width, 

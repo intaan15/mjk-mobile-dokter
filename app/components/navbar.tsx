@@ -1,6 +1,6 @@
 import { View, Text, Dimensions, TouchableOpacity } from "react-native";
 import React from "react";
-import { FontAwesome5 } from "@expo/vector-icons"; 
+import { FontAwesome5 } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
 const { width } = Dimensions.get("window");
@@ -16,9 +16,8 @@ export default function Navbar() {
       <TouchableOpacity onPress={() => router.replace("./jadwal")}>
         <NavItem icon="calendar-alt" label="Jadwal" />
       </TouchableOpacity>
-      <TouchableOpacity
-        onPress={() => router.replace("./profil")}>
-      <NavItem icon="user" label="Profil" />
+      <TouchableOpacity onPress={() => router.replace("./profil")}>
+        <NavItem icon="user" label="Profil" />
       </TouchableOpacity>
     </View>
   );
