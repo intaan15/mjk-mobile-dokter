@@ -153,7 +153,7 @@ export default function SignIn() {
                 text="Masuk"
                 variant="success"
                 className="w-5/6 mt-6"
-                onPress={() => router.push("./homescreen")}
+                onPress={() => router.push("/home")}
               />
             </View>
           </ScrollView>

@@ -14,11 +14,12 @@
 
 import { StatusBar, View, ImageBackground } from "react-native";
 import React from "react";
+import { images } from "@/constants/images";
 
 export default function Background({ children }) {
   return (
     <ImageBackground
-      source={require("../../assets/images/background.png")} // Ganti dengan path gambar kamu
+      source={images.bg} // Ganti dengan path gambar kamu
       style={{ flex: 1 }}
       resizeMode="cover"
     >

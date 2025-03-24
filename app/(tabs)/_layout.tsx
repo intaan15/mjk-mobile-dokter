@@ -30,7 +30,7 @@ const TabsNavigasi = () => {
         headerShown: false,
         tabBarStyle: {
           backgroundColor: "#025F96",
-          height: 62,
+          height: 64,
           position: "absolute",
           bottom: 0,
           overflow: "hidden",

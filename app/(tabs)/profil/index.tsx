@@ -13,6 +13,7 @@ import {
   FontAwesome5,
   AntDesign,
 } from "@expo/vector-icons";
+import { images } from "@/constants/images";
 
 const DataDummy = {
   id: 1,
@@ -38,7 +39,7 @@ export default function ProfileScreen() {
               </Text>
               <Image
                 className="h-10 w-12"
-                source={require("../../../assets/images/logo.png")}
+                source={images.logo}
                 resizeMode="contain"
               />
             </View>
@@ -47,7 +48,7 @@ export default function ProfileScreen() {
           {/* Foto Profil */}
           <View className="absolute top-28 left-1/2 -translate-x-1/2">
             <Image
-              source={require("../../../assets/images/foto.jpeg")}
+              source={images.foto}
               className="h-32 w-32 rounded-full border-4 border-white"
               resizeMode="cover"
             />
@@ -90,7 +91,7 @@ export default function ProfileScreen() {
               Ganti Password
             </Text>
             <Image
-              source={require("../../../assets/images/Line.png")}
+              source={images.line}
               className="w-full my-2"
             />
             <View className="flex flex-col items-center gap-2 ">
@@ -141,7 +142,7 @@ export default function ProfileScreen() {
             </TouchableOpacity>
 
             <Image
-              source={require("../../../assets/images/Line.png")}
+              source={images.line}
               className="w-full my-2"
             />
 
@@ -158,7 +159,7 @@ export default function ProfileScreen() {
             </TouchableOpacity>
 
             <Image
-              source={require("../../../assets/images/Line.png")}
+              source={images.line}
               className="w-full my-2"
             />
 
@@ -171,7 +172,7 @@ export default function ProfileScreen() {
             </TouchableOpacity>
 
             <Image
-              source={require("../../../assets/images/Line.png")}
+              source={images.line}
               className="w-full my-2"
             />
 
@@ -182,7 +183,7 @@ export default function ProfileScreen() {
             </TouchableOpacity>
 
             <Image
-              source={require("../../../assets/images/Line.png")}
+              source={images.line}
               className="w-full my-2"
             />
 

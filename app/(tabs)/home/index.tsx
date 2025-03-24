@@ -10,6 +10,7 @@ import React from "react";
 import { useRouter } from "expo-router";
 import Navbar from "../../components/navbar";
 import Background from "../../components/background";
+import { images } from "@/constants/images";
 
 const { width } = Dimensions.get("window");
 
@@ -110,7 +111,7 @@ export default function HomeScreen() {
             </Text>
             <Image
               className="h-10 w-12"
-              source={require("../../../assets/images/logo.png")}
+              source={images.logo}
               resizeMode="contain"
             />
           </View>
@@ -126,11 +127,11 @@ export default function HomeScreen() {
               <TouchableOpacity
                 key={chat.id}
                 className="flex flex-col"
-                onPress={() => router.push("./chat")}
+                onPress={() => router.push("/chat/[id]")}
               >
                 <View className="flex flex-row items-center">
                   <Image
-                    source={require("../../../assets/images/foto.jpeg")}
+                    source={images.foto}
                     className="h-16 w-16 rounded-full border border-gray-300"
                     resizeMode="cover"
                   />
@@ -143,7 +144,7 @@ export default function HomeScreen() {
                   </View>
                 </View>
                 <Image
-                  source={require("../../../assets/images/Line.png")}
+                  source={images.line}
                   className="w-full my-2"
                 />
               </TouchableOpacity>
