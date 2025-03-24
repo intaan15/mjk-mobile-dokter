@@ -10,7 +10,7 @@ export default function Index() {
     setTimeout(() => {
       setIsShowSplash(false);
       // router.replace("/screens/signin");
-      router.replace("/home");
+      router.replace("/screens/buatjadwal");
     }, 1000); 
   }, []);
 
