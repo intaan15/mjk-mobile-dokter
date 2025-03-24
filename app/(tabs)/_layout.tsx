@@ -38,7 +38,7 @@ const TabsNavigasi = () => {
       }}
     >
       <Tabs.Screen
-        name="homee/index"
+        name="home/index"
         options={{
           title: "Beranda",
           headerShown: false,
@@ -49,7 +49,7 @@ const TabsNavigasi = () => {
       />
 
       <Tabs.Screen
-        name="jadwall/index"
+        name="jadwal/index"
         options={{
           title: "Jadwal",
           headerShown: false,
@@ -60,7 +60,7 @@ const TabsNavigasi = () => {
       />
 
       <Tabs.Screen
-        name="profill/index"
+        name="profil/index"
         options={{
           title: "Profil",
           headerShown: false,
