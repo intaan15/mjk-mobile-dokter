@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text } from "react-native";
 import DatePickerComponent from "./../components/date";
+import TimeRangePicker from "./../components/time";
 
 const App = () => {
   const [selectedDate, setSelectedDate] = useState(null);
@@ -17,6 +18,7 @@ const App = () => {
           Anda memilih: {selectedDate.toLocaleDateString("id-ID")}
         </Text>
       )}
+      <TimeRangePicker />
     </View>
   );
 };
