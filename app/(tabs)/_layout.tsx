@@ -27,6 +27,7 @@ const TabsNavigasi = () => {
     <Tabs
       screenOptions={{
         tabBarShowLabel: false,
+        headerShown: false,
         tabBarStyle: {
           backgroundColor: "#025F96",
           height: 62,
@@ -37,9 +38,9 @@ const TabsNavigasi = () => {
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="homee/index"
         options={{
-          title: "Home",
+          title: "Beranda",
           headerShown: false,
           tabBarIcon: ({ focused }) => (
             <TabIcon focused={focused} icon="home" title="Beranda" />
@@ -48,7 +49,7 @@ const TabsNavigasi = () => {
       />
 
       <Tabs.Screen
-        name="jadwal"
+        name="jadwall/index"
         options={{
           title: "Jadwal",
           headerShown: false,
@@ -59,7 +60,7 @@ const TabsNavigasi = () => {
       />
 
       <Tabs.Screen
-        name="profil"
+        name="profill/index"
         options={{
           title: "Profil",
           headerShown: false,

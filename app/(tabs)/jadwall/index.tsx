@@ -8,11 +8,11 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import { useRouter } from "expo-router";
-import Navbar from "../components/navbar";
-import Background from "../components/background";
+import Navbar from "../../components/navbar";
+import Background from "../../components/background";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import TabButton from "../components/tabbutton";
+import TabButton from "../../components/tabbutton";
 
 const { width } = Dimensions.get("window");
 
@@ -86,7 +86,7 @@ export default function JadwalScreen() {
           </View>
           <Image
             className="h-10 w-12"
-            source={require("../../assets/images/logo.png")}
+            source={require("../../../assets/images/logo.png")}
             resizeMode="contain"
           />
         </View>
@@ -123,7 +123,7 @@ export default function JadwalScreen() {
                 >
                   <View className="flex flex-row items-center">
                     <Image
-                      source={require("../../assets/images/foto.jpeg")}
+                      source={require("../../../assets/images/foto.jpeg")}
                       className="h-24 w-24 rounded-full border border-gray-300"
                       resizeMode="cover"
                     />
@@ -132,7 +132,7 @@ export default function JadwalScreen() {
                         {jadwal.user}
                       </Text>
                       <Image
-                        source={require("../../assets/images/Line.png")}
+                        source={require("../../../assets/images/Line.png")}
                         className="w-full my-2"
                       />
                       <Text className="font-semibold text-lg text-skyDark">

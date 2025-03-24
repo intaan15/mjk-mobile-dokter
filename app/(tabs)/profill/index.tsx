@@ -6,8 +6,8 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import Navbar from "../components/navbar";
-import Background from "../components/background";
+import Navbar from "../../components/navbar";
+import Background from "../../components/background";
 import {
   MaterialCommunityIcons,
   FontAwesome5,
@@ -38,7 +38,7 @@ export default function ProfileScreen() {
               </Text>
               <Image
                 className="h-10 w-12"
-                source={require("../../assets/images/logo.png")}
+                source={require("../../../assets/images/logo.png")}
                 resizeMode="contain"
               />
             </View>
@@ -47,7 +47,7 @@ export default function ProfileScreen() {
           {/* Foto Profil */}
           <View className="absolute top-28 left-1/2 -translate-x-1/2">
             <Image
-              source={require("../../assets/images/foto.jpeg")}
+              source={require("../../../assets/images/foto.jpeg")}
               className="h-32 w-32 rounded-full border-4 border-white"
               resizeMode="cover"
             />
@@ -90,7 +90,7 @@ export default function ProfileScreen() {
               Ganti Password
             </Text>
             <Image
-              source={require("../../assets/images/Line.png")}
+              source={require("../../../assets/images/Line.png")}
               className="w-full my-2"
             />
             <View className="flex flex-col items-center gap-2 ">
@@ -141,7 +141,7 @@ export default function ProfileScreen() {
             </TouchableOpacity>
 
             <Image
-              source={require("../../assets/images/Line.png")}
+              source={require("../../../assets/images/Line.png")}
               className="w-full my-2"
             />
 
@@ -158,7 +158,7 @@ export default function ProfileScreen() {
             </TouchableOpacity>
 
             <Image
-              source={require("../../assets/images/Line.png")}
+              source={require("../../../assets/images/Line.png")}
               className="w-full my-2"
             />
 
@@ -171,7 +171,7 @@ export default function ProfileScreen() {
             </TouchableOpacity>
 
             <Image
-              source={require("../../assets/images/Line.png")}
+              source={require("../../../assets/images/Line.png")}
               className="w-full my-2"
             />
 
@@ -182,7 +182,7 @@ export default function ProfileScreen() {
             </TouchableOpacity>
 
             <Image
-              source={require("../../assets/images/Line.png")}
+              source={require("../../../assets/images/Line.png")}
               className="w-full my-2"
             />
 

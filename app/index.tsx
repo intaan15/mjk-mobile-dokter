@@ -9,8 +9,8 @@ export default function Index() {
   useEffect(() => {
     setTimeout(() => {
       setIsShowSplash(false);
-      router.replace("./(tabs)"); // Pindah ke halaman SignIn
-    }, 0);
+      router.replace("/homee"); // Arahkan ke screen pertama di tabs
+    }, 1000); // Ganti waktu delay sesuai kebutuhan
   }, []);
 
   return <>{isShowSplash ? <SplashScreen /> : null}</>;

@@ -8,8 +8,8 @@ import {
 } from "react-native";
 import React from "react";
 import { useRouter } from "expo-router";
-import Navbar from "../components/navbar";
-import Background from "../components/background";
+import Navbar from "../../components/navbar";
+import Background from "../../components/background";
 
 const { width } = Dimensions.get("window");
 
@@ -110,7 +110,7 @@ export default function HomeScreen() {
             </Text>
             <Image
               className="h-10 w-12"
-              source={require("../../assets/images/logo.png")}
+              source={require("../../../assets/images/logo.png")}
               resizeMode="contain"
             />
           </View>
@@ -130,7 +130,7 @@ export default function HomeScreen() {
               >
                 <View className="flex flex-row items-center">
                   <Image
-                    source={require("../../assets/images/foto.jpeg")}
+                    source={require("../../../assets/images/foto.jpeg")}
                     className="h-16 w-16 rounded-full border border-gray-300"
                     resizeMode="cover"
                   />
@@ -143,7 +143,7 @@ export default function HomeScreen() {
                   </View>
                 </View>
                 <Image
-                  source={require("../../assets/images/Line.png")}
+                  source={require("../../../assets/images/Line.png")}
                   className="w-full my-2"
                 />
               </TouchableOpacity>
