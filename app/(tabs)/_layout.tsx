@@ -60,7 +60,7 @@ const TabsNavigasi = () => {
       />
 
       <Tabs.Screen
-        name="profil/index"
+        name="profil"
         options={{
           title: "Profil",
           headerShown: false,

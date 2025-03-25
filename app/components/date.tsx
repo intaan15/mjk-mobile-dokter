@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { View, Button, Text } from "react-native";
+import { View, TouchableOpacity, Text } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 const DatePickerComponent = ({ label, onDateChange }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -23,14 +24,17 @@ const DatePickerComponent = ({ label, onDateChange }) => {
   };
 
   return (
-    <View style={{ alignItems: "center", marginBottom: 20 }}>
-      <Text style={{ fontSize: 18, marginBottom: 10 }}>
-        {label}: {formatDate(selectedDate)}
-      </Text>
-      <Button
-        title="Pilih Tanggal"
+    <View className="flex flex-col items-start justify-center">
+      <TouchableOpacity
+        className="flex flex-row items-center text-skyDark"
         onPress={() => setDatePickerVisibility(true)}
-      />
+      >
+        <MaterialIcons name="date-range" size={24} color="#025F96" />
+        <Text className=" ml-4 text-lg text-skyDark">
+          {formatDate(selectedDate)}
+        </Text>
+      </TouchableOpacity>
+
       <DateTimePickerModal
         isVisible={isDatePickerVisible}
         mode="date"

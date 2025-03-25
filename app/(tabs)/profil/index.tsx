@@ -14,6 +14,7 @@ import {
   AntDesign,
 } from "@expo/vector-icons";
 import { images } from "@/constants/images";
+import { useRouter } from "expo-router";
 
 const DataDummy = {
   id: 1,
@@ -25,6 +26,7 @@ const DataDummy = {
 };
 
 export default function ProfileScreen() {
+  const router = useRouter();
   return (
     <Background>
       <View className="flex-1">
@@ -90,10 +92,7 @@ export default function ProfileScreen() {
             <Text className="font-bold text-lg text-skyDark mt-4">
               Ganti Password
             </Text>
-            <Image
-              source={images.line}
-              className="w-full my-2"
-            />
+            <Image source={images.line} className="w-full my-2" />
             <View className="flex flex-col items-center gap-2 ">
               <TextInput
                 placeholder="Password Lama"
@@ -141,10 +140,7 @@ export default function ProfileScreen() {
               </Text>
             </TouchableOpacity>
 
-            <Image
-              source={images.line}
-              className="w-full my-2"
-            />
+            <Image source={images.line} className="w-full my-2" />
 
             {/* Hapus Foto Profil */}
             <TouchableOpacity className="flex flex-row items-center gap-2">
@@ -158,23 +154,20 @@ export default function ProfileScreen() {
               </Text>
             </TouchableOpacity>
 
-            <Image
-              source={images.line}
-              className="w-full my-2"
-            />
+            <Image source={images.line} className="w-full my-2" />
 
             {/* Ubah Jadwal */}
-            <TouchableOpacity className="flex flex-row items-center gap-2">
+            <TouchableOpacity
+              className="flex flex-row items-center gap-2"
+              onPress={() => router.push("/profil/ubahjadwal")}
+            >
               <FontAwesome5 name="clipboard-list" size={24} color="black" />
               <Text className="font-bold text-lg text-skyDark">
                 Ubah Jadwal
               </Text>
             </TouchableOpacity>
 
-            <Image
-              source={images.line}
-              className="w-full my-2"
-            />
+            <Image source={images.line} className="w-full my-2" />
 
             {/* Hapus Akun */}
             <TouchableOpacity className="flex flex-row items-center gap-2">
@@ -182,10 +175,7 @@ export default function ProfileScreen() {
               <Text className="font-bold text-lg text-red-500">Hapus Akun</Text>
             </TouchableOpacity>
 
-            <Image
-              source={images.line}
-              className="w-full my-2"
-            />
+            <Image source={images.line} className="w-full my-2" />
 
             {/* Log Out */}
             <TouchableOpacity className="flex flex-row items-center gap-2">
@@ -198,3 +188,4 @@ export default function ProfileScreen() {
     </Background>
   );
 }
+
