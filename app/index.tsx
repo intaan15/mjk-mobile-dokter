@@ -9,8 +9,8 @@ export default function Index() {
   useEffect(() => {
     setTimeout(() => {
       setIsShowSplash(false);
-      // router.replace("/screens/signin");
-      router.replace("/screens/buatjadwal");
+      router.replace("/screens/signin");
+      // router.replace("/home");
     }, 1000); 
   }, []);
 
