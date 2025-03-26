@@ -8,6 +8,9 @@ import {
 } from "react-native";
 import Navbar from "../../components/navbar";
 import Background from "../../components/background";
+import Modal2 from "../../components/modal2";
+import React, { useState } from "react";
+
 import {
   MaterialCommunityIcons,
   FontAwesome5,
@@ -27,6 +30,36 @@ const DataDummy = {
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [modalConfig, setModalConfig] = useState({
+    message: "",
+    confirmText: "",
+    onConfirm: () => {},
+  });
+
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
+
+  // Fungsi untuk mengatur modal sesuai aksi yang diinginkan
+  const showDeleteModal = () => {
+    setModalConfig({
+      message: "Anda yakin akan menghapus akun?",
+      confirmText: "Hapus",
+      onConfirm: () => console.log("Akun dihapus"),
+    });
+    toggleModal();
+  };
+
+  const showLogoutModal = () => {
+    setModalConfig({
+      message: "Anda yakin ingin keluar?",
+      confirmText: "Keluar",
+      onConfirm: () => console.log("Logout sukses"),
+    });
+    toggleModal();
+  };
+
   return (
     <Background>
       <View className="flex-1">
@@ -170,18 +203,35 @@ export default function ProfileScreen() {
             <Image source={images.line} className="w-full my-2" />
 
             {/* Hapus Akun */}
-            <TouchableOpacity className="flex flex-row items-center gap-2">
-              <AntDesign name="delete" size={24} color="red" />
-              <Text className="font-bold text-lg text-red-500">Hapus Akun</Text>
-            </TouchableOpacity>
+            <View className="flex-1 justify-center">
+              <TouchableOpacity
+                className="flex flex-row items-center gap-2"
+                onPress={showDeleteModal}
+              >
+                <AntDesign name="delete" size={24} color="red" />
+                <Text className="font-bold text-lg text-red-500">
+                  Hapus Akun
+                </Text>
+              </TouchableOpacity>
 
-            <Image source={images.line} className="w-full my-2" />
+              <Image source={images.line} className="w-full my-2" />
 
-            {/* Log Out */}
-            <TouchableOpacity className="flex flex-row items-center gap-2">
-              <AntDesign name="logout" size={24} color="red" />
-              <Text className="font-bold text-lg text-red-500">Log Out</Text>
-            </TouchableOpacity>
+              {/* Tombol Logout */}
+              <TouchableOpacity
+                className="flex flex-row items-center gap-2"
+                onPress={showLogoutModal}
+              >
+                <AntDesign name="logout" size={24} color="red" />
+                <Text className="font-bold text-lg text-red-500">Log Out</Text>
+              </TouchableOpacity>
+              <Modal2
+                isModalVisible={isModalVisible}
+                toggleModal={toggleModal}
+                message={modalConfig.message}
+                confirmText={modalConfig.confirmText}
+                onConfirm={modalConfig.onConfirm}
+              />
+            </View>
           </View>
         </ScrollView>
       </View>

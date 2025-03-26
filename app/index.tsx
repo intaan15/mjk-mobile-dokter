@@ -10,7 +10,7 @@ export default function Index() {
     setTimeout(() => {
       setIsShowSplash(false);
       // router.replace("/screens/signin");
-      router.replace("/screens/modal2");
+      router.replace("/profil");
     }, 0); 
   }, []);
 
