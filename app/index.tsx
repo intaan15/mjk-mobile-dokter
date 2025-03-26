@@ -10,8 +10,8 @@ export default function Index() {
     setTimeout(() => {
       setIsShowSplash(false);
       // router.replace("/screens/signin");
-      router.replace("/profil");
-    }, 1000); 
+      router.replace("/screens/modal2");
+    }, 0); 
   }, []);
 
   return <>{isShowSplash ? <SplashScreen /> : null}</>;
