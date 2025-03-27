@@ -10,6 +10,7 @@ import Navbar from "../../components/navbar";
 import Background from "../../components/background";
 import Modal2 from "../../components/modal2";
 import React, { useState } from "react";
+import TimeRangePicker from "@/components/time";
 
 import {
   MaterialCommunityIcons,
@@ -223,6 +224,7 @@ export default function ProfileScreen() {
               >
                 <AntDesign name="logout" size={24} color="red" />
                 <Text className="font-bold text-lg text-red-500">Log Out</Text>
+                
               </TouchableOpacity>
               <Modal2
                 isModalVisible={isModalVisible}

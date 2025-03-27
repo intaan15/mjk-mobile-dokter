@@ -6,10 +6,23 @@ import Background from "@/components/background";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { images } from "@/constants/images";
 import { useRouter } from "expo-router";
+import Modal1 from "../../components/modal1";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+
 
 const App = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const router = useRouter();
+  const [isModalVisible, setModalVisible] = useState(false);
+    const [modalConfig, setModalConfig] = useState({
+      message: "",
+      confirmText: "",
+      onConfirm: () => {},
+    });
+  
+    const toggleModal = () => {
+      setModalVisible(!isModalVisible);
+    };
 
   return (
     <Background>
@@ -27,6 +40,7 @@ const App = () => {
           resizeMode="contain"
         />
       </View>
+
       {/* main  */}
       <ScrollView
         className="px-6 py-4 mt-[-30px]"
@@ -40,7 +54,16 @@ const App = () => {
             />
           </View>
           <Image source={images.line} className="w-full my-2" />
-          <View className="flex flex-row flex-wrap gap-2 justify-center">
+          <TouchableOpacity className="w-full flex flex-row items-center gap-4">
+            <MaterialCommunityIcons
+              name="clock-edit-outline"
+              size={24}
+              color="#025F96"
+            />
+            <Text className=" text-skyDark text-lg">Ubah Jam Praktek</Text>
+          </TouchableOpacity>
+
+          <View className="flex flex-row flex-wrap gap-2 justify-center mt-2">
             {[
               "09:00",
               "09:30",
@@ -64,12 +87,7 @@ const App = () => {
           </View>
 
           <View className="flex w-full items-center">
-            <Button
-              text="Ubah Jadwal"
-              variant="success"
-              className="w-40 mt-6 text-center"
-              onPress={() => router.push("./homescreen")}
-            />
+            <Modal1 />
           </View>
         </View>
       </ScrollView>

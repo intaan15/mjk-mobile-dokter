@@ -1,7 +1,14 @@
 import React, { useState } from "react";
-import { Button, Text, View, Image, TouchableOpacity } from "react-native";
+import {
+  Button,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  StatusBar,
+} from "react-native";
 import Modal from "react-native-modal";
-import {images} from "@/constants/images";
+import { images } from "@/constants/images";
 
 function Modal1() {
   const [isModalVisible, setModalVisible] = useState(false);
@@ -12,9 +19,12 @@ function Modal1() {
 
   return (
     <View className="flex-1 justify-center items-center">
-      <Button title="Show modal" onPress={toggleModal} />
+      <TouchableOpacity className=" bg-skyDark py-4 px-8 rounded-xl mt-6" onPress={toggleModal}>
+        <Text className="text-white font-bold">Simpan Perubahan</Text>
+      </TouchableOpacity>
 
       <Modal isVisible={isModalVisible}>
+        <StatusBar translucent backgroundColor="rgba(0, 0, 0, 0.7)" />
         <View className="flex-1 justify-center items-center">
           <View className="bg-white p-5 rounded-xl w-3/4 justify-center items-center">
             <Text className=" text-skyDark font-bold mb-4">
