@@ -1,31 +1,43 @@
 import React, { useState } from "react";
-import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  StatusBar,
+} from "react-native";
 import DatePickerComponent from "../../components/date";
 import Button from "../../components/button";
 import Background from "@/components/background";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { images } from "@/constants/images";
 import { useRouter } from "expo-router";
-import Modal1 from "../../components/modal1";
+import {Modal1}  from "@/components/modal1";
+import Modal3 from "@/components/modal3";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
-
 const App = () => {
+  const [isOpen, setIsOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const router = useRouter();
   const [isModalVisible, setModalVisible] = useState(false);
-    const [modalConfig, setModalConfig] = useState({
-      message: "",
-      confirmText: "",
-      onConfirm: () => {},
-    });
-  
-    const toggleModal = () => {
-      setModalVisible(!isModalVisible);
-    };
+  const [modalConfig, setModalConfig] = useState({
+    message: "",
+    confirmText: "",
+    onConfirm: () => {},
+  });
+
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
 
   return (
     <Background>
+      <StatusBar
+        translucent
+        backgroundColor={isModalVisible ? "rgba(0, 0, 0, 0.5)" : "transparent"}
+      />
       {/* Header */}
       <View className="flex flex-row justify-between items-center mb-4 w-full px-5 py-5 pt-10">
         <View className="flex flex-row items-center">
@@ -54,14 +66,17 @@ const App = () => {
             />
           </View>
           <Image source={images.line} className="w-full my-2" />
-          <TouchableOpacity className="w-full flex flex-row items-center gap-4">
-            <MaterialCommunityIcons
-              name="clock-edit-outline"
-              size={24}
-              color="#025F96"
-            />
-            <Text className=" text-skyDark text-lg">Ubah Jam Praktek</Text>
-          </TouchableOpacity>
+          <View>
+            <TouchableOpacity className="w-full flex flex-row items-center gap-4">
+              <MaterialCommunityIcons
+                name="clock-edit-outline"
+                size={24}
+                color="#025F96"
+              />
+              <Text className=" text-skyDark text-lg">Ubah Jam Praktek</Text>
+            </TouchableOpacity>
+            {/* <Modal3 isModalVisible={isModalVisible} toggleModal={toggleModal} /> */}
+          </View>
 
           <View className="flex flex-row flex-wrap gap-2 justify-center mt-2">
             {[
@@ -86,8 +101,28 @@ const App = () => {
             ))}
           </View>
 
-          <View className="flex w-full items-center">
-            <Modal1 />
+          <View className="flex-1 justify-center items-center">
+            <TouchableOpacity
+              onPress={() => setIsOpen(true)}
+              className="bg-skyDark px-4 py-4 rounded-xl mt-6"
+            >
+              <Text className="text-white font-bold">Simpan Perubahan</Text>
+            </TouchableOpacity>
+
+            <Modal1 isOpen={isOpen}>
+              <View className="bg-white p-5 rounded-xl w-3/4 justify-center items-center">
+                <Text className="text-skyDark font-bold mb-4">
+                  Jadwal Anda Berhasil Diubah
+                </Text>
+                <Image source={images.line} className="w-full my-3" />
+                <TouchableOpacity
+                  onPress={() => setIsOpen(false)}
+                  className="bg-transparent px-4 py-2 rounded-md"
+                >
+                  <Text className="text-skyDark font-bold">Oke</Text>
+                </TouchableOpacity>
+              </View>
+            </Modal1>
           </View>
         </View>
       </ScrollView>

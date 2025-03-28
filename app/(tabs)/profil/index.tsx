@@ -5,6 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
+  StatusBar,
 } from "react-native";
 import Navbar from "../../components/navbar";
 import Background from "../../components/background";
@@ -205,6 +206,13 @@ export default function ProfileScreen() {
 
             {/* Hapus Akun */}
             <View className="flex-1 justify-center">
+              {/* <StatusBar
+                            translucent
+                            backgroundColor={
+                              isModalVisible ? "rgba(0, 0, 0, 0.5)" : "transparent"
+                            }
+                            
+                          /> */}
               <TouchableOpacity
                 className="flex flex-row items-center gap-2"
                 onPress={showDeleteModal}
@@ -224,10 +232,9 @@ export default function ProfileScreen() {
               >
                 <AntDesign name="logout" size={24} color="red" />
                 <Text className="font-bold text-lg text-red-500">Log Out</Text>
-                
               </TouchableOpacity>
               <Modal2
-                isModalVisible={isModalVisible}
+                isOpen={isModalVisible}
                 toggleModal={toggleModal}
                 message={modalConfig.message}
                 confirmText={modalConfig.confirmText}
