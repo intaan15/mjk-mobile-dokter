@@ -2,14 +2,12 @@ import React, { useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 
-const TimeRangePicker = () => {
+const TimeRangePicker = ({ onTimeSlotsChange }) => {
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
   const [isPickerVisible, setPickerVisibility] = useState(false);
   const [isPickingStartTime, setIsPickingStartTime] = useState(true);
-  const [isSaved, setIsSaved] = useState(false); // Untuk menampilkan label setelah simpan
 
-  // Format waktu ke "HH:mm" (24 jam)
   const formatTime = (date) => {
     return date
       ? date.toLocaleTimeString("id-ID", {
@@ -20,45 +18,39 @@ const TimeRangePicker = () => {
       : "--:--";
   };
 
-  // Hitung total jam kerja
-  const calculateTotalTime = () => {
-    if (!startTime || !endTime) return null;
+  const generateTimeSlots = () => {
+    if (!startTime || !endTime) return [];
 
-    const start = new Date(startTime);
-    const end = new Date(endTime);
+    let slots = [];
+    let currentTime = new Date(startTime);
+    let end = new Date(endTime);
 
-    let totalMinutes =
-      end.getHours() * 60 +
-      end.getMinutes() -
-      (start.getHours() * 60 + start.getMinutes());
-
-    if (totalMinutes < 0) {
-      totalMinutes += 24 * 60; // Jika endTime lebih kecil dari startTime, berarti melewati tengah malam
+    // Handle jika endTime lebih kecil dari startTime (melewati tengah malam)
+    if (end < currentTime) {
+      end.setDate(end.getDate() + 1);
     }
 
-    const hours = Math.floor(totalMinutes / 60);
-    const minutes = totalMinutes % 60;
+    while (currentTime <= end) {
+      slots.push(formatTime(currentTime));
+      currentTime.setMinutes(currentTime.getMinutes() + 15);
+    }
 
-    return `${hours} jam ${minutes} menit`;
+    return slots;
+  };
+
+  const handleSave = () => {
+    const slots = generateTimeSlots();
+    if (slots.length > 0) {
+      onTimeSlotsChange(slots); // Send the time slots to parent component
+    }
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text style={{ fontSize: 18, marginBottom: 10 }}>
-        Pilih Rentang Waktu
-      </Text>
-
-      {/* Pilihan Waktu Awal & Akhir */}
-      <View
-        style={{ flexDirection: "row", alignItems: "center", marginBottom: 20 }}
-      >
+    <View className="w-full p-4 flex items-center justify-center">
+      <Text className="text-lg mb-4">Pilih Rentang Waktu</Text>
+      <View className="flex-row items-center mb-4">
         <TouchableOpacity
-          style={{
-            padding: 10,
-            borderWidth: 1,
-            borderRadius: 5,
-            marginRight: 10,
-          }}
+          className="p-2 border border-gray-500 rounded-lg mr-4"
           onPress={() => {
             setIsPickingStartTime(true);
             setPickerVisibility(true);
@@ -66,16 +58,9 @@ const TimeRangePicker = () => {
         >
           <Text>⏰ {formatTime(startTime)}</Text>
         </TouchableOpacity>
-
-        <Text style={{ fontSize: 18 }}> - </Text>
-
+        <Text className="text-lg"> - </Text>
         <TouchableOpacity
-          style={{
-            padding: 10,
-            borderWidth: 1,
-            borderRadius: 5,
-            marginLeft: 10,
-          }}
+          className="p-2 border border-gray-500 rounded-lg ml-4"
           onPress={() => {
             setIsPickingStartTime(false);
             setPickerVisibility(true);
@@ -85,33 +70,16 @@ const TimeRangePicker = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Tombol Simpan */}
       <TouchableOpacity
-        style={{
-          padding: 10,
-          backgroundColor: startTime && endTime ? "#4CAF50" : "gray",
-          borderRadius: 5,
-        }}
-        disabled={!startTime || !endTime} // Disable tombol jika waktu belum dipilih
-        onPress={() => setIsSaved(true)}
+        className={`p-3 rounded-lg ${
+          startTime && endTime ? "bg-skyDark" : "bg-gray-400"
+        }`}
+        disabled={!startTime || !endTime}
+        onPress={handleSave}
       >
-        <Text style={{ color: "white", fontSize: 16 }}>Simpan</Text>
+        <Text className="text-white text-lg">Simpan</Text>
       </TouchableOpacity>
 
-      {/* Label Jam Kerja & Total Waktu */}
-      {isSaved && (
-        <View style={{ marginTop: 20, alignItems: "center" }}>
-          <Text style={{ fontSize: 16, color: "blue" }}>
-            Jam kerja Anda dari {formatTime(startTime)} hingga{" "}
-            {formatTime(endTime)}
-          </Text>
-          <Text style={{ fontSize: 16, color: "green", marginTop: 5 }}>
-            Total waktu kerja: {calculateTotalTime()}
-          </Text>
-        </View>
-      )}
-
-      {/* DateTime Picker */}
       <DateTimePickerModal
         isVisible={isPickerVisible}
         mode="time"
