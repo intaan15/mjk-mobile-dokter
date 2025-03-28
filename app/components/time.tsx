@@ -4,8 +4,8 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 const TimeRangePicker = ({ onTimeSlotsChange, onClose }) => {
-  const [startTime, setStartTime] = useState(null);
-  const [endTime, setEndTime] = useState(null);
+  const [startTime, setStartTime] = useState<Date | null>(null);
+  const [endTime, setEndTime] = useState<Date | null>(null);
   const [isPickerVisible, setPickerVisibility] = useState(false);
   const [isPickingStartTime, setIsPickingStartTime] = useState(true);
 
@@ -22,7 +22,7 @@ const TimeRangePicker = ({ onTimeSlotsChange, onClose }) => {
   const generateTimeSlots = () => {
     if (!startTime || !endTime) return [];
 
-    let slots = [];
+    let slots: string[] = [];
     let currentTime = new Date(startTime);
     let end = new Date(endTime);
 
