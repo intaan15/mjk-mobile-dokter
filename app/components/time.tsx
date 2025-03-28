@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
-const TimeRangePicker = ({ onTimeSlotsChange }) => {
+const TimeRangePicker = ({ onTimeSlotsChange, onClose }) => {
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
   const [isPickerVisible, setPickerVisibility] = useState(false);
@@ -47,6 +48,14 @@ const TimeRangePicker = ({ onTimeSlotsChange }) => {
 
   return (
     <View className="w-full p-4 flex items-center justify-center">
+      {/* Close Button in Top Right Corner */}
+      <TouchableOpacity
+        className="absolute top-0 right-0 p-2"
+        onPress={onClose}
+      >
+        <MaterialIcons name="close" size={20} color="#025F96" />
+      </TouchableOpacity>
+
       <Text className="text-lg mb-4">Pilih Rentang Waktu</Text>
       <View className="flex-row items-center mb-4">
         <TouchableOpacity

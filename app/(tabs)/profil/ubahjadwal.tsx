@@ -78,7 +78,13 @@ const App = () => {
           {/* Modal Pilih Jam */}
           <Modal3 isOpen={isModal3Open} onClose={() => setIsModal3Open(false)}>
             <View className="bg-white p-5 rounded-xl w-3/4 justify-center items-center">
-              <TimeRangePicker onTimeSlotsChange={handleTimeSlotsChange} />
+              <TimeRangePicker
+                onTimeSlotsChange={(slots) => {
+                  setTimeSlots(slots);
+                  setIsModal3Open(false);
+                }}
+                onClose={() => setIsModal3Open(false)}
+              />
             </View>
           </Modal3>
 
@@ -92,7 +98,9 @@ const App = () => {
                     key={index}
                     className="bg-white border border-skyDark rounded-xl p-2 min-w-[80px] flex justify-center items-center"
                   >
-                    <Text className="text-lg font-semibold text-skyDark">{time}</Text>
+                    <Text className="text-lg font-semibold text-skyDark">
+                      {time}
+                    </Text>
                   </View>
                 ))}
               </View>
