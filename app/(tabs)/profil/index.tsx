@@ -11,7 +11,7 @@ import Navbar from "../../components/navbar";
 import Background from "../../components/background";
 import Modal2 from "../../components/modal2";
 import React, { useState } from "react";
-import TimeRangePicker from "@/components/time";
+import TimeRangePicker from "@/components/timepicker";
 
 import {
   MaterialCommunityIcons,
@@ -247,4 +247,3 @@ export default function ProfileScreen() {
     </Background>
   );
 }
-

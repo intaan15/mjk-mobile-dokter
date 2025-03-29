@@ -7,7 +7,7 @@ import {
   ScrollView,
   StatusBar,
 } from "react-native";
-import DatePickerComponent from "@/components/date";
+import DatePickerComponent from "@/components/datepicker";
 import Background from "@/components/background";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { images } from "@/constants/images";
@@ -15,7 +15,7 @@ import { useRouter } from "expo-router";
 import { Modal1 } from "@/components/modal1";
 import { Modal3 } from "@/components/modal3";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import TimeRangePicker from "@/components/time";
+import TimeRangePicker from "@/components/timepicker";
 
 const App = () => {
   const [isModal1Open, setIsModal1Open] = useState(false);
