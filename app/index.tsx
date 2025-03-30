@@ -9,8 +9,8 @@ export default function Index() {
   useEffect(() => {
     setTimeout(() => {
       setIsShowSplash(false);
-      router.replace("/components/imagepicker");
-      // router.replace("/profil");
+      // router.replace("/components/imagepicker");
+      router.replace("/profil");
     }, 0); 
   }, []);
 

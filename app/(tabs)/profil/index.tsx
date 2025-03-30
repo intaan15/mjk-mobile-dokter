@@ -12,7 +12,6 @@ import Background from "../../components/background";
 import Modal2 from "../../components/modal2";
 import React, { useState } from "react";
 import TimeRangePicker from "@/components/timepicker";
-
 import {
   MaterialCommunityIcons,
   FontAwesome5,
@@ -20,6 +19,8 @@ import {
 } from "@expo/vector-icons";
 import { images } from "@/constants/images";
 import { useRouter } from "expo-router";
+import ImagePickerComponent from "@/components/imagepicker";
+import ProfileImageModal from "@/components/modal4";
 
 const DataDummy = {
   id: 1,
@@ -62,6 +63,13 @@ export default function ProfileScreen() {
     toggleModal();
   };
 
+  const [profileImage, setProfileImage] = useState(null);
+  const [modalVisible, setModalImageVisible] = useState(false);
+
+  const { openGallery, openCamera } = ImagePickerComponent({
+    onImageSelected: setProfileImage,
+  });
+
   return (
     <Background>
       <View className="flex-1">
@@ -84,11 +92,15 @@ export default function ProfileScreen() {
 
           {/* Foto Profil */}
           <View className="absolute top-28 left-1/2 -translate-x-1/2">
-            <Image
-              source={images.foto}
-              className="h-32 w-32 rounded-full border-4 border-white"
-              resizeMode="cover"
-            />
+            {/* Tampilkan Foto Profil */}
+            {profileImage ? (
+              <Image
+                source={{ uri: profileImage }}
+                className="w-32 h-32 rounded-full mb-4"
+              />
+            ) : (
+              <Text>Belum ada foto profil</Text>
+            )}
           </View>
 
           {/* Card Profil */}
@@ -164,7 +176,10 @@ export default function ProfileScreen() {
             }}
           >
             {/* Ganti Foto Profil */}
-            <TouchableOpacity className="flex flex-row items-center gap-2">
+            <TouchableOpacity
+              className="flex flex-row items-center gap-2"
+              onPress={() => setModalImageVisible(true)}
+            >
               <MaterialCommunityIcons
                 name="image-edit-outline"
                 size={24}
@@ -178,7 +193,11 @@ export default function ProfileScreen() {
             <Image source={images.line} className="w-full my-2" />
 
             {/* Hapus Foto Profil */}
-            <TouchableOpacity className="flex flex-row items-center gap-2">
+            <TouchableOpacity
+              className="flex flex-row items-center gap-2"
+              onPress={() => setProfileImage(null)}
+              disabled={!profileImage}
+            >
               <MaterialCommunityIcons
                 name="image-remove"
                 size={24}
@@ -206,13 +225,7 @@ export default function ProfileScreen() {
 
             {/* Hapus Akun */}
             <View className="flex-1 justify-center">
-              {/* <StatusBar
-                            translucent
-                            backgroundColor={
-                              isModalVisible ? "rgba(0, 0, 0, 0.5)" : "transparent"
-                            }
-                            
-                          /> */}
+              
               <TouchableOpacity
                 className="flex flex-row items-center gap-2"
                 onPress={showDeleteModal}
@@ -240,6 +253,18 @@ export default function ProfileScreen() {
                 confirmText={modalConfig.confirmText}
                 onConfirm={modalConfig.onConfirm}
               />
+              <ProfileImageModal
+                      visible={modalVisible}
+                      onClose={() => setModalImageVisible(false)}
+                      onPickImage={() => {
+                        openGallery();
+                        setModalImageVisible(false);
+                      }}
+                      onOpenCamera={() => {
+                        openCamera();
+                        setModalImageVisible(false);
+                      }}
+                    />
             </View>
           </View>
         </ScrollView>
