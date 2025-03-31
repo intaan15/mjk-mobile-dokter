@@ -22,6 +22,7 @@ import { useRouter } from "expo-router";
 import ImagePickerComponent from "@/components/imagepicker";
 import ProfileImageModal from "@/components/modal4";
 import Settings from "@/components/settings";
+import { ProfileProvider, useProfile } from "@/components/profilcontext";
 
 const DataDummy = {
   id: 1,
@@ -33,6 +34,15 @@ const DataDummy = {
 };
 
 export default function ProfileScreen() {
+  return (
+    <ProfileProvider>
+      <App />
+    </ProfileProvider>
+  );
+}
+
+function App() {  
+  const { profileImage } = useProfile();
   const router = useRouter();
     const [isModalVisible, setModalVisible] = useState(false);
     const [modalConfig, setModalConfig] = useState({
@@ -64,12 +74,6 @@ export default function ProfileScreen() {
       toggleModal();
     };
   
-    const [profileImage, setProfileImage] = useState(null);
-    const [modalVisible, setModalImageVisible] = useState(false);
-  
-    const { openGallery, openCamera } = ImagePickerComponent({
-      onImageSelected: setProfileImage,
-    });
 
   return (
     <Background>
@@ -93,7 +97,6 @@ export default function ProfileScreen() {
 
           {/* Foto Profil */}
           <View className="absolute top-28 left-1/2 -translate-x-1/2">
-            {/* Tampilkan Foto Profil */}
             {profileImage ? (
               <Image
                 source={{ uri: profileImage }}
@@ -167,107 +170,7 @@ export default function ProfileScreen() {
           </View>
 
           {/* Card Settings  */}
-          {/* <Settings/> */}
-          <View
-            className="bg-white rounded-xl mx-10 mt-10 p-6 mb-24"
-            style={{
-              shadowOffset: { width: 0, height: -20 },
-              shadowOpacity: 0.2,
-              shadowRadius: 11,
-              elevation: 15,
-            }}
-          >
-            {/* Ganti Foto Profil */}
-            <TouchableOpacity
-              className="flex flex-row items-center gap-2"
-              onPress={() => setModalImageVisible(true)}
-            >
-              <MaterialCommunityIcons
-                name="image-edit-outline"
-                size={24}
-                color="black"
-              />
-              <Text className="font-bold text-lg text-skyDark">
-                Ganti Foto Profil
-              </Text>
-            </TouchableOpacity>
-
-            <Image source={images.line} className="w-full my-2" />
-
-            {/* Hapus Foto Profil */}
-            <TouchableOpacity
-              className="flex flex-row items-center gap-2"
-              onPress={() => setProfileImage(null)}
-              disabled={!profileImage}
-            >
-              <MaterialCommunityIcons
-                name="image-remove"
-                size={24}
-                color="black"
-              />
-              <Text className="font-bold text-lg text-skyDark">
-                Hapus Foto Profil
-              </Text>
-            </TouchableOpacity>
-
-            <Image source={images.line} className="w-full my-2" />
-
-            {/* Ubah Jadwal */}
-            <TouchableOpacity
-              className="flex flex-row items-center gap-2"
-              onPress={() => router.push("/profil/ubahjadwal")}
-            >
-              <FontAwesome5 name="clipboard-list" size={24} color="black" />
-              <Text className="font-bold text-lg text-skyDark">
-                Ubah Jadwal
-              </Text>
-            </TouchableOpacity>
-
-            <Image source={images.line} className="w-full my-2" />
-
-            {/* Hapus Akun */}
-            <View className="flex-1 justify-center">
-              <TouchableOpacity
-                className="flex flex-row items-center gap-2"
-                onPress={showDeleteModal}
-              >
-                <AntDesign name="delete" size={24} color="red" />
-                <Text className="font-bold text-lg text-red-500">
-                  Hapus Akun
-                </Text>
-              </TouchableOpacity>
-
-              <Image source={images.line} className="w-full my-2" />
-
-              {/* Tombol Logout */}
-              <TouchableOpacity
-                className="flex flex-row items-center gap-2"
-                onPress={showLogoutModal}
-              >
-                <AntDesign name="logout" size={24} color="red" />
-                <Text className="font-bold text-lg text-red-500">Log Out</Text>
-              </TouchableOpacity>
-              <Modal2
-                isOpen={isModalVisible}
-                toggleModal={toggleModal}
-                message={modalConfig.message}
-                confirmText={modalConfig.confirmText}
-                onConfirm={modalConfig.onConfirm}
-              />
-              <ProfileImageModal
-                visible={modalVisible}
-                onClose={() => setModalImageVisible(false)}
-                onPickImage={() => {
-                  openGallery();
-                  setModalImageVisible(false);
-                }}
-                onOpenCamera={() => {
-                  openCamera();
-                  setModalImageVisible(false);
-                }}
-              />
-            </View>
-          </View>
+          <Settings/>
         </ScrollView>
       </View>
     </Background>
