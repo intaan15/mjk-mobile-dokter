@@ -60,7 +60,9 @@ export default function Settings() {
     toggleModal();
   };
 
-  const { profileImage, setProfileImage } = useProfile();
+  const profileContext = useProfile();
+  const profileImage = profileContext?.profileImage;
+  const setProfileImage = profileContext?.setProfileImage;
   const [modalVisible, setModalImageVisible] = useState(false);
 
   const { openGallery, openCamera } = ImagePickerComponent({
@@ -97,7 +99,7 @@ export default function Settings() {
 
         <TouchableOpacity
           className="flex flex-row items-center gap-2"
-          onPress={() => setProfileImage(null)}
+          onPress={() => setProfileImage?.(null)}
           disabled={!profileImage}
         >
           <MaterialCommunityIcons name="image-remove" size={24} color="black" />

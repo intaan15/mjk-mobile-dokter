@@ -1,6 +1,9 @@
 import React, { createContext, useContext, useState } from "react";
 
-const profilcontext = createContext(null);
+const profilcontext = createContext<{
+  profileImage: null;
+  setProfileImage: React.Dispatch<React.SetStateAction<null>>;
+} | null>(null);
 
 export const ProfileProvider = ({ children }) => {
   const [profileImage, setProfileImage] = useState(null);

@@ -42,38 +42,8 @@ export default function ProfileScreen() {
 }
 
 function App() {  
-  const { profileImage } = useProfile();
-  const router = useRouter();
-    const [isModalVisible, setModalVisible] = useState(false);
-    const [modalConfig, setModalConfig] = useState({
-      message: "",
-      confirmText: "",
-      onConfirm: () => {},
-    });
-  
-    const toggleModal = () => {
-      setModalVisible(!isModalVisible);
-    };
-  
-    // Fungsi untuk mengatur modal sesuai aksi yang diinginkan
-    const showDeleteModal = () => {
-      setModalConfig({
-        message: "Anda yakin akan menghapus akun?",
-        confirmText: "Hapus",
-        onConfirm: () => console.log("Akun dihapus"),
-      });
-      toggleModal();
-    };
-  
-    const showLogoutModal = () => {
-      setModalConfig({
-        message: "Anda yakin ingin keluar?",
-        confirmText: "Keluar",
-        onConfirm: () => console.log("Logout sukses"),
-      });
-      toggleModal();
-    };
-  
+  const profileContext = useProfile();
+  const profileImage = profileContext?.profileImage || null;
 
   return (
     <Background>
@@ -103,7 +73,13 @@ function App() {
                 className="w-32 h-32 rounded-full mb-4"
               />
             ) : (
-              <Text>Belum ada foto profil</Text>
+              <Text>
+                <MaterialCommunityIcons
+                  name="account-circle"
+                  size={110}
+                  color="grey"
+                />
+              </Text>
             )}
           </View>
 
@@ -170,7 +146,7 @@ function App() {
           </View>
 
           {/* Card Settings  */}
-          <Settings/>
+          <Settings />
         </ScrollView>
       </View>
     </Background>
