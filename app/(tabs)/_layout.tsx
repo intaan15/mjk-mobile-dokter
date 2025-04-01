@@ -60,6 +60,17 @@ const TabsNavigasi = () => {
       />
 
       <Tabs.Screen
+        name="janji/index"
+        options={{
+          title: "Janji",
+          headerShown: false,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon focused={focused} icon="hands-helping" title="Janji" />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
         name="profil"
         options={{
           title: "Profil",

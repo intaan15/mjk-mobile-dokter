@@ -10,8 +10,8 @@ export default function Index() {
     setTimeout(() => {
       setIsShowSplash(false);
       // router.replace("/components/imagepicker");
-      router.replace("/profil");
-    }, 0); 
+      router.replace("/screens/signin");
+    }, 3000); 
   }, []);
 
   return <>{isShowSplash ? <SplashScreen /> : null}</>;
