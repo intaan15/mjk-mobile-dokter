@@ -62,7 +62,10 @@ const App = () => {
           />
           <Image source={images.line} className="w-full my-2" />
 
-          {/* Jam */}
+          {/* Main */}
+          <View>
+            <Text className=" text-xl font-bold text-skyDark">halaman ini akan menampilkan list jadwal dokter secara default</Text>
+          </View>
           
         </View>
       </ScrollView>
