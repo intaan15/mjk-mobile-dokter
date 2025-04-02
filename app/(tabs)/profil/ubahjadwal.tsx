@@ -14,11 +14,13 @@ import { images } from "@/constants/images";
 import { useRouter } from "expo-router";
 import { Modal1 } from "@/components/modal1";
 import { Modal3 } from "@/components/modal3";
+import { Modal5 } from "@/components/modal5";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import TimeRangePicker from "@/components/timepicker";
 
 const App = () => {
   const [isModal1Open, setIsModal1Open] = useState(false);
+  const [isModal5Open, setIsModal5Open] = useState(false);
   const [isModal3Open, setIsModal3Open] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [timeSlots, setTimeSlots] = useState([]);
@@ -137,6 +139,33 @@ const App = () => {
               </Modal1>
             </View>
           )}
+
+          {/* Modal Set as Default */}
+          <View className="flex-1 justify-center items-center mt-6">
+            <TouchableOpacity
+              onPress={() => setIsModal5Open(true)}
+              className="bg-skyDark px-4 py-4 rounded-xl"
+            >
+              <Text className="text-white font-bold">
+                Ubah jadwal secara default
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <Modal5 isOpen={isModal5Open} onClose={() => setIsModal5Open(false)}>
+            <View className="bg-white p-5 rounded-xl w-3/4 justify-center items-center">
+              <Text className="text-skyDark font-bold mb-4">
+                Jadwal Anda di Set Secara Default
+              </Text>
+              <Image source={images.line} className="w-full my-3" />
+              <TouchableOpacity
+                onPress={() => setIsModal5Open(false)}
+                className="bg-transparent py-2 rounded-md flex flex-row justify-between w-full px-16"
+              >
+                <Text className="text-skyDark font-bold">Batal</Text>
+                <Text className="text-skyDark font-bold">Oke</Text>
+              </TouchableOpacity>
+            </View>
+          </Modal5>
         </View>
       </ScrollView>
     </Background>
