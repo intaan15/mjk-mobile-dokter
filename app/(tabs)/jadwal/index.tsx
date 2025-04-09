@@ -109,7 +109,7 @@ const ScheduleScreen = () => {
                 {availableTimes.map((time, index) => (
                   <TouchableOpacity
                     key={index}
-                    className="p-2 border border-gray-300 rounded-md w-[23%] text-center"
+                    className="p-2 border-2 border-skyDark rounded-md w-[23%] text-center"
                   >
                     <Text className="text-lg text-skyDark text-center">
                       {time}

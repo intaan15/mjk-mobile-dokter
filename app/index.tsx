@@ -10,8 +10,8 @@ export default function Index() {
     setTimeout(() => {
       setIsShowSplash(false);
       // router.replace("/components/imagepicker");
-      router.replace("/jadwal");
-    }, 3000); 
+      router.replace("/home");
+    }, 0); 
   }, []);
 
   return <>{isShowSplash ? <SplashScreen /> : null}</>;
