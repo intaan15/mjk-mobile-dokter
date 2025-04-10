@@ -22,7 +22,7 @@ import { useRouter } from "expo-router";
 import ImagePickerComponent from "@/components/imagepicker";
 import ProfileImageModal from "@/components/modal4";
 import Settings from "@/components/settings";
-import { ProfileProvider, useProfile } from "@/components/profilcontext";
+import { ImageProvider, useImage } from "@/components/imagecontext";
 
 const DataDummy = {
   id: 1,
@@ -35,15 +35,15 @@ const DataDummy = {
 
 export default function ProfileScreen() {
   return (
-    <ProfileProvider>
+    <ImageProvider>
       <App />
-    </ProfileProvider>
+    </ImageProvider>
   );
 }
 
-function App() {  
-  const profileContext = useProfile();
-  const profileImage = profileContext?.profileImage || null;
+function App() {
+  const imageContext = useImage();
+  const profileImage = imageContext?.profileImage || null;
 
   return (
     <Background>

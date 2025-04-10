@@ -13,24 +13,41 @@ import Background from "../components/background";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import Feather from "@expo/vector-icons/Feather";
-import { useProfile } from "@/components/profilcontext";
+
+import { useImage } from "@/components/imagecontext";
 import ImagePickerComponent from "@/components/imagepicker";
-import ProfileImageModal from "@/components/modal4";
+import ImageModal from "@/components/modal4";
 
 const dummyMessages = [
   { id: "1", text: "Halo, ada yang bisa dibantu?", sender: "other" },
   { id: "2", text: "Iya, aku butuh informasi tentang tanaman.", sender: "me" },
-  { id: "3", text: "Tentu! Jenis tanaman apa yang kamu maksud?", sender: "other" },
+  {
+    id: "3",
+    text: "Tentu! Jenis tanaman apa yang kamu maksud?",
+    sender: "other",
+  },
   { id: "4", text: "Tanaman bonsai", sender: "me" },
   { id: "5", text: "Kira kira yang harga berapa?", sender: "other" },
-  { id: "6", text: "Harga bonsai bervariasi, mulai dari ratusan ribu hingga jutaan.", sender: "me" },
+  {
+    id: "6",
+    text: "Harga bonsai bervariasi, mulai dari ratusan ribu hingga jutaan.",
+    sender: "me",
+  },
   { id: "7", text: "Oh, begitu. Terima kasih!", sender: "other" },
-  { id: "8", text: "Sama-sama! Jika ada pertanyaan lain, silakan tanya saja.", sender: "me" },
+  {
+    id: "8",
+    text: "Sama-sama! Jika ada pertanyaan lain, silakan tanya saja.",
+    sender: "me",
+  },
   { id: "9", text: "Baiklah, terima kasih banyak!", sender: "other" },
   { id: "10", text: "Sama-sama! Semoga harimu menyenangkan!", sender: "me" },
   { id: "11", text: "Terima kasih! Kamu juga!", sender: "other" },
   { id: "12", text: "Sama-sama!", sender: "me" },
-  { id: "13", text: "Ada yang lain yang ingin kamu tanyakan?", sender: "other" },
+  {
+    id: "13",
+    text: "Ada yang lain yang ingin kamu tanyakan?",
+    sender: "other",
+  },
   { id: "14", text: "Tidak, itu saja. Terima kasih!", sender: "me" },
   { id: "15", text: "Baiklah, sampai jumpa!", sender: "other" },
   { id: "16", text: "Sampai jumpa!", sender: "me" },
@@ -44,11 +61,11 @@ export default function ChatScreen() {
   const [message, setMessage] = useState("");
   const [modalVisible, setModalImageVisible] = useState(false);
 
-  const profileContext = useProfile();
-  const setProfileImage = profileContext?.setProfileImage;
+  const imageContext = useImage();
+  const setImage = imageContext?.setImage;
 
   const { openGallery, openCamera } = ImagePickerComponent({
-    onImageSelected: setProfileImage,
+    onImageSelected: setImage,
   });
 
   const handleSend = () => {
@@ -67,7 +84,9 @@ export default function ChatScreen() {
             <TouchableOpacity onPress={() => router.back()}>
               <MaterialIcons name="arrow-back-ios" size={24} color="#025F96" />
             </TouchableOpacity>
-            <Text className="text-skyDark font-bold text-xl ml-2">Zuditanit</Text>
+            <Text className="text-skyDark font-bold text-xl ml-2">
+              Zuditanit
+            </Text>
           </View>
           <Image
             className="h-10 w-12"
@@ -126,7 +145,7 @@ export default function ChatScreen() {
         </View>
 
         {/* Modal untuk pilih gambar */}
-        <ProfileImageModal
+        <ImageModal
           visible={modalVisible}
           onClose={() => setModalImageVisible(false)}
           onPickImage={() => {

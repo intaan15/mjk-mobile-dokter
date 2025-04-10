@@ -2,7 +2,7 @@ import React from "react";
 import { Modal, View, Text, TouchableOpacity, StatusBar } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
-export default function ProfileImageModal({
+export default function ImageModal({
   visible,
   onClose,
   onPickImage,
