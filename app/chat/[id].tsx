@@ -5,11 +5,7 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
-  KeyboardAvoidingView,
-  Platform,
-  TouchableWithoutFeedback,
-  Keyboard,
-  ScrollView,
+  FlatList,
 } from "react-native";
 import React, { useState } from "react";
 import { useRouter } from "expo-router";
@@ -17,41 +13,24 @@ import Background from "../components/background";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import Feather from "@expo/vector-icons/Feather";
-import { images } from "@/constants/images";
-// Tambahan import
-import { FlatList } from "react-native";
+import { useProfile } from "@/components/profilcontext";
+import ImagePickerComponent from "@/components/imagepicker";
+import ProfileImageModal from "@/components/modal4";
 
-// Dummy Data
 const dummyMessages = [
   { id: "1", text: "Halo, ada yang bisa dibantu?", sender: "other" },
   { id: "2", text: "Iya, aku butuh informasi tentang tanaman.", sender: "me" },
-  {
-    id: "3",
-    text: "Tentu! Jenis tanaman apa yang kamu maksud?",
-    sender: "other",
-  },
+  { id: "3", text: "Tentu! Jenis tanaman apa yang kamu maksud?", sender: "other" },
   { id: "4", text: "Tanaman bonsai", sender: "me" },
   { id: "5", text: "Kira kira yang harga berapa?", sender: "other" },
-  {
-    id: "6",
-    text: "Harga bonsai bervariasi, mulai dari ratusan ribu hingga jutaan.",
-    sender: "me",
-  },
+  { id: "6", text: "Harga bonsai bervariasi, mulai dari ratusan ribu hingga jutaan.", sender: "me" },
   { id: "7", text: "Oh, begitu. Terima kasih!", sender: "other" },
-  {
-    id: "8",
-    text: "Sama-sama! Jika ada pertanyaan lain, silakan tanya saja.",
-    sender: "me",
-  },
+  { id: "8", text: "Sama-sama! Jika ada pertanyaan lain, silakan tanya saja.", sender: "me" },
   { id: "9", text: "Baiklah, terima kasih banyak!", sender: "other" },
   { id: "10", text: "Sama-sama! Semoga harimu menyenangkan!", sender: "me" },
   { id: "11", text: "Terima kasih! Kamu juga!", sender: "other" },
   { id: "12", text: "Sama-sama!", sender: "me" },
-  {
-    id: "13",
-    text: "Ada yang lain yang ingin kamu tanyakan?",
-    sender: "other",
-  },
+  { id: "13", text: "Ada yang lain yang ingin kamu tanyakan?", sender: "other" },
   { id: "14", text: "Tidak, itu saja. Terima kasih!", sender: "me" },
   { id: "15", text: "Baiklah, sampai jumpa!", sender: "other" },
   { id: "16", text: "Sampai jumpa!", sender: "me" },
@@ -60,25 +39,35 @@ const dummyMessages = [
   { id: "19", text: "Selamat tinggal!", sender: "other" },
 ];
 
-const { width } = Dimensions.get("window");
-
 export default function ChatScreen() {
   const router = useRouter();
   const [message, setMessage] = useState("");
+  const [modalVisible, setModalImageVisible] = useState(false);
+
+  const profileContext = useProfile();
+  const setProfileImage = profileContext?.setProfileImage;
+
+  const { openGallery, openCamera } = ImagePickerComponent({
+    onImageSelected: setProfileImage,
+  });
+
+  const handleSend = () => {
+    if (message.trim()) {
+      // Di sini bisa ditambahkan logika push message baru ke array state
+      setMessage("");
+    }
+  };
 
   return (
     <Background>
       <View className="flex-1">
         {/* Header */}
-        <View className="flex flex-row justify-between items-center w-full px-5 bg-skyLight py-5 pt-10">
-          <View className="flex flex-row items-center">
-            <TouchableOpacity
-              onPress={() => router.back()}
-              className="flex flex-row items-center"
-            >
+        <View className="flex-row justify-between items-center w-full px-5 bg-skyLight py-5 pt-10">
+          <View className="flex-row items-center">
+            <TouchableOpacity onPress={() => router.back()}>
               <MaterialIcons name="arrow-back-ios" size={24} color="#025F96" />
             </TouchableOpacity>
-            <Text className="text-skyDark font-bold text-xl">Zuditanit</Text>
+            <Text className="text-skyDark font-bold text-xl ml-2">Zuditanit</Text>
           </View>
           <Image
             className="h-10 w-12"
@@ -87,7 +76,7 @@ export default function ChatScreen() {
           />
         </View>
 
-        {/* Chat Body */}
+        {/* Chat List */}
         <FlatList
           className="flex-1 px-4"
           data={dummyMessages}
@@ -109,14 +98,15 @@ export default function ChatScreen() {
               </Text>
             </View>
           )}
-          contentContainerStyle={{ paddingBottom: 70 }}
+          contentContainerStyle={{ paddingBottom: 80 }}
         />
 
         {/* Chat Input */}
         <View className="absolute bottom-0 left-0 right-0 bg-skyDark p-4 flex-row items-center gap-2">
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => setModalImageVisible(true)}>
             <Feather name="image" size={28} color="#C3E9FF" />
           </TouchableOpacity>
+
           <View className="flex-1 bg-skyLight mx-2 rounded-full px-4">
             <TextInput
               className="text-base text-black"
@@ -126,10 +116,28 @@ export default function ChatScreen() {
               style={{ paddingVertical: 10 }}
             />
           </View>
-          <TouchableOpacity className="p-2 bg-skyLight rounded-full">
+
+          <TouchableOpacity
+            className="p-2 bg-skyLight rounded-full"
+            onPress={handleSend}
+          >
             <MaterialCommunityIcons name="send" size={22} color="#025F96" />
           </TouchableOpacity>
         </View>
+
+        {/* Modal untuk pilih gambar */}
+        <ProfileImageModal
+          visible={modalVisible}
+          onClose={() => setModalImageVisible(false)}
+          onPickImage={() => {
+            openGallery();
+            setModalImageVisible(false);
+          }}
+          onOpenCamera={() => {
+            openCamera();
+            setModalImageVisible(false);
+          }}
+        />
       </View>
     </Background>
   );

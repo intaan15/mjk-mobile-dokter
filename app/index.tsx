@@ -10,7 +10,7 @@ export default function Index() {
     setTimeout(() => {
       setIsShowSplash(false);
       // router.replace("/components/imagepicker");
-      router.replace("/home");
+      router.replace("/screens/signin");
     }, 0); 
   }, []);
 
