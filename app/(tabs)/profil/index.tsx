@@ -7,20 +7,12 @@ import {
   ScrollView,
   StatusBar,
 } from "react-native";
-import Navbar from "../../components/navbar";
 import Background from "../../components/background";
-import Modal2 from "../../components/modal2";
 import React, { useState } from "react";
-import TimeRangePicker from "@/components/timepicker";
 import {
   MaterialCommunityIcons,
-  FontAwesome5,
-  AntDesign,
 } from "@expo/vector-icons";
 import { images } from "@/constants/images";
-import { useRouter } from "expo-router";
-import ImagePickerComponent from "@/components/imagepicker";
-import ProfileImageModal from "@/components/modal4";
 import Settings from "@/components/settings";
 import { ImageProvider, useImage } from "@/components/imagecontext";
 
@@ -119,7 +111,7 @@ function App() {
             <Text className="font-bold text-lg text-skyDark mt-4">
               Ganti Password
             </Text>
-            <Image source={images.line} className="w-full my-2" />
+            <View className="w-full h-[2px] bg-skyDark"/>
             <View className="flex flex-col items-center gap-2 ">
               <TextInput
                 placeholder="Password Lama"

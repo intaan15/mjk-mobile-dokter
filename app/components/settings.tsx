@@ -93,7 +93,7 @@ export default function Settings() {
         </Text>
       </TouchableOpacity>
 
-      <Image source={images.line} className="w-full my-2" />
+      <View className="w-full h-[2px] bg-skyDark my-2"/>
 
       <TouchableOpacity
         className="flex flex-row items-center gap-2"
@@ -106,7 +106,7 @@ export default function Settings() {
         </Text>
       </TouchableOpacity>
 
-      <Image source={images.line} className="w-full my-2" />
+      <View className="w-full h-[2px] bg-skyDark my-2"/>
 
       <TouchableOpacity
         className="flex flex-row items-center gap-2"
@@ -116,7 +116,7 @@ export default function Settings() {
         <Text className="font-bold text-lg text-skyDark">Ubah Jadwal</Text>
       </TouchableOpacity>
 
-      <Image source={images.line} className="w-full my-2" />
+      <View className="w-full h-[2px] bg-skyDark my-2"/>
 
       <View className="flex-1 justify-center">
         <TouchableOpacity
@@ -127,7 +127,7 @@ export default function Settings() {
           <Text className="font-bold text-lg text-red-500">Hapus Akun</Text>
         </TouchableOpacity>
 
-        <Image source={images.line} className="w-full my-2" />
+        <View className="w-full h-[2px] bg-skyDark my-2"/>
 
         <TouchableOpacity
           className="flex flex-row items-center gap-2"

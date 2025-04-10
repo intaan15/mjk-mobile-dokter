@@ -62,7 +62,7 @@ const App = () => {
             label="Tanggal Terpilih"
             onDateChange={(date) => setSelectedDate(date)}
           />
-          <Image source={images.line} className="w-full my-2" />
+          <View className="w-full h-[2px] bg-skyDark my-2"/>
 
           {/* Jam */}
           <TouchableOpacity
@@ -128,7 +128,7 @@ const App = () => {
                   <Text className="text-skyDark font-bold mb-4">
                     Jadwal Anda Berhasil Diubah
                   </Text>
-                  <Image source={images.line} className="w-full my-3" />
+                  <View className="w-full h-[2px] bg-skyDark my-2"/>
                   <TouchableOpacity
                     onPress={() => setIsModal1Open(false)}
                     className="bg-transparent px-4 py-2 rounded-md"
@@ -156,7 +156,7 @@ const App = () => {
               <Text className="text-skyDark font-bold mb-4">
                 Jadwal Anda di Set Secara Default
               </Text>
-              <Image source={images.line} className="w-full my-3" />
+              <View className="w-full h-[2px] bg-skyDark my-2"/>
               <TouchableOpacity
                 onPress={() => setIsModal5Open(false)}
                 className="bg-transparent py-2 rounded-md flex flex-row justify-between w-full px-16"

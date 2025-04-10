@@ -43,7 +43,7 @@ const Modal2 = ({
             >
               <Text className="text-skyDark font-bold">Batal</Text>
             </TouchableOpacity>
-            <Image source={images.vline} className="mx-10" />
+            <View className="mx-10 w-[2px] h-full bg-skyDark" />
             <TouchableOpacity
               onPress={() => {
                 onConfirm();
