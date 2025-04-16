@@ -6,11 +6,12 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "expo-router";
-import Navbar from "../../components/navbar";
 import Background from "../../components/background";
 import { images } from "@/constants/images";
+import TabButton from "../../components/tabbutton";
+
 
 const { width } = Dimensions.get("window");
 
@@ -97,6 +98,8 @@ const chats = [
 
 export default function HomeScreen() {
   const router = useRouter();
+    const [selectedTab, setSelectedTab] = useState("Berlangsung");
+  
 
   return (
     <Background>
@@ -104,8 +107,8 @@ export default function HomeScreen() {
         {/* <Navbar /> */}
 
         {/* Header */}
-        <View className="relative pt-12 bg-skyLight rounded-b-[50px] py-28">
-          <View className="absolute inset-0 flex items-center justify-between flex-row px-12">
+        <View className="relative pt-12 flex flex-col gap-5"> 
+          <View className=" flex items-center justify-between flex-row px-12">
             <Text className="text-skyDark text-2xl font-bold">
               Selamat datang, {"\n"}dr Rayhan Izzuddin
             </Text>
@@ -115,6 +118,16 @@ export default function HomeScreen() {
               resizeMode="contain"
             />
           </View>
+          <View className="flex flex-row mx-6 rounded-xl border-2 border-skyDark overflow-hidden">
+                    {["Berlangsung", "Selesai"].map((tab) => (
+                      <TabButton
+                        key={tab}
+                        label={tab}
+                        isActive={selectedTab === tab}
+                        onPress={() => setSelectedTab(tab)}
+                      />
+                    ))}
+                  </View>
         </View>
 
         {/* Chat List */}
@@ -143,10 +156,7 @@ export default function HomeScreen() {
                     <Text className="text-gray-700 mt-1">{chat.message}</Text>
                   </View>
                 </View>
-                <Image
-                  source={images.line}
-                  className="w-full my-2"
-                />
+                <View className="w-full h-[2px] bg-skyDark my-2"/>
               </TouchableOpacity>
             ))}
           </ScrollView>

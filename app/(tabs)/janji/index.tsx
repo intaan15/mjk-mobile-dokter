@@ -8,7 +8,6 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import { useRouter } from "expo-router";
-import Navbar from "../../components/navbar";
 import Background from "../../components/background";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import AntDesign from "@expo/vector-icons/AntDesign";
@@ -132,10 +131,7 @@ export default function JadwalScreen() {
                       <Text className="font-semibold text-lg text-skyDark">
                         {jadwal.user}
                       </Text>
-                      <Image
-                        source={images.line}
-                        className="w-full my-2"
-                      />
+                      <View className="w-full h-[2px] bg-skyDark my-2"/>
                       <Text className="font-semibold text-lg text-skyDark">
                         {jadwal.date}
                       </Text>
