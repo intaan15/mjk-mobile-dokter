@@ -6,17 +6,19 @@ import {
   TouchableOpacity,
   ScrollView,
   StatusBar,
-  Button
+  Button,
 } from "react-native";
-import DatePickerComponent from "@/components/datepicker";
+import DatePickerComponent from "@/components/picker/datepicker";
 import Background from "@/components/background";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { images } from "@/constants/images";
 import { useRouter } from "expo-router";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import ModalContent from "@/components/ModalContent";
-import ModalTemplate from "@/components/ModalTemplate";
-import ImagePickerComponent, { useImage } from "@/components/imagepicker";
+import ModalContent from "@/components/modals/ModalContent";
+import ModalTemplate from "@/components/modals/ModalTemplate";
+import ImagePickerComponent, {
+  useImage,
+} from "@/components/picker/imagepicker";
 
 const App = () => {
   const [selectedDate, setSelectedDate] = useState(null);
@@ -27,15 +29,14 @@ const App = () => {
   const imageContext = useImage();
   const profileImage = imageContext?.profileImage;
   const setImage = imageContext?.setImage;
-    const { openGallery, openCamera } = ImagePickerComponent({
-      onImageSelected: setImage,
-    });
+  const { openGallery, openCamera } = ImagePickerComponent({
+    onImageSelected: setImage,
+  });
 
   const openModal = (type: string) => {
     setModalType(type);
     setModalVisible(true);
   };
-
 
   const router = useRouter();
 

@@ -133,39 +133,6 @@ const ModalContent: React.FC<ModalContentProps> = ({
           </View>
         </View>
       );
-    case "pilihgambar":
-      return (
-        <View className="bg-white p-6 rounded-2xl w-full items-center">
-          <Text className="text-xl font-semibold mb-4 text-center">
-            Pilih Foto
-          </Text>
-
-          <TouchableOpacity
-            className="flex-row items-center space-x-3 py-3 px-2 rounded-lg active:bg-gray-100 w-full"
-            onPress={onPickImage}
-          >
-            <MaterialCommunityIcons name="image" size={24} color="black" />
-            <Text className="text-base text-black">Ambil dari Galeri</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            className="flex-row items-center space-x-3 py-3 px-2 rounded-lg active:bg-gray-100 w-full"
-            onPress={onOpenCamera}
-          >
-            <MaterialCommunityIcons name="camera" size={24} color="black" />
-            <Text className="text-base text-black">Ambil dari Kamera</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            className="mt-5 py-3 bg-red-500 rounded-xl w-full"
-            onPress={onClose}
-          >
-            <Text className="text-center text-white font-semibold text-base">
-              Batal
-            </Text>
-          </TouchableOpacity>
-        </View>
-      );
 
     case "pilihjam":
       return (
@@ -173,9 +140,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
           <TouchableOpacity
             className="absolute top-2 right-2 p-2"
             onPress={onClose}
-          >
-            <MaterialIcons name="close" size={20} color="#025F96" />
-          </TouchableOpacity>
+          ></TouchableOpacity>
 
           <Text className="text-lg font-semibold text-gray-800 mb-6">
             Pilih Rentang Waktu
@@ -234,6 +199,40 @@ const ModalContent: React.FC<ModalContentProps> = ({
             }}
             onCancel={() => setPickerVisibility(false)}
           />
+        </View>
+      );
+
+    case "pilihgambar":
+      return (
+        <View className="bg-white p-6 rounded-2xl w-full items-center">
+          <Text className="text-xl font-semibold mb-4 text-center">
+            Pilih Foto
+          </Text>
+
+          <TouchableOpacity
+            className="flex-row items-center space-x-3 py-3 px-2 rounded-lg active:bg-gray-100 w-full"
+            onPress={onPickImage}
+          >
+            <MaterialCommunityIcons name="image" size={24} color="black" />
+            <Text className="text-base text-black">Ambil dari Galeri</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            className="flex-row items-center space-x-3 py-3 px-2 rounded-lg active:bg-gray-100 w-full"
+            onPress={onOpenCamera}
+          >
+            <MaterialCommunityIcons name="camera" size={24} color="black" />
+            <Text className="text-base text-black">Ambil dari Kamera</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            className="mt-5 py-3 bg-red-500 rounded-xl w-full"
+            onPress={onClose}
+          >
+            <Text className="text-center text-white font-semibold text-base">
+              Batal
+            </Text>
+          </TouchableOpacity>
         </View>
       );
 

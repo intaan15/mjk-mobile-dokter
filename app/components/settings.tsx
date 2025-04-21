@@ -13,15 +13,14 @@ import {
   FontAwesome5,
   AntDesign,
 } from "@expo/vector-icons";
-import Modal2 from "@/components/modal2";
 import { images } from "@/constants/images";
 import { useRouter } from "expo-router";
-import ImagePickerComponent, {useImage, ImageProvider} from "@/components/imagepicker";
-import ImageModal from "@/components/modal4";
-// import { useImage } from "./imagecontext";
-// import { ImageProvider, useImage } from "@/components/imagecontext";
-import ModalTemplate from "./ModalTemplate";
-import ModalContent from "./ModalContent";
+import ImagePickerComponent, {
+  useImage,
+  ImageProvider,
+} from "@/components/picker/imagepicker";
+import ModalTemplate from "./modals/ModalTemplate";
+import ModalContent from "./modals/ModalContent";
 
 const DataDummy = {
   id: 1,
@@ -41,42 +40,54 @@ export default function Settings() {
     setModalType(type);
     setModalVisible(true);
   };
-  const [modalConfig, setModalConfig] = useState({
-    message: "",
-    confirmText: "",
-    onConfirm: () => {},
-  });
+
+  // const [modalConfig, setModalConfig] = useState({
+  //   message: "",
+  //   confirmText: "",
+  //   onConfirm: () => {},
+  // });
 
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
 
-  const showDeleteModal = () => {
-    setModalConfig({
-      message: "Anda yakin akan menghapus akun?",
-      confirmText: "Hapus",
-      onConfirm: () => console.log("Akun dihapus"),
-    });
-    toggleModal();
-  };
+  // const showDeleteModal = () => {
+  //   setModalConfig({
+  //     message: "Anda yakin akan menghapus akun?",
+  //     confirmText: "Hapus",
+  //     onConfirm: () => console.log("Akun dihapus"),
+  //   });
+  //   toggleModal();
+  // };
 
-  const showLogoutModal = () => {
-    setModalConfig({
-      message: "Anda yakin ingin keluar?",
-      confirmText: "Keluar",
-      onConfirm: () => console.log("Logout sukses"),
-    });
-    toggleModal();
-  };
+  // const showLogoutModal = () => {
+  //   setModalConfig({
+  //     message: "Anda yakin ingin keluar?",
+  //     confirmText: "Keluar",
+  //     onConfirm: () => console.log("Logout sukses"),
+  //   });
+  //   toggleModal();
+  // };
 
   const imageContext = useImage();
   const profileImage = imageContext?.profileImage;
   const setImage = imageContext?.setImage;
-  const [modalVisible, setModalImageVisible] = useState(false);
+  // const [modalVisible, setModalImageVisible] = useState(false);
 
   const { openGallery, openCamera } = ImagePickerComponent({
     onImageSelected: setImage,
   });
+
+  // Handler baru yang gabung pick image + tutup modal
+  const handlePickImage = async () => {
+    await openGallery(); // buka galeri
+    setModalVisible(false); // tutup modal
+  };
+
+  const handleOpenCamera = async () => {
+    await openCamera(); // buka kamera
+    setModalVisible(false); // tutup modal
+  };
 
   return (
     <View
@@ -90,7 +101,7 @@ export default function Settings() {
     >
       <TouchableOpacity
         className="flex flex-row items-center gap-2"
-        onPress={() => setModalImageVisible(true)}
+        onPress={() => openModal("pilihgambar")}
       >
         <MaterialCommunityIcons
           name="image-edit-outline"
@@ -145,18 +156,20 @@ export default function Settings() {
           <AntDesign name="logout" size={24} color="red" />
           <Text className="font-bold text-lg text-red-500">Log Out</Text>
         </TouchableOpacity>
+
         <ModalTemplate
           isVisible={isModalVisible}
           onClose={() => setModalVisible(false)}
         >
           <ModalContent
             modalType={modalType}
-            onPickImage={openGallery}
-            onOpenCamera={openCamera}
+            onPickImage={handlePickImage}
+            onOpenCamera={handleOpenCamera}
             onClose={() => setModalVisible(false)}
           />
         </ModalTemplate>
-        <ImageModal
+
+        {/* <ImageModal
           visible={modalVisible}
           onClose={() => setModalImageVisible(false)}
           onPickImage={() => {
@@ -167,7 +180,7 @@ export default function Settings() {
             openCamera();
             setModalImageVisible(false);
           }}
-        />
+        /> */}
       </View>
     </View>
   );

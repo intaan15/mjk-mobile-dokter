@@ -9,12 +9,10 @@ import {
 } from "react-native";
 import Background from "../../components/background";
 import React, { useState } from "react";
-import {
-  MaterialCommunityIcons,
-} from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { images } from "@/constants/images";
 import Settings from "@/components/settings";
-import { ImageProvider, useImage } from "@/components/imagecontext";
+import { ImageProvider, useImage } from "@/components/picker/imagepicker";
 
 const DataDummy = {
   id: 1,
@@ -111,7 +109,7 @@ function App() {
             <Text className="font-bold text-lg text-skyDark mt-4">
               Ganti Password
             </Text>
-            <View className="w-full h-[2px] bg-skyDark"/>
+            <View className="w-full h-[2px] bg-skyDark" />
             <View className="flex flex-col items-center gap-2 ">
               <TextInput
                 placeholder="Password Lama"

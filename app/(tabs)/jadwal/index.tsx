@@ -6,7 +6,7 @@ import {
   ScrollView,
   StatusBar,
 } from "react-native";
-import DatePickerComponent from "@/components/datepicker";
+import DatePickerComponent from "@/components/picker/datepicker";
 import Background from "@/components/background";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useRouter } from "expo-router";
