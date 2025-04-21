@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   StatusBar,
+  Button
 } from "react-native";
 import DatePickerComponent from "@/components/datepicker";
 import Background from "@/components/background";
@@ -17,6 +18,9 @@ import { Modal3 } from "@/components/modal3";
 import { Modal5 } from "@/components/modal5";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import TimeRangePicker from "@/components/timepicker";
+import ModalContent from "@/components/ModalContent";
+import ModalTemplate from "@/components/ModalTemplate";
+import ImagePickerComponent, { useImage } from "@/components/imagepicker";
 
 const App = () => {
   const [isModal1Open, setIsModal1Open] = useState(false);
@@ -24,6 +28,21 @@ const App = () => {
   const [isModal3Open, setIsModal3Open] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [timeSlots, setTimeSlots] = useState([]);
+
+  const [modalType, setModalType] = useState("info");
+  const [isModalVisible, setModalVisible] = useState(false);
+  const imageContext = useImage();
+  const profileImage = imageContext?.profileImage;
+  const setImage = imageContext?.setImage;
+    const { openGallery, openCamera } = ImagePickerComponent({
+      onImageSelected: setImage,
+    });
+
+  const openModal = (type: string) => {
+    setModalType(type);
+    setModalVisible(true);
+  };
+
 
   const router = useRouter();
 
@@ -62,7 +81,7 @@ const App = () => {
             label="Tanggal Terpilih"
             onDateChange={(date) => setSelectedDate(date)}
           />
-          <View className="w-full h-[2px] bg-skyDark my-2"/>
+          <View className="w-full h-[2px] bg-skyDark my-2" />
 
           {/* Jam */}
           <TouchableOpacity
@@ -109,63 +128,38 @@ const App = () => {
             </View>
           )}
 
-          {/* Tombol Simpan Perubahan */}
+          {/* Modal Simpan Perubahan */}
           {timeSlots.length > 0 && (
             <View className="flex-1 justify-center items-center mt-6">
               <TouchableOpacity
-                onPress={() => setIsModal1Open(true)}
+                onPress={() => openModal("konfirm")}
                 className="bg-skyDark px-4 py-4 rounded-xl"
               >
                 <Text className="text-white font-bold">Simpan Perubahan</Text>
               </TouchableOpacity>
-
-              {/* Modal Konfirmasi */}
-              <Modal1
-                isOpen={isModal1Open}
-                onClose={() => setIsModal1Open(false)}
-              >
-                <View className="bg-white p-5 rounded-xl w-3/4 justify-center items-center">
-                  <Text className="text-skyDark font-bold mb-4">
-                    Jadwal Anda Berhasil Diubah
-                  </Text>
-                  <View className="w-full h-[2px] bg-skyDark my-2"/>
-                  <TouchableOpacity
-                    onPress={() => setIsModal1Open(false)}
-                    className="bg-transparent px-4 py-2 rounded-md"
-                  >
-                    <Text className="text-skyDark font-bold">Oke</Text>
-                  </TouchableOpacity>
-                </View>
-              </Modal1>
             </View>
           )}
 
           {/* Modal Set as Default */}
           <View className="flex-1 justify-center items-center mt-6">
             <TouchableOpacity
-              onPress={() => setIsModal5Open(true)}
               className="bg-skyDark px-4 py-4 rounded-xl"
+              onPress={() => openModal("jadwaldefault")}
             >
-              <Text className="text-white font-bold">
-                Ubah jadwal secara default
-              </Text>
+              <Text className="text-white font-bold">Set as Default</Text>
             </TouchableOpacity>
           </View>
-          <Modal5 isOpen={isModal5Open} onClose={() => setIsModal5Open(false)}>
-            <View className="bg-white p-5 rounded-xl w-3/4 justify-center items-center">
-              <Text className="text-skyDark font-bold mb-4">
-                Jadwal Anda di Set Secara Default
-              </Text>
-              <View className="w-full h-[2px] bg-skyDark my-2"/>
-              <TouchableOpacity
-                onPress={() => setIsModal5Open(false)}
-                className="bg-transparent py-2 rounded-md flex flex-row justify-between w-full px-16"
-              >
-                <Text className="text-skyDark font-bold">Batal</Text>
-                <Text className="text-skyDark font-bold">Oke</Text>
-              </TouchableOpacity>
-            </View>
-          </Modal5>
+          <ModalTemplate
+            isVisible={isModalVisible}
+            onClose={() => setModalVisible(false)}
+          >
+            <ModalContent
+              modalType={modalType}
+              onPickImage={openGallery}
+              onOpenCamera={openCamera}
+              onClose={() => setModalVisible(false)}
+            />
+          </ModalTemplate>
         </View>
       </ScrollView>
     </Background>

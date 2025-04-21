@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+// import React, { useState } from "react";
 import * as ImagePicker from "expo-image-picker";
+import React, { createContext, useContext, useState } from "react";
 
 export default function ImagePickerComponent({ onImageSelected }) {
   const openGallery = async () => {
@@ -27,3 +28,23 @@ export default function ImagePickerComponent({ onImageSelected }) {
 
   return { openGallery, openCamera };
 }
+
+
+
+
+const imagecontext = createContext<{
+  profileImage: null;
+  setImage: React.Dispatch<React.SetStateAction<null>>;
+} | null>(null);
+
+export const ImageProvider = ({ children }) => {
+  const [profileImage, setImage] = useState(null);
+
+  return (
+    <imagecontext.Provider value={{ profileImage, setImage }}>
+      {children}
+    </imagecontext.Provider>
+  );
+};
+
+export const useImage = () => useContext(imagecontext);

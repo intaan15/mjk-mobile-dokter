@@ -16,9 +16,12 @@ import {
 import Modal2 from "@/components/modal2";
 import { images } from "@/constants/images";
 import { useRouter } from "expo-router";
-import ImagePickerComponent from "@/components/imagepicker";
+import ImagePickerComponent, {useImage, ImageProvider} from "@/components/imagepicker";
 import ImageModal from "@/components/modal4";
-import { ImageProvider, useImage } from "@/components/imagecontext";
+// import { useImage } from "./imagecontext";
+// import { ImageProvider, useImage } from "@/components/imagecontext";
+import ModalTemplate from "./ModalTemplate";
+import ModalContent from "./ModalContent";
 
 const DataDummy = {
   id: 1,
@@ -32,6 +35,12 @@ const DataDummy = {
 export default function Settings() {
   const router = useRouter();
   const [isModalVisible, setModalVisible] = useState(false);
+  const [modalType, setModalType] = useState("info");
+
+  const openModal = (type: string) => {
+    setModalType(type);
+    setModalVisible(true);
+  };
   const [modalConfig, setModalConfig] = useState({
     message: "",
     confirmText: "",
@@ -93,7 +102,7 @@ export default function Settings() {
         </Text>
       </TouchableOpacity>
 
-      <View className="w-full h-[2px] bg-skyDark my-2"/>
+      <View className="w-full h-[2px] bg-skyDark my-2" />
 
       <TouchableOpacity
         className="flex flex-row items-center gap-2"
@@ -106,7 +115,7 @@ export default function Settings() {
         </Text>
       </TouchableOpacity>
 
-      <View className="w-full h-[2px] bg-skyDark my-2"/>
+      <View className="w-full h-[2px] bg-skyDark my-2" />
 
       <TouchableOpacity
         className="flex flex-row items-center gap-2"
@@ -116,33 +125,37 @@ export default function Settings() {
         <Text className="font-bold text-lg text-skyDark">Ubah Jadwal</Text>
       </TouchableOpacity>
 
-      <View className="w-full h-[2px] bg-skyDark my-2"/>
+      <View className="w-full h-[2px] bg-skyDark my-2" />
 
       <View className="flex-1 justify-center">
         <TouchableOpacity
           className="flex flex-row items-center gap-2"
-          onPress={showDeleteModal}
+          onPress={() => openModal("hapusakun")}
         >
           <AntDesign name="delete" size={24} color="red" />
           <Text className="font-bold text-lg text-red-500">Hapus Akun</Text>
         </TouchableOpacity>
 
-        <View className="w-full h-[2px] bg-skyDark my-2"/>
+        <View className="w-full h-[2px] bg-skyDark my-2" />
 
         <TouchableOpacity
           className="flex flex-row items-center gap-2"
-          onPress={showLogoutModal}
+          onPress={() => openModal("keluarakun")}
         >
           <AntDesign name="logout" size={24} color="red" />
           <Text className="font-bold text-lg text-red-500">Log Out</Text>
         </TouchableOpacity>
-        <Modal2
-          isOpen={isModalVisible}
-          toggleModal={toggleModal}
-          message={modalConfig.message}
-          confirmText={modalConfig.confirmText}
-          onConfirm={modalConfig.onConfirm}
-        />
+        <ModalTemplate
+          isVisible={isModalVisible}
+          onClose={() => setModalVisible(false)}
+        >
+          <ModalContent
+            modalType={modalType}
+            onPickImage={openGallery}
+            onOpenCamera={openCamera}
+            onClose={() => setModalVisible(false)}
+          />
+        </ModalTemplate>
         <ImageModal
           visible={modalVisible}
           onClose={() => setModalImageVisible(false)}
