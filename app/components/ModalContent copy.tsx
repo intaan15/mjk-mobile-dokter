@@ -54,7 +54,118 @@ const ModalContent: React.FC<ModalContentProps> = ({
   };
 
   switch (modalType) {
-    
+    case "konfirm":
+      return (
+        <View>
+          <Text className="text-center text-lg font-bold text-gray-700">
+            Jadwal anda berhasil diubah
+          </Text>
+
+          <View className="w-full h-1 bg-skyDark my-5" />
+
+          <Text className=" text-center text-skyDark font-medium">Oke</Text>
+        </View>
+      );
+
+    case "jadwaldefault":
+      return (
+        <View>
+          <Text className="text-center text-lg font-bold text-gray-700">
+            Jadwal anda akan diatur secara default
+          </Text>
+
+          <View className="flex flex-row justify-between items-center mt-5 px-20">
+            <TouchableOpacity>
+              <Text className=" text-center text-skyDark font-medium">
+                Batal
+              </Text>
+            </TouchableOpacity>
+            <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
+            <TouchableOpacity>
+              <Text className=" text-center text-red-500 font-medium">Oke</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      );
+
+    case "hapusakun":
+      return (
+        <View>
+          <Text className="text-center text-lg font-bold text-gray-700">
+            Anda yakin akan menghapus akun?
+          </Text>
+
+          <View className="flex flex-row justify-between items-center mt-5 px-20">
+            <TouchableOpacity>
+              <Text className=" text-center text-skyDark font-medium">
+                Batal
+              </Text>
+            </TouchableOpacity>
+            <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
+            <TouchableOpacity>
+              <Text className=" text-center text-red-500 font-medium">
+                Hapus
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      );
+
+    case "keluarakun":
+      return (
+        <View>
+          <Text className="text-center text-lg font-bold text-gray-700">
+            Anda yakin akan keluar?
+          </Text>
+
+          <View className="flex flex-row justify-between items-center mt-5 px-20">
+            <TouchableOpacity>
+              <Text className=" text-center text-skyDark font-medium">
+                Batal
+              </Text>
+            </TouchableOpacity>
+            <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
+            <TouchableOpacity>
+              <Text className=" text-center text-red-500 font-medium">
+                Keluar
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      );
+    case "pilihgambar":
+      return (
+        <View className="bg-white p-6 rounded-2xl w-full items-center">
+          <Text className="text-xl font-semibold mb-4 text-center">
+            Pilih Foto
+          </Text>
+
+          <TouchableOpacity
+            className="flex-row items-center space-x-3 py-3 px-2 rounded-lg active:bg-gray-100 w-full"
+            onPress={onPickImage}
+          >
+            <MaterialCommunityIcons name="image" size={24} color="black" />
+            <Text className="text-base text-black">Ambil dari Galeri</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            className="flex-row items-center space-x-3 py-3 px-2 rounded-lg active:bg-gray-100 w-full"
+            onPress={onOpenCamera}
+          >
+            <MaterialCommunityIcons name="camera" size={24} color="black" />
+            <Text className="text-base text-black">Ambil dari Kamera</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            className="mt-5 py-3 bg-red-500 rounded-xl w-full"
+            onPress={onClose}
+          >
+            <Text className="text-center text-white font-semibold text-base">
+              Batal
+            </Text>
+          </TouchableOpacity>
+        </View>
+      );
 
     case "pilihjam":
       return (
@@ -63,6 +174,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
             className="absolute top-2 right-2 p-2"
             onPress={onClose}
           >
+            <MaterialIcons name="close" size={20} color="#025F96" />
           </TouchableOpacity>
 
           <Text className="text-lg font-semibold text-gray-800 mb-6">

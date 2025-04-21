@@ -13,19 +13,12 @@ import Background from "@/components/background";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { images } from "@/constants/images";
 import { useRouter } from "expo-router";
-import { Modal1 } from "@/components/modal1";
-import { Modal3 } from "@/components/modal3";
-import { Modal5 } from "@/components/modal5";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import TimeRangePicker from "@/components/timepicker";
 import ModalContent from "@/components/ModalContent";
 import ModalTemplate from "@/components/ModalTemplate";
 import ImagePickerComponent, { useImage } from "@/components/imagepicker";
 
 const App = () => {
-  const [isModal1Open, setIsModal1Open] = useState(false);
-  const [isModal5Open, setIsModal5Open] = useState(false);
-  const [isModal3Open, setIsModal3Open] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [timeSlots, setTimeSlots] = useState([]);
 
@@ -48,7 +41,10 @@ const App = () => {
 
   const handleTimeSlotsChange = (slots) => {
     setTimeSlots(slots);
-    setIsModal3Open(false); // Close modal automatically after receiving time slots
+    setModalVisible(false);
+    setTimeout(() => {
+      setModalVisible(false);
+    }, 300); // Close modal automatically after receiving time slots
   };
 
   return (
@@ -83,10 +79,10 @@ const App = () => {
           />
           <View className="w-full h-[2px] bg-skyDark my-2" />
 
-          {/* Jam */}
+          {/* Modal Pilih Jam */}
           <TouchableOpacity
             className="w-full flex flex-row items-center gap-4"
-            onPress={() => setIsModal3Open(true)}
+            onPress={() => openModal("pilihjam")}
           >
             <MaterialCommunityIcons
               name="clock-edit-outline"
@@ -95,19 +91,6 @@ const App = () => {
             />
             <Text className="text-skyDark text-lg">Ubah Jam Praktek</Text>
           </TouchableOpacity>
-
-          {/* Modal Pilih Jam */}
-          <Modal3 isOpen={isModal3Open} onClose={() => setIsModal3Open(false)}>
-            <View className="bg-white p-5 rounded-xl w-3/4 justify-center items-center">
-              <TimeRangePicker
-                onTimeSlotsChange={(slots) => {
-                  setTimeSlots(slots);
-                  setIsModal3Open(false);
-                }}
-                onClose={() => setIsModal3Open(false)}
-              />
-            </View>
-          </Modal3>
 
           {/* Menampilkan Waktu yang Disimpan */}
           {timeSlots.length > 0 && (
@@ -158,6 +141,7 @@ const App = () => {
               onPickImage={openGallery}
               onOpenCamera={openCamera}
               onClose={() => setModalVisible(false)}
+              onTimeSlotsChange={handleTimeSlotsChange}
             />
           </ModalTemplate>
         </View>
