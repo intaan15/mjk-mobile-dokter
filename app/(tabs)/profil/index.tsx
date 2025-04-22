@@ -48,7 +48,7 @@ function App() {
                 {DataDummy.nama}
               </Text>
               <Image
-                className="h-10 w-12"
+                className="h-10 w-12 "
                 source={images.logo}
                 resizeMode="contain"
               />
@@ -58,15 +58,17 @@ function App() {
           {/* Foto Profil */}
           <View className="absolute top-28 left-1/2 -translate-x-1/2">
             {profileImage ? (
-              <Image
-                source={{ uri: profileImage }}
-                className="w-32 h-32 rounded-full mb-4"
-              />
+              <View className="border-4 border-skyDark rounded-full p-1">
+                <Image
+                  source={{ uri: profileImage }}
+                  className="w-32 h-32 rounded-full"
+                />
+              </View>
             ) : (
-              <Text>
+              <Text className="border-4 border-skyDark rounded-full ">
                 <MaterialCommunityIcons
                   name="account-circle"
-                  size={110}
+                  size={120}
                   color="grey"
                 />
               </Text>
@@ -75,7 +77,7 @@ function App() {
 
           {/* Card Profil */}
           <View
-            className="bg-white rounded-xl mx-10 mt-24 p-6"
+            className="bg-white rounded-xl mx-10 mt-28 p-6"
             style={{
               shadowOffset: { width: 0, height: -20 },
               shadowOpacity: 0.2,

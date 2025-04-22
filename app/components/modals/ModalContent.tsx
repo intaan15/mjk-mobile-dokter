@@ -3,6 +3,10 @@ import { Text, View, TouchableOpacity } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import ImagePickerComponent, {
+  useImage,
+  ImageProvider,
+} from "@/components/picker/imagepicker";
 
 interface ModalContentProps {
   modalType: string;
@@ -53,17 +57,22 @@ const ModalContent: React.FC<ModalContentProps> = ({
     return slots;
   };
 
+  const imageContext = useImage();
+    const profileImage = imageContext?.profileImage;
+    const setImage = imageContext?.setImage;
+
   switch (modalType) {
     case "konfirm":
       return (
         <View>
-          <Text className="text-center text-lg font-bold text-gray-700">
+          <TouchableOpacity onPress={onClose} 
+          className="text-center text-lg font-bold text-gray-700">
             Jadwal anda berhasil diubah
-          </Text>
+          </TouchableOpacity>
 
           <View className="w-full h-1 bg-skyDark my-5" />
 
-          <Text className=" text-center text-skyDark font-medium">Oke</Text>
+          <TouchableOpacity onPress={onClose} className=" text-center text-skyDark font-medium">Oke</TouchableOpacity>
         </View>
       );
 
@@ -75,13 +84,13 @@ const ModalContent: React.FC<ModalContentProps> = ({
           </Text>
 
           <View className="flex flex-row justify-between items-center mt-5 px-20">
-            <TouchableOpacity>
+            <TouchableOpacity onPress={onClose}>
               <Text className=" text-center text-skyDark font-medium">
                 Batal
               </Text>
             </TouchableOpacity>
             <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
-            <TouchableOpacity>
+            <TouchableOpacity onPress={onClose}>
               <Text className=" text-center text-red-500 font-medium">Oke</Text>
             </TouchableOpacity>
           </View>
@@ -96,13 +105,41 @@ const ModalContent: React.FC<ModalContentProps> = ({
           </Text>
 
           <View className="flex flex-row justify-between items-center mt-5 px-20">
-            <TouchableOpacity>
+            <TouchableOpacity onPress={onClose}>
               <Text className=" text-center text-skyDark font-medium">
                 Batal
               </Text>
             </TouchableOpacity>
             <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
-            <TouchableOpacity>
+            <TouchableOpacity onPress={onClose}>
+              <Text className=" text-center text-red-500 font-medium">
+                Hapus
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      );
+
+    case "hapusprofil":
+      return (
+        <View>
+          <Text className="text-center text-lg font-bold text-gray-700">
+            Anda yakin akan menghapus foto profil?
+          </Text>
+
+          <View className="flex flex-row justify-between items-center mt-5 px-20">
+            <TouchableOpacity onPress={onClose}>
+              <Text className=" text-center text-skyDark font-medium">
+                Batal
+              </Text>
+            </TouchableOpacity>
+            <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
+            <TouchableOpacity
+              onPress={() => {
+                setImage?.(null);
+                onClose?.();
+              }}
+            >
               <Text className=" text-center text-red-500 font-medium">
                 Hapus
               </Text>
@@ -119,13 +156,13 @@ const ModalContent: React.FC<ModalContentProps> = ({
           </Text>
 
           <View className="flex flex-row justify-between items-center mt-5 px-20">
-            <TouchableOpacity>
+            <TouchableOpacity onPress={onClose}>
               <Text className=" text-center text-skyDark font-medium">
                 Batal
               </Text>
             </TouchableOpacity>
             <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
-            <TouchableOpacity>
+            <TouchableOpacity onPress={onClose}>
               <Text className=" text-center text-red-500 font-medium">
                 Keluar
               </Text>

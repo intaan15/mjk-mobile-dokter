@@ -117,7 +117,7 @@ export default function Settings() {
 
       <TouchableOpacity
         className="flex flex-row items-center gap-2"
-        onPress={() => setImage?.(null)}
+        onPress={() => openModal("hapusprofil")}
         disabled={!profileImage}
       >
         <MaterialCommunityIcons name="image-remove" size={24} color="black" />

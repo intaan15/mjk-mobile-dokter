@@ -119,16 +119,16 @@ export default function HomeScreen() {
               resizeMode="contain"
             />
           </View>
-
-          <DatePickerComponent
-            label="Tanggal Terpilih"
-            onDateChange={(date) => {
-              const formattedDate = moment(date).format("DD/MM/YY");
-              setSelectedDate(formattedDate);
-            }}
-          />
-
-          <View className="w-full h-[2px] bg-skyDark" />
+          <View className="flex flex-col w-full gap-1">
+            <DatePickerComponent
+              label="Tanggal Terpilih"
+              onDateChange={(date) => {
+                const formattedDate = moment(date).format("DD/MM/YY");
+                setSelectedDate(formattedDate);
+              }}
+            />
+            <View className="w-full h-[2px] bg-skyDark" />
+          </View>
 
           <View className="flex flex-row rounded-xl border-2 border-skyDark overflow-hidden">
             {["Berlangsung", "Selesai"].map((tab) => (

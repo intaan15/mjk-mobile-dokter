@@ -97,8 +97,9 @@ const ScheduleScreen = () => {
           <DatePickerComponent
             label="Pilih Tanggal"
             onDateChange={handleDateChange}
-            defaultValue={selectedDate}
+            // defaultValue={selectedDate}
           />
+          <View className="w-full h-[2px] bg-skyDark mt-1" />
 
           {selectedDate && (
             <View className="mt-4">
