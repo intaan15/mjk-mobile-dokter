@@ -11,7 +11,8 @@ import { useRouter } from "expo-router";
 import Background from "../../components/background";
 import { images } from "@/constants/images";
 import TabButton from "../../components/tabbutton";
-
+import DatePickerComponent from "@/components/picker/datepicker";
+import moment from "moment";
 
 const { width } = Dimensions.get("window");
 
@@ -80,37 +81,37 @@ const chats = [
     id: 11,
     user: "Budi",
     message: "Saya merasa lebih baik sekarang.",
-    date: "17/03/25",
+    date: "23/04/25",
   },
   {
     id: 12,
     user: "Budi",
     message: "Saya merasa lebih baik sekarang.",
-    date: "17/03/25",
+    date: "22/04/25",
   },
   {
     id: 13,
     user: "Budi",
     message: "Saya merasa lebih baik sekarang.",
-    date: "17/03/25",
+    date: "21/04/25",
   },
 ];
 
 export default function HomeScreen() {
   const router = useRouter();
-    const [selectedTab, setSelectedTab] = useState("Berlangsung");
-  
+  const [selectedTab, setSelectedTab] = useState("Berlangsung");
+  const [selectedDate, setSelectedDate] = useState(moment().format("DD/MM/YY"));
+
+  const filteredChats = chats.filter((chat) => chat.date === selectedDate);
 
   return (
     <Background>
       <View className="flex-1">
-        {/* <Navbar /> */}
-
         {/* Header */}
-        <View className="relative pt-12 flex flex-col gap-5"> 
-          <View className=" flex items-center justify-between flex-row px-12">
+        <View className="relative pt-12 flex flex-col gap-4 px-6">
+          <View className="flex items-center justify-between flex-row">
             <Text className="text-skyDark text-2xl font-bold">
-              Selamat datang, {"\n"}dr Rayhan Izzuddin
+              Hi, dr Rayhan Izzuddin
             </Text>
             <Image
               className="h-10 w-12"
@@ -118,25 +119,36 @@ export default function HomeScreen() {
               resizeMode="contain"
             />
           </View>
-          <View className="flex flex-row mx-6 rounded-xl border-2 border-skyDark overflow-hidden">
-                    {["Berlangsung", "Selesai"].map((tab) => (
-                      <TabButton
-                        key={tab}
-                        label={tab}
-                        isActive={selectedTab === tab}
-                        onPress={() => setSelectedTab(tab)}
-                      />
-                    ))}
-                  </View>
+
+          <DatePickerComponent
+            label="Tanggal Terpilih"
+            onDateChange={(date) => {
+              const formattedDate = moment(date).format("DD/MM/YY");
+              setSelectedDate(formattedDate);
+            }}
+          />
+
+          <View className="w-full h-[2px] bg-skyDark" />
+
+          <View className="flex flex-row rounded-xl border-2 border-skyDark overflow-hidden">
+            {["Berlangsung", "Selesai"].map((tab) => (
+              <TabButton
+                key={tab}
+                label={tab}
+                isActive={selectedTab === tab}
+                onPress={() => setSelectedTab(tab)}
+              />
+            ))}
+          </View>
         </View>
 
         {/* Chat List */}
         <View className="flex-1">
           <ScrollView
             className="px-6 py-4"
-            contentContainerStyle={{ paddingBottom: 80 }} // Menambah padding bawah agar tidak tertutup navbar
+            contentContainerStyle={{ paddingBottom: 80 }}
           >
-            {chats.map((chat) => (
+            {filteredChats.map((chat) => (
               <TouchableOpacity
                 key={chat.id}
                 className="flex flex-col"
@@ -156,7 +168,7 @@ export default function HomeScreen() {
                     <Text className="text-gray-700 mt-1">{chat.message}</Text>
                   </View>
                 </View>
-                <View className="w-full h-[2px] bg-skyDark my-2"/>
+                <View className="w-full h-[2px] bg-skyDark my-2" />
               </TouchableOpacity>
             ))}
           </ScrollView>
