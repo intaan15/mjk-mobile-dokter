@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import {
   View,
   Text,
@@ -10,15 +10,49 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   StatusBar,
+  TouchableOpacity,
 } from "react-native";
 import { useRouter } from "expo-router";
 import Background from "../components/background";
 import Button from "../components/button";
+import axios from "axios";
+import * as SecureStore from "expo-secure-store";
 
 // import { StatusBar } from "react-native";
 
 export default function SignIn() {
+  const [identifier, setIdentifier] = useState("");
+  const [password, setPassword] = useState("");
   const router = useRouter();
+
+   const handleLogin = async () => {
+     try {
+       const response = await axios.post(
+         "https://mjk-backend-five.vercel.app/api/auth/login_dokter",
+         {
+           identifier_dokter: identifier,
+           password_dokter: password,
+         }
+       );
+
+       const { token } = response.data;
+       await SecureStore.setItemAsync("userToken", token);
+       router.replace("/(tabs)/home");
+     } catch (error: unknown) {
+       if (axios.isAxiosError(error)) {
+         if (error.response) {
+           alert(`Error: ${error.response.data.message || "Gagal login"}`);
+         } else if (error.request) {
+           alert("Tidak ada respon dari server. Coba lagi nanti.");
+         } else {
+           alert(`Terjadi kesalahan: ${error.message}`);
+         }
+       } else {
+         alert("Terjadi kesalahan yang tidak terduga: " + error);
+       }
+     }
+   };
+  
 
   return (
     <Background>
@@ -55,6 +89,8 @@ export default function SignIn() {
                 <Text>Nama Pengguna atau STR</Text>
                 <TextInput
                   placeholder="Masukkan Nama Pengguna atau STR"
+                  value={identifier}
+                  onChangeText={setIdentifier}
                   className="bg-transparent border-gray-400 border-2 text-black px-4 py-3 rounded-xl"
                   placeholderTextColor="#ccc"
                 />
@@ -62,18 +98,17 @@ export default function SignIn() {
                 <TextInput
                   placeholder="Masukkan Kata Sandi"
                   secureTextEntry
+                  value={password}
+                  onChangeText={setPassword}
                   className="bg-transparent border-2 border-gray-400 text-black px-4 py-3 rounded-xl"
                   placeholderTextColor="#ccc"
                 />
               </View>
 
               {/* Tombol Login */}
-              <Button
-                text="Masuk"
-                variant="success"
-                className="w-5/6 mt-6"
-                onPress={() => router.push("/home")}
-              />
+              <TouchableOpacity className="bg-skyDark py-3 px-6 rounded-3xl mt-6 w-4/6 " onPress={handleLogin}>
+                <Text className="text-xl font-normal text-white text-center" >Masuk</Text>
+              </TouchableOpacity>
             </View>
           </ScrollView>
         </TouchableWithoutFeedback>
