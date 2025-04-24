@@ -14,7 +14,6 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import Background from "../components/background";
-import Button from "../components/button";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 
@@ -36,22 +35,36 @@ export default function SignIn() {
        );
 
        const { token } = response.data;
+
+       // Simpan token ke SecureStore
        await SecureStore.setItemAsync("userToken", token);
+
+       // Arahkan ke home
        router.replace("/(tabs)/home");
      } catch (error: unknown) {
        if (axios.isAxiosError(error)) {
-         if (error.response) {
-           alert(`Error: ${error.response.data.message || "Gagal login"}`);
+         const status = error.response?.status;
+         const message = error.response?.data?.message;
+
+         if (status === 429) {
+           alert("Terlalu banyak percobaan login. Coba lagi nanti.");
+         } else if (status === 400) {
+           alert(message || "Permintaan tidak valid.");
+         } else if (status === 401) {
+           alert("Akses ditolak. Token tidak valid.");
+         } else if (status === 500) {
+           alert("Terjadi kesalahan pada server.");
          } else if (error.request) {
-           alert("Tidak ada respon dari server. Coba lagi nanti.");
+           alert("Tidak ada respon dari server. Periksa koneksi Anda.");
          } else {
            alert(`Terjadi kesalahan: ${error.message}`);
          }
        } else {
-         alert("Terjadi kesalahan yang tidak terduga: " + error);
+         alert("Terjadi kesalahan yang tidak terduga.");
        }
      }
    };
+
   
 
   return (
