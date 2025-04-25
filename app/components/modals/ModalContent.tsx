@@ -379,6 +379,97 @@ const ModalContent: React.FC<ModalContentProps> = ({
         </View>
       );
 
+      // prifle reset password
+    case "pwkosong":
+      return (
+        <View>
+          <Text className="text-center text-lg font-bold text-gray-700">
+            Semua kolom harus diisi
+          </Text>
+
+          <View className="w-full h-[2px] bg-skyDark my-5" />
+
+          <TouchableOpacity
+            className=" text-center text-skyDark font-medium"
+            onPress={onClose}
+          >
+            <Text className="text-center">Oke</Text>
+          </TouchableOpacity>
+        </View>
+      );
+
+    case "konfirmtidakcocok":
+      return (
+        <View>
+          <Text className="text-center text-lg font-bold text-gray-700">
+            Konfirmasi password tidak cocok
+          </Text>
+
+          <View className="w-full h-[2px] bg-skyDark my-5" />
+
+          <TouchableOpacity
+            className=" text-center text-skyDark font-medium"
+            onPress={onClose}
+          >
+            <Text className="text-center">Oke</Text>
+          </TouchableOpacity>
+        </View>
+      );
+
+    case "pwlamasalah":
+      return (
+        <View>
+          <Text className="text-center text-lg font-bold text-gray-700">
+            Password lama salah
+          </Text>
+
+          <View className="w-full h-[2px] bg-skyDark my-5" />
+
+          <TouchableOpacity
+            className=" text-center text-skyDark font-medium"
+            onPress={onClose}
+          >
+            <Text className="text-center">Oke</Text>
+          </TouchableOpacity>
+        </View>
+      );
+
+    case "pwberhasildiubah":
+      return (
+        <View>
+          <Text className="text-center text-lg font-bold text-gray-700">
+            Password berhasil diubah
+          </Text>
+
+          <View className="w-full h-[2px] bg-skyDark my-5" />
+
+          <TouchableOpacity
+            className=" text-center text-skyDark font-medium"
+            onPress={onClose}
+          >
+            <Text className="text-center">Oke</Text>
+          </TouchableOpacity>
+        </View>
+      );
+
+    // case "pwsalah":
+    //   return (
+    //     <View>
+    //       <Text className="text-center text-lg font-bold text-gray-700">
+    //         Password salah
+    //       </Text>
+
+    //       <View className="w-full h-[2px] bg-skyDark my-5" />
+
+    //       <TouchableOpacity
+    //         className=" text-center text-skyDark font-medium"
+    //         onPress={onClose}
+    //       >
+    //         <Text className="text-center">Oke</Text>
+    //       </TouchableOpacity>
+    //     </View>
+    //   );
+
     default:
       return <Text>Modal tidak ditemukan.</Text>;
   }
