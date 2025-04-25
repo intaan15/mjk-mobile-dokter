@@ -1,5 +1,5 @@
 import React from "react";
-import { View, TouchableOpacity, Text } from "react-native";
+import { View, TouchableOpacity, Text, StatusBar } from "react-native";
 import Modal from "react-native-modal";
 
 interface ModalTemplateProps {
@@ -14,13 +14,24 @@ const ModalTemplate: React.FC<ModalTemplateProps> = ({
   children,
 }) => {
   return (
-    <Modal isVisible={isVisible} onBackdropPress={onClose}>
-      <View className="bg-white p-4 rounded-xl relative">
+    <Modal
+      isVisible={isVisible}
+      onBackdropPress={onClose}
+      backdropColor="black"
+      backdropOpacity={0.5}
+      style={{ margin: 0, justifyContent: "center" }}
+      animationIn="fadeIn"
+      animationOut="fadeOut"
+    >
+      {isVisible && (
+        <StatusBar backgroundColor="rgba(0,0,0,0.5)" translucent={true} />
+      )}
+      <View className="bg-white p-4 rounded-xl mx-8 relative">
         <TouchableOpacity
           onPress={onClose}
           className="absolute top-2 right-4 z-10"
         >
-          <Text className="text-2xl text-gray-700">×</Text>
+          {/* <Text className="text-2xl text-gray-700">×</Text> */}
         </TouchableOpacity>
         {children}
       </View>

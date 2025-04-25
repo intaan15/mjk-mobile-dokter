@@ -60,10 +60,10 @@ const ModalContent: React.FC<ModalContentProps> = ({
   };
 
   const imageContext = useImage();
-    const profileImage = imageContext?.profileImage;
-    const setImage = imageContext?.setImage;
+  const profileImage = imageContext?.profileImage;
+  const setImage = imageContext?.setImage;
 
-const router = useRouter();
+  const router = useRouter();
   const handleLogout = async () => {
     await SecureStore.deleteItemAsync("userToken");
     onClose?.(); // nutup modal
@@ -285,6 +285,96 @@ const router = useRouter();
             <Text className="text-center text-white font-semibold text-base">
               Batal
             </Text>
+          </TouchableOpacity>
+        </View>
+      );
+
+    case "limiter":
+      return (
+        <View>
+          <Text className="text-center text-lg font-bold text-gray-700">
+            Terlalu banyak percobaan login. Coba lagi nanti.
+          </Text>
+
+          <View className="w-full h-[2px] bg-skyDark my-5" />
+
+          <TouchableOpacity
+            className=" text-center text-skyDark font-medium"
+            onPress={onClose}
+          >
+            <Text className="text-center">Oke</Text>
+          </TouchableOpacity>
+        </View>
+      );
+
+    case "galat":
+      return (
+        <View>
+          <Text className="text-center text-lg font-bold text-gray-700">
+            Galat! Terjadi kesalahan yang tidak terduga
+          </Text>
+
+          <View className="w-full h-[2px] bg-skyDark my-5" />
+
+          <TouchableOpacity
+            className=" text-center text-skyDark font-medium"
+            onPress={onClose}
+          >
+            <Text className="text-center">Oke</Text>
+          </TouchableOpacity>
+        </View>
+      );
+
+    case "dokterkosong":
+      return (
+        <View>
+          <Text className="text-center text-lg font-bold text-gray-700">
+            Harap masukkan username/STR dan password
+          </Text>
+
+          <View className="w-full h-[2px] bg-skyDark my-5" />
+
+          <TouchableOpacity
+            className=" text-center text-skyDark font-medium"
+            onPress={onClose}
+          >
+            <Text className="text-center">Oke</Text>
+          </TouchableOpacity>
+        </View>
+      );
+
+    case "gadaakun":
+      return (
+        <View>
+          <Text className="text-center text-lg font-bold text-gray-700">
+            Akun tidak ditemukan
+          </Text>
+
+          <View className="w-full h-[2px] bg-skyDark my-5" />
+
+          <TouchableOpacity
+            className=" text-center text-skyDark font-medium"
+            onPress={onClose}
+          >
+            <Text className="text-center">Oke</Text>
+          </TouchableOpacity>
+        </View>
+      );
+
+    case "pwsalah":
+      return (
+        <View>
+          <Text className="text-center text-lg font-bold text-gray-700">
+            Password salah
+          </Text>
+
+          <View className="w-full h-[2px] bg-skyDark my-5" />
+
+          <TouchableOpacity
+            className=" text-center text-skyDark font-medium"
+            onPress={onClose}
+          >
+            <Text className="text-center">Oke</Text>
           </TouchableOpacity>
         </View>
       );

@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -16,56 +16,65 @@ import { useRouter } from "expo-router";
 import Background from "../components/background";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
+import ModalTemplate from "@/components/modals/ModalTemplate"; // Import ModalTemplate
+import ModalContent from "@/components/modals/ModalContent"; // Import ModalContent
 
 export default function SignIn() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalType, setModalType] = useState(""); // tipe pesan: "dokterkosong", "pwsalah", dll
 
-   const handleLogin = async () => {
-     try {
-       const response = await axios.post(
-         "https://mjk-backend-five.vercel.app/api/auth/login_dokter",
-         {
-           identifier_dokter: identifier,
-           password_dokter: password,
-         }
-       );
+  const handleLogin = async () => {
+    if (!identifier || !password) {
+      setModalType("dokterkosong");
+      setModalVisible(true);
+      return;
+    }
 
-       const { token, userId } = response.data;
-       await SecureStore.setItemAsync("userToken", token);
-       await SecureStore.setItemAsync("userId", userId);
-       router.replace("/(tabs)/home");
-     } catch (error: unknown) {
-       if (axios.isAxiosError(error)) {
-         const status = error.response?.status;
-         const message = error.response?.data?.message;
+    try {
+      const response = await axios.post(
+        "https://mjk-backend-five.vercel.app/api/auth/login_dokter",
+        {
+          identifier_dokter: identifier,
+          password_dokter: password,
+        }
+      );
 
-         if (status === 429) {
-           alert("Terlalu banyak percobaan login. Coba lagi nanti.");
-         } else if (status === 400) {
-           alert(message || "Permintaan tidak valid.");
-         } else if (status === 401) {
-           alert("Akses ditolak. Token tidak valid.");
-         } else if (status === 500) {
-           alert("Terjadi kesalahan pada server.");
-         } else if (error.request) {
-           alert("Tidak ada respon dari server. Periksa koneksi Anda.");
-         } else {
-           alert(`Terjadi kesalahan: ${error.message}`);
-         }
-       } else {
-         alert("Terjadi kesalahan yang tidak terduga.");
-       }
-     }
-   };
+      const { token, userId } = response.data;
+      await SecureStore.setItemAsync("userToken", token);
+      await SecureStore.setItemAsync("userId", userId);
+      router.replace("/(tabs)/home");
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        const status = error.response?.status;
+        const message = error.response?.data?.message;
 
-  
+        if (status === 429) {
+          setModalType("limiter");
+        } else if (status === 400) {
+          if (message === "Akun tidak ditemukan") {
+            setModalType("gadaakun");
+          } else if (message === "Password salah") {
+            setModalType("pwsalah");
+          } else {
+            setModalType("galat");
+          }
+        } else {
+          setModalType("galat");
+        }
+      } else {
+        setModalType("galat");
+      }
+      setModalVisible(true);
+    }
+  };
 
   return (
     <Background>
-      {/* StatusBar untuk mengubah warna navbar HP */}
-      <StatusBar backgroundColor="#f6f6f6" barStyle="dark-content" />
+      {/* StatusBar untuk mengubah warna navbar HP
+      <StatusBar backgroundColor="#f6f6f6" barStyle="dark-content" /> */}
 
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -114,13 +123,28 @@ export default function SignIn() {
               </View>
 
               {/* Tombol Login */}
-              <TouchableOpacity className="bg-skyDark py-3 px-6 rounded-3xl mt-6 w-4/6 " onPress={handleLogin}>
-                <Text className="text-xl font-normal text-white text-center" >Masuk</Text>
+              <TouchableOpacity
+                className="bg-skyDark py-3 px-6 rounded-3xl mt-6 w-4/6"
+                onPress={handleLogin}
+              >
+                <Text className="text-xl font-normal text-white text-center">
+                  Masuk
+                </Text>
               </TouchableOpacity>
             </View>
           </ScrollView>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
+
+      <ModalTemplate
+        isVisible={modalVisible}
+        onClose={() => setModalVisible(false)} // Menutup modal
+      >
+        <ModalContent
+          modalType={modalType}
+          onClose={() => setModalVisible(false)} // Menutup modal dari dalam content
+        />
+      </ModalTemplate>
     </Background>
   );
 }
