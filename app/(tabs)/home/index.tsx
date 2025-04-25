@@ -6,15 +6,21 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "expo-router";
 import Background from "../../components/background";
 import { images } from "@/constants/images";
 import TabButton from "../../components/tabbutton";
 import DatePickerComponent from "@/components/picker/datepicker";
 import moment from "moment";
+import * as SecureStore from "expo-secure-store";
+import axios from "axios";
 
 const { width } = Dimensions.get("window");
+
+interface User {
+  nama_dokter: string;
+}
 
 const chats = [
   {
@@ -103,7 +109,26 @@ export default function HomeScreen() {
   const [selectedDate, setSelectedDate] = useState(moment().format("DD/MM/YY"));
 
   const filteredChats = chats.filter((chat) => chat.date === selectedDate);
+  const [userData, setUserData] = useState<User | null>(null);
 
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  const fetchUserData = async () => {
+    try {
+      const userId = await SecureStore.getItemAsync("userId");
+      const cleanedUserId = userId?.replace(/"/g, "");
+      if (cleanedUserId) {
+        const response = await axios.get(
+          `https://mjk-backend-five.vercel.app/api/dokter/getbyid/${cleanedUserId}`
+        );
+        setUserData(response.data);
+      }
+    } catch (error) {
+      console.error("Gagal mengambil data profil:", error);
+    }
+  };
   return (
     <Background>
       <View className="flex-1">
@@ -111,7 +136,7 @@ export default function HomeScreen() {
         <View className="relative pt-12 flex flex-col gap-4 px-6">
           <View className="flex items-center justify-between flex-row">
             <Text className="text-skyDark text-2xl font-bold">
-              Hi, dr Rayhan Izzuddin
+              Hi, {userData ? userData.nama_dokter : "Loading..."}
             </Text>
             <Image
               className="h-10 w-12"

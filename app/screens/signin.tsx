@@ -17,8 +17,6 @@ import Background from "../components/background";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 
-// import { StatusBar } from "react-native";
-
 export default function SignIn() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
@@ -34,12 +32,9 @@ export default function SignIn() {
          }
        );
 
-       const { token } = response.data;
-
-       // Simpan token ke SecureStore
+       const { token, userId } = response.data;
        await SecureStore.setItemAsync("userToken", token);
-
-       // Arahkan ke home
+       await SecureStore.setItemAsync("userId", userId);
        router.replace("/(tabs)/home");
      } catch (error: unknown) {
        if (axios.isAxiosError(error)) {
