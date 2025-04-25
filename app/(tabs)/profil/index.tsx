@@ -38,12 +38,11 @@ export default function ProfileScreen() {
 }
 
 function App() {
-  const imageContext = useImage();
-  const profileImage = imageContext?.profileImage || null;
   const [userData, setUserData] = useState<User | null>(null);
   const [passwordLama, setPasswordLama] = useState("");
   const [passwordBaru, setPasswordBaru] = useState("");
   const [konfirmasiPassword, setKonfirmasiPassword] = useState("");
+
   useEffect(() => {
     fetchUserData();
   }, []);
