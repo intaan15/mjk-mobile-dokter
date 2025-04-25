@@ -29,7 +29,6 @@ interface User {
   foto_profil_dokter: string | null;
 }
 
-
 export default function ProfileScreen() {
   return (
     <ImageProvider>
@@ -181,27 +180,45 @@ function App() {
               Ganti Password
             </Text>
             <View className="w-full h-[2px] bg-skyDark" />
-            <View className="flex flex-col items-center gap-2 ">
+            <View className="flex flex-col items-center">
+              <Text className="w-full pl-1 text-base font-semibold text-skyDark pt-2">
+                Kata Sandi Lama
+              </Text>
               <TextInput
-                placeholder="Password Lama"
+                placeholder="Masukkan Kata Sandi Lama"
                 secureTextEntry
-                className="border-2 rounded-xl border-gray-400 p-2 mt-2 w-full"
+                value={passwordLama}
+                onChangeText={setPasswordLama}
+                className="border-2 rounded-xl border-gray-400 p-2 w-full"
+                placeholderTextColor="#888"
               />
+              <Text className="w-full pl-1 text-base font-semibold text-skyDark pt-2">
+                Kata Sandi Baru
+              </Text>
               <TextInput
-                placeholder="Password Baru"
+                placeholder="Masukkan Kata Sandi Baru"
                 secureTextEntry
-                className="border-2 rounded-xl border-gray-400 p-2 mt-2 w-full"
+                value={passwordBaru}
+                onChangeText={setPasswordBaru}
+                className="border-2 rounded-xl border-gray-400 p-2 w-full"
+                placeholderTextColor="#888"
               />
+              <Text className="w-full pl-1 text-base font-semibold text-skyDark pt-2">
+                Konfirmasi Kata Sandi Baru
+              </Text>
               <TextInput
-                placeholder="Konfirmasi Password Baru"
+                placeholder="Masukkan Konfirmasi Kata Sandi Baru"
                 secureTextEntry
-                className="border-2 rounded-xl border-gray-400 p-2 mt-2 w-full"
+                value={konfirmasiPassword}
+                onChangeText={setKonfirmasiPassword}
+                className="border-2 rounded-xl border-gray-400 p-2 w-full"
+                placeholderTextColor="#888"
               />
-
-              <TouchableOpacity className="bg-white p-2 rounded-xl w-2/4  mt-4 border-2 border-sky-500">
-                <Text className="text-skyDark text-center font-bold">
-                  Simpan
-                </Text>
+              <TouchableOpacity
+                className="p-2 rounded-xl w-2/4 mt-6 bg-skyDark"
+                onPress={handleGantiPassword}
+              >
+                <Text className="text-white text-center font-bold">Simpan</Text>
               </TouchableOpacity>
             </View>
           </View>
