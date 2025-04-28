@@ -17,7 +17,7 @@ export default function Index() {
       if (token) {
         try {
           await axios.get(
-            "https://mjk-backend-five.vercel.app/api/auth/login_dokter",
+            "https://mjk-backend-production.up.railway.app/api/auth/login_dokter",
             {
               headers: { Authorization: `Bearer ${token}` },
             }

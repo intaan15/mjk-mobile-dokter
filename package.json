@@ -53,6 +53,7 @@
     "react-native-ui-datepicker": "^3.1.2",
     "react-native-web": "~0.19.13",
     "react-native-webview": "13.12.5",
+    "socket.io-client": "^4.8.1",
     "tailwindcss": "3.4.17"
   },
   "devDependencies": {

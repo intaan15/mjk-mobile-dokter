@@ -35,7 +35,7 @@ export default function SignIn() {
 
     try {
       const response = await axios.post(
-        "https://mjk-backend-five.vercel.app/api/auth/login_dokter",
+        "https://mjk-backend-production.up.railway.app/api/auth/login_dokter",
         {
           identifier_dokter: identifier,
           password_dokter: password,

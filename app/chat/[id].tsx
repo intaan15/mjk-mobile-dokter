@@ -4,95 +4,121 @@ import {
   TextInput,
   TouchableOpacity,
   Image,
-  Dimensions,
   FlatList,
+  Modal,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "expo-router";
 import Background from "../components/background";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import Feather from "@expo/vector-icons/Feather";
-import ImagePickerComponent, {
-  ImageProvider,
-  useImage,
-} from "@/components/picker/imagepicker";
-import ModalContent from "@/components/modals/ModalContent";
-import ModalTemplate from "@/components/modals/ModalTemplate";
-// import ImageModal from "@/components/modal4";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import * as ImagePicker from "expo-image-picker";
+import { io } from "socket.io-client";
 
-const dummyMessages = [
-  { id: "1", text: "Halo, ada yang bisa dibantu?", sender: "other" },
-  { id: "2", text: "Iya, aku butuh informasi tentang tanaman.", sender: "me" },
-  {
-    id: "3",
-    text: "Tentu! Jenis tanaman apa yang kamu maksud?",
-    sender: "other",
-  },
-  { id: "4", text: "Tanaman bonsai", sender: "me" },
-  { id: "5", text: "Kira kira yang harga berapa?", sender: "other" },
-  {
-    id: "6",
-    text: "Harga bonsai bervariasi, mulai dari ratusan ribu hingga jutaan.",
-    sender: "me",
-  },
-  { id: "7", text: "Oh, begitu. Terima kasih!", sender: "other" },
-  {
-    id: "8",
-    text: "Sama-sama! Jika ada pertanyaan lain, silakan tanya saja.",
-    sender: "me",
-  },
-  { id: "9", text: "Baiklah, terima kasih banyak!", sender: "other" },
-  { id: "10", text: "Sama-sama! Semoga harimu menyenangkan!", sender: "me" },
-  { id: "11", text: "Terima kasih! Kamu juga!", sender: "other" },
-  { id: "12", text: "Sama-sama!", sender: "me" },
-  {
-    id: "13",
-    text: "Ada yang lain yang ingin kamu tanyakan?",
-    sender: "other",
-  },
-  { id: "14", text: "Tidak, itu saja. Terima kasih!", sender: "me" },
-  { id: "15", text: "Baiklah, sampai jumpa!", sender: "other" },
-  { id: "16", text: "Sampai jumpa!", sender: "me" },
-  { id: "17", text: "Selamat tinggal!", sender: "other" },
-  { id: "18", text: "Selamat tinggal!", sender: "me" },
-  { id: "19", text: "Selamat tinggal!", sender: "other" },
-];
+const socket = io("https://mjk-backend-production.up.railway.app", {
+  transports: ["websocket"], // <--- penting supaya pakai websocket langsung
+});
 
 export default function ChatScreen() {
   const router = useRouter();
+  const [username] = useState("User" + Math.floor(Math.random() * 1000));
   const [message, setMessage] = useState("");
-  // const [modalVisible, setModalImageVisible] = useState(false);
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [modalType, setModalType] = useState("info");
-  const openModal = (type: string) => {
-    setModalType(type);
-    setModalVisible(true);
-  };
+  const [messages, setMessages] = useState([]);
+  const [previewImage, setPreviewImage] = useState(null);
 
-  const imageContext = useImage();
-  const setImage = imageContext?.setImage;
-  const { openGallery, openCamera } = ImagePickerComponent({
-    onImageSelected: setImage,
-  });
+ useEffect(() => {
+   // Event yang akan dipanggil saat koneksi berhasil
+   socket.on("connected", (data) => {
+     console.log(data.message); // Akan muncul "Successfully connected to backend"
+   });
 
-  // Handler baru yang gabung pick image + tutup modal
-  const handlePickImage = async () => {
-    await openGallery(); // buka galeri
-    setModalVisible(false); // tutup modal
-  };
+   socket.on("connect", () => {
+     console.log("Connected to backend!");
+   });
 
-  const handleOpenCamera = async () => {
-    await openCamera(); // buka kamera
-    setModalVisible(false); // tutup modal
-  };
+   socket.on("chat history", (msgs) => {
+     console.log("Chat history received:", msgs);
+     setMessages(msgs);
+   });
 
-  const handleSend = () => {
+    socket.on("chat message", (newMsg) => {
+      console.log("New chat message:", newMsg);
+      setMessages((prevMessages) => [...prevMessages, newMsg]);
+    });
+
+   // Bersihkan listener ketika komponen unmount
+   return () => {
+     socket.off("connect");
+     socket.off("connected");
+     socket.off("chat history");
+     socket.off("chat message");
+   };
+
+ }, []);
+
+
+  const sendMessage = () => {
     if (message.trim()) {
-      // Di sini bisa ditambahkan logika push message baru ke array state
+      const msgData = {
+        text: message,
+        sender: username,
+        type: "text",
+      };
+      console.log("Sending message:", msgData);
+      socket.emit("chat message", msgData);
       setMessage("");
     }
   };
+
+  const sendImage = async (fromCamera = false) => {
+    let result;
+    if (fromCamera) {
+      result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 0.7,
+        base64: true,
+      });
+    } else {
+      result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 0.7,
+        base64: true,
+      });
+    }
+
+    if (!result.canceled && result.assets?.length > 0) {
+      const base64Image = `data:image/jpeg;base64,${result.assets[0].base64}`;
+      socket.emit("chat message", {
+        sender: username,
+        image: base64Image,
+        type: "image",
+      });
+    }
+  };
+
+  // renderItem dipisah sebagai fungsi
+  const renderItem = ({ item }) => (
+    <View
+      className={`rounded-lg p-2 my-1 max-w-[80%] ${
+        item.sender === username
+          ? "bg-green-200 self-end"
+          : "bg-gray-200 self-start"
+      }`}
+    >
+      <Text className="font-bold">{item.sender}</Text>
+      {item.type === "image" && item.image ? (
+        <TouchableOpacity onPress={() => setPreviewImage(item.image)}>
+          <Image
+            source={{ uri: item.image }}
+            className="w-40 h-40 mt-1 rounded-md"
+            resizeMode="cover"
+          />
+        </TouchableOpacity>
+      ) : (
+        <Text>{item.text}</Text>
+      )}
+    </View>
+  );
 
   return (
     <Background>
@@ -117,64 +143,52 @@ export default function ChatScreen() {
         {/* Chat List */}
         <FlatList
           className="flex-1 px-4"
-          data={dummyMessages}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View
-              className={`my-2 px-4 py-2 rounded-2xl max-w-[75%] ${
-                item.sender === "me"
-                  ? "self-end bg-sky-800"
-                  : "self-start bg-sky-200"
-              }`}
-            >
-              <Text
-                className={`text-base ${
-                  item.sender === "me" ? "text-white" : "text-black"
-                }`}
-              >
-                {item.text}
-              </Text>
-            </View>
-          )}
+          data={messages}
+          keyExtractor={(item, index) => index.toString()} // pastiin unique
+          renderItem={renderItem}
           contentContainerStyle={{ paddingBottom: 80 }}
         />
 
         {/* Chat Input */}
-        <View className="absolute bottom-0 left-0 right-0 bg-skyDark p-4 flex-row items-center gap-2">
-          <TouchableOpacity onPress={() => openModal("pilihgambar")}>
-            <Feather name="image" size={28} color="#C3E9FF" />
+        <View className="flex-row items-center mt-2 px-4">
+          <TextInput
+            className="flex-1 border border-gray-400 rounded-lg p-2 mr-2"
+            value={message}
+            onChangeText={setMessage}
+            placeholder="Tulis pesan..."
+          />
+          <TouchableOpacity
+            onPress={sendMessage}
+            className="bg-blue-500 px-4 py-2 rounded-lg mr-1"
+          >
+            <Text className="text-white font-semibold">Kirim</Text>
           </TouchableOpacity>
 
-          <View className="flex-1 bg-skyLight mx-2 rounded-full px-4">
-            <TextInput
-              className="text-base text-black"
-              placeholder="Tulis pesan..."
-              value={message}
-              onChangeText={setMessage}
-              style={{ paddingVertical: 10 }}
-            />
-          </View>
+          <TouchableOpacity onPress={() => sendImage(false)}>
+            <Ionicons name="image-outline" size={28} color="gray" />
+          </TouchableOpacity>
 
-          <TouchableOpacity
-            className="p-2 bg-skyLight rounded-full"
-            onPress={handleSend}
-          >
-            <MaterialCommunityIcons name="send" size={22} color="#025F96" />
+          <TouchableOpacity onPress={() => sendImage(true)} className="ml-2">
+            <Ionicons name="camera-outline" size={28} color="gray" />
           </TouchableOpacity>
         </View>
 
-        {/* Modal untuk pilih gambar */}
-        <ModalTemplate
-          isVisible={isModalVisible}
-          onClose={() => setModalVisible(false)}
-        >
-          <ModalContent
-            modalType={modalType}
-            onPickImage={handlePickImage}
-            onOpenCamera={handleOpenCamera}
-            onClose={() => setModalVisible(false)}
-          />
-        </ModalTemplate>
+        {/* Preview Modal */}
+        <Modal visible={!!previewImage} transparent={true} animationType="fade">
+          <View className="flex-1 bg-black bg-opacity-80 justify-center items-center">
+            <TouchableOpacity
+              onPress={() => setPreviewImage(null)}
+              className="absolute top-10 right-4 z-10"
+            >
+              <Ionicons name="close-circle" size={36} color="white" />
+            </TouchableOpacity>
+            <Image
+              source={{ uri: previewImage }}
+              className="w-[90%] h-[60%] rounded-lg"
+              resizeMode="contain"
+            />
+          </View>
+        </Modal>
       </View>
     </Background>
   );

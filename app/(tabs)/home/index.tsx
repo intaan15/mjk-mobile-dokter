@@ -121,7 +121,7 @@ export default function HomeScreen() {
       const cleanedUserId = userId?.replace(/"/g, "");
       if (cleanedUserId) {
         const response = await axios.get(
-          `https://mjk-backend-five.vercel.app/api/dokter/getbyid/${cleanedUserId}`
+          `https://mjk-backend-production.up.railway.app/api/dokter/getbyid/${cleanedUserId}`
         );
         setUserData(response.data);
       }
