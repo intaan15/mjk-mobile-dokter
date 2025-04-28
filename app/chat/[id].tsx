@@ -97,28 +97,36 @@ export default function ChatScreen() {
   };
 
   // renderItem dipisah sebagai fungsi
-  const renderItem = ({ item }) => (
-    <View
-      className={`rounded-lg p-2 my-1 max-w-[80%] ${
-        item.sender === username
-          ? "bg-green-200 self-end"
-          : "bg-gray-200 self-start"
-      }`}
-    >
-      <Text className="font-bold">{item.sender}</Text>
-      {item.type === "image" && item.image ? (
-        <TouchableOpacity onPress={() => setPreviewImage(item.image)}>
-          <Image
-            source={{ uri: item.image }}
-            className="w-40 h-40 mt-1 rounded-md"
-            resizeMode="cover"
-          />
-        </TouchableOpacity>
-      ) : (
-        <Text>{item.text}</Text>
-      )}
-    </View>
-  );
+  const renderItem = ({ item }) => {
+    const isSender = item.sender === username;
+
+    return (
+      <View
+        className={`rounded-[3rem] p-4 px-4 my-1 max-w-[80%] ${
+          isSender ? "bg-skyDark self-end" : "bg-[#C3E9FF] self-start"
+        }`}
+      >
+        <Text className={`font-bold ${isSender ? "text-white" : "text-black"}`}>
+          {item.sender}
+        </Text>
+
+        {item.type === "image" && item.image ? (
+          <TouchableOpacity onPress={() => setPreviewImage(item.image)}>
+            <Image
+              source={{ uri: item.image }}
+              className="w-24 h-32 mt-1 rounded-md"
+              resizeMode="cover"
+            />
+          </TouchableOpacity>
+        ) : (
+          <Text className={`${isSender ? "text-white" : "text-black"}`}>
+            {item.text}
+          </Text>
+        )}
+      </View>
+    );
+  };
+
 
   return (
     <Background>
@@ -146,30 +154,35 @@ export default function ChatScreen() {
           data={messages}
           keyExtractor={(item, index) => index.toString()} // pastiin unique
           renderItem={renderItem}
-          contentContainerStyle={{ paddingBottom: 80 }}
+          // contentContainerStyle={{ paddingBottom: 80 }}
         />
 
         {/* Chat Input */}
-        <View className="flex-row items-center mt-2 px-4">
-          <TextInput
-            className="flex-1 border border-gray-400 rounded-lg p-2 mr-2"
-            value={message}
-            onChangeText={setMessage}
-            placeholder="Tulis pesan..."
-          />
-          <TouchableOpacity
-            onPress={sendMessage}
-            className="bg-blue-500 px-4 py-2 rounded-lg mr-1"
-          >
-            <Text className="text-white font-semibold">Kirim</Text>
-          </TouchableOpacity>
-
+        <View className="flex-row items-end mt-2 px-4 bg-skyDark py-4 pb-6">
           <TouchableOpacity onPress={() => sendImage(false)}>
             <Ionicons name="image-outline" size={28} color="gray" />
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => sendImage(true)} className="ml-2">
             <Ionicons name="camera-outline" size={28} color="gray" />
+          </TouchableOpacity>
+
+          <View className="flex-1 ml-2 mr-2">
+            <TextInput
+              className="border border-gray-400 bg-[#C3E9FF] rounded-3xl p-2"
+              value={message}
+              onChangeText={setMessage}
+              placeholder="Tulis pesan..."
+              multiline={true}
+              textAlignVertical="top"
+            />
+          </View>
+
+          <TouchableOpacity
+            onPress={sendMessage}
+            className="bg-blue-500 px-4 py-2 rounded-lg mr-1"
+          >
+            <Text className="text-white font-semibold">Kirim</Text>
           </TouchableOpacity>
         </View>
 
