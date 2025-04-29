@@ -74,7 +74,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
     case "keluarakun":
       return (
         <View>
-          <Text className="text-center text-lg font-bold text-gray-700">
+          <Text className="text-center text-lg font-bold text-skyDark">
             Anda yakin akan keluar?
           </Text>
 
@@ -118,7 +118,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
     case "jadwaldefault":
       return (
         <View>
-          <Text className="text-center text-lg font-bold text-gray-700">
+          <Text className="text-center text-lg font-bold text-skyDark">
             Jadwal anda akan diatur secara default
           </Text>
 
@@ -139,7 +139,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
     case "hapusakun":
       return (
         <View>
-          <Text className="text-center text-lg font-bold text-gray-700">
+          <Text className="text-center text-lg font-bold text-skyDark">
             Anda yakin akan menghapus akun?
           </Text>
 
@@ -162,7 +162,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
     case "hapusprofil":
       return (
         <View>
-          <Text className="text-center text-lg font-bold text-gray-700">
+          <Text className="text-center text-lg font-bold text-skyDark">
             Anda yakin akan menghapus foto profil?
           </Text>
 
@@ -279,7 +279,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
           </TouchableOpacity>
 
           <TouchableOpacity
-            className="mt-5 py-3 bg-red-500 rounded-xl w-full"
+            className="mt-5 py-3 bg-skyDark rounded-xl w-full"
             onPress={onClose}
           >
             <Text className="text-center text-white font-semibold text-base">
@@ -292,7 +292,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
     case "limiter":
       return (
         <View>
-          <Text className="text-center text-lg font-bold text-gray-700">
+          <Text className="text-center text-lg font-bold text-skyDark">
             Terlalu banyak percobaan login. Coba lagi nanti.
           </Text>
 
@@ -302,7 +302,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
             className=" text-center text-skyDark font-medium w-full"
             onPress={onClose}
           >
-            <Text className="text-center">Oke</Text>
+            <Text className="text-center text-skyDark">Oke</Text>
           </TouchableOpacity>
         </View>
       );
@@ -310,7 +310,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
     case "galat":
       return (
         <View>
-          <Text className="text-center text-lg font-bold text-gray-700">
+          <Text className="text-center text-lg font-bold text-skyDark">
             Galat! Terjadi kesalahan yang tidak terduga
           </Text>
 
@@ -320,7 +320,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
             className=" text-center text-skyDark font-medium w-full"
             onPress={onClose}
           >
-            <Text className="text-center">Oke</Text>
+            <Text className="text-center text-skyDark">Oke</Text>
           </TouchableOpacity>
         </View>
       );
@@ -328,7 +328,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
     case "dokterkosong":
       return (
         <View>
-          <Text className="text-center text-lg font-bold text-gray-700">
+          <Text className="text-center text-lg font-bold text-skyDark">
             Harap masukkan username/STR dan password
           </Text>
 
@@ -338,7 +338,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
             className=" text-center text-skyDark font-medium w-full"
             onPress={onClose}
           >
-            <Text className="text-center">Oke</Text>
+            <Text className="text-center text-skyDark">Oke</Text>
           </TouchableOpacity>
         </View>
       );
@@ -346,7 +346,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
     case "gadaakun":
       return (
         <View>
-          <Text className="text-center text-lg font-bold text-gray-700">
+          <Text className="text-center text-lg font-bold text-skyDark">
             Akun tidak ditemukan
           </Text>
 
@@ -356,7 +356,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
             className=" text-center text-skyDark font-medium w-full"
             onPress={onClose}
           >
-            <Text className="text-center">Oke</Text>
+            <Text className="text-center text-skyDark">Oke</Text>
           </TouchableOpacity>
         </View>
       );
@@ -364,7 +364,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
     case "pwsalah":
       return (
         <View>
-          <Text className="text-center text-lg font-bold text-gray-700">
+          <Text className="text-center text-lg font-bold text-skyDark">
             Password salah
           </Text>
 
@@ -374,7 +374,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
             className=" text-center text-skyDark font-medium w-full"
             onPress={onClose}
           >
-            <Text className="text-center">Oke</Text>
+            <Text className="text-center text-skyDark">Oke</Text>
           </TouchableOpacity>
         </View>
       );
@@ -383,7 +383,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
     case "pwkosong":
       return (
         <View>
-          <Text className="text-center text-lg font-bold text-gray-700">
+          <Text className="text-center text-lg font-bold text-skyDark">
             Semua kolom harus diisi
           </Text>
 
@@ -393,7 +393,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
             className=" text-center text-skyDark font-medium w-full"
             onPress={onClose}
           >
-            <Text className="text-center">Oke</Text>
+            <Text className="text-center text-skyDark">Oke</Text>
           </TouchableOpacity>
         </View>
       );
@@ -401,7 +401,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
     case "konfirmtidakcocok":
       return (
         <View>
-          <Text className="text-center text-lg font-bold text-gray-700">
+          <Text className="text-center text-lg font-bold text-skyDark">
             Konfirmasi password tidak cocok
           </Text>
 
@@ -411,7 +411,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
             className=" text-center text-skyDark font-medium w-full"
             onPress={onClose}
           >
-            <Text className="text-center">Oke</Text>
+            <Text className="text-center text-skyDark">Oke</Text>
           </TouchableOpacity>
         </View>
       );
@@ -419,7 +419,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
     case "pwlamasalah":
       return (
         <View>
-          <Text className="text-center text-lg font-bold text-gray-700">
+          <Text className="text-center text-lg font-bold text-skyDark">
             Password lama salah
           </Text>
 
@@ -429,7 +429,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
             className=" text-center text-skyDark font-medium w-full"
             onPress={onClose}
           >
-            <Text className="text-center">Oke</Text>
+            <Text className="text-center text-skyDark">Oke</Text>
           </TouchableOpacity>
         </View>
       );
@@ -437,7 +437,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
     case "pwberhasildiubah":
       return (
         <View>
-          <Text className="text-center text-lg font-bold text-gray-700">
+          <Text className="text-center text-lg font-bold text-skyDark">
             Password berhasil diubah
           </Text>
 
@@ -447,7 +447,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
             className=" text-center text-skyDark font-medium w-full"
             onPress={onClose}
           >
-            <Text className="text-center">Oke</Text>
+            <Text className="text-center text-skyDark">Oke</Text>
           </TouchableOpacity>
         </View>
       );
@@ -456,7 +456,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
     case "ubahberhasil":
       return (
         <View>
-          <Text className="text-center text-lg font-bold text-gray-700">
+          <Text className="text-center text-lg font-bold text-skyDark">
             Password berhasil diubah
           </Text>
 
@@ -466,7 +466,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
             className=" text-center text-skyDark font-medium w-full"
             onPress={onClose}
           >
-            <Text className="text-center">Oke</Text>
+            <Text className="text-center text-skyDark">Oke</Text>
           </TouchableOpacity>
         </View>
       );
@@ -474,7 +474,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
     case "pwlamasalah":
       return (
         <View>
-          <Text className="text-center text-lg font-bold text-gray-700">
+          <Text className="text-center text-lg font-bold text-skyDark">
             Password lama salah
           </Text>
 
@@ -484,7 +484,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
             className=" text-center text-skyDark font-medium w-full"
             onPress={onClose}
           >
-            <Text className="text-center">Oke</Text>
+            <Text className="text-center text-skyDark">Oke</Text>
           </TouchableOpacity>
         </View>
       );
@@ -492,7 +492,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
     case "pwtidakcocok":
       return (
         <View>
-          <Text className="text-center text-lg font-bold text-gray-700">
+          <Text className="text-center text-lg font-bold text-skyDark">
             Konfirmasi password tidak cocok
           </Text>
 
@@ -502,7 +502,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
             className=" text-center text-skyDark font-medium w-full"
             onPress={onClose}
           >
-            <Text className="text-center">Oke</Text>
+            <Text className="text-center text-skyDark">Oke</Text>
           </TouchableOpacity>
         </View>
       );
@@ -510,7 +510,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
     case "kolompwkosong":
       return (
         <View>
-          <Text className="text-center text-lg font-bold text-gray-700">
+          <Text className="text-center text-lg font-bold text-skyDark">
             Semua kolom harus diisi
           </Text>
 
@@ -520,7 +520,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
             className=" text-center text-skyDark font-medium w-full"
             onPress={onClose}
           >
-            <Text className="text-center">Oke</Text>
+            <Text className="text-center text-skyDark">Oke</Text>
           </TouchableOpacity>
         </View>
       );
