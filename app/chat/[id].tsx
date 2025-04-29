@@ -23,7 +23,14 @@ export default function ChatScreen() {
   const router = useRouter();
   const [username] = useState("User" + Math.floor(Math.random() * 1000));
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([]);
+  interface Message {
+    sender: string;
+    text?: string;
+    image?: string;
+    type: "text" | "image";
+  }
+  
+  const [messages, setMessages] = useState<Message[]>([]);
   const [previewImage, setPreviewImage] = useState(null);
 
  useEffect(() => {
@@ -195,11 +202,13 @@ export default function ChatScreen() {
             >
               <Ionicons name="close-circle" size={36} color="white" />
             </TouchableOpacity>
-            <Image
-              source={{ uri: previewImage }}
-              className="w-[90%] h-[60%] rounded-lg"
-              resizeMode="contain"
-            />
+            {previewImage && (
+              <Image
+                source={{ uri: previewImage }}
+                className="w-[90%] h-[60%] rounded-lg"
+                resizeMode="contain"
+              />
+            )}
           </View>
         </Modal>
       </View>

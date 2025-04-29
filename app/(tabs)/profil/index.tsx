@@ -17,6 +17,8 @@ import { ImageProvider, useImage } from "@/components/picker/imagepicker";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import { Ionicons } from "@expo/vector-icons";
+import ModalContent from "@/components/modals/ModalContent";
+import ModalTemplate from "@/components/modals/ModalTemplate";
 
 interface User {
   nama_dokter: string;
@@ -42,6 +44,10 @@ function App() {
   const [passwordLama, setPasswordLama] = useState("");
   const [passwordBaru, setPasswordBaru] = useState("");
   const [konfirmasiPassword, setKonfirmasiPassword] = useState("");
+  const [modalType, setModalType] = useState("");
+  const [isModalVisible, setModalVisible] = useState(false);
+
+
 
   useEffect(() => {
     fetchUserData();
@@ -79,14 +85,13 @@ function App() {
       const token = await SecureStore.getItemAsync("userToken");
 
       if (!token) {
-        return Alert.alert(
-          "Gagal",
-          "Token tidak ditemukan, silakan login ulang"
-        );
+        setModalType("kolompwkosong");
+        setModalVisible(true);
+        return;
       }
 
       const res = await axios.patch(
-        "https://mjk-backend-five.vercel.app/api/dokter/ubah-password",
+        "https://mjk-backend-production.up.railway.app/api/dokter/ubah-password",
         {
           password_lama: passwordLama,
           password_baru: passwordBaru,
@@ -99,7 +104,8 @@ function App() {
         }
       );
 
-      Alert.alert("Berhasil", res.data.message);
+      setModalType("ubahberhasil"); // <- password berhasil diubah
+      setModalVisible(true);
       setPasswordLama("");
       setPasswordBaru("");
       setKonfirmasiPassword("");
@@ -107,9 +113,21 @@ function App() {
       const msg =
         error.response?.data?.message ||
         "Terjadi kesalahan saat mengubah password";
-      Alert.alert("Gagal", msg);
+
+      if (msg.includes("Password lama salah")) {
+        setModalType("pwlamasalah");
+      } else if (msg.includes("Konfirmasi password tidak cocok")) {
+        setModalType("pwtidakcocok");
+      } else if (msg.includes("Semua field harus diisi")) {
+        setModalType("kolompwkosong");
+      } else {
+        setModalType("kolompwkosong"); // fallback
+      }
+      setModalVisible(true);
     }
   };
+
+
 
   return (
     <Background>
@@ -226,6 +244,15 @@ function App() {
           <Settings />
         </ScrollView>
       </View>
+      <ModalTemplate
+        isVisible={isModalVisible}
+        onClose={() => setModalVisible(false)}
+      >
+        <ModalContent
+          modalType={modalType}
+          onClose={() => setModalVisible(false)}
+        />
+      </ModalTemplate>
     </Background>
   );
 }

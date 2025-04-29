@@ -80,7 +80,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
 
           <View className="flex flex-row justify-between items-center mt-5 px-20">
             <TouchableOpacity onPress={onClose}>
-              <Text className=" text-center text-skyDark font-medium">
+              <Text className=" text-center text-skyDark font-medium w-full">
                 Batal
               </Text>
             </TouchableOpacity>
@@ -108,7 +108,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
 
           <TouchableOpacity
             onPress={onClose}
-            className=" text-center text-skyDark font-medium"
+            className=" text-center text-skyDark font-medium w-full"
           >
             <Text>Oke</Text>
           </TouchableOpacity>
@@ -124,7 +124,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
 
           <View className="flex flex-row justify-between items-center mt-5 px-20">
             <TouchableOpacity onPress={onClose}>
-              <Text className=" text-center text-skyDark font-medium">
+              <Text className=" text-center text-skyDark font-medium w-full">
                 Batal
               </Text>
             </TouchableOpacity>
@@ -145,7 +145,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
 
           <View className="flex flex-row justify-between items-center mt-5 px-20">
             <TouchableOpacity onPress={onClose}>
-              <Text className=" text-center text-skyDark font-medium">
+              <Text className=" text-center text-skyDark font-medium w-full">
                 Batal
               </Text>
             </TouchableOpacity>
@@ -168,7 +168,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
 
           <View className="flex flex-row justify-between items-center mt-5 px-20">
             <TouchableOpacity onPress={onClose}>
-              <Text className=" text-center text-skyDark font-medium">
+              <Text className=" text-center text-skyDark font-medium w-full">
                 Batal
               </Text>
             </TouchableOpacity>
@@ -299,7 +299,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
           <View className="w-full h-[2px] bg-skyDark my-5" />
 
           <TouchableOpacity
-            className=" text-center text-skyDark font-medium"
+            className=" text-center text-skyDark font-medium w-full"
             onPress={onClose}
           >
             <Text className="text-center">Oke</Text>
@@ -317,7 +317,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
           <View className="w-full h-[2px] bg-skyDark my-5" />
 
           <TouchableOpacity
-            className=" text-center text-skyDark font-medium"
+            className=" text-center text-skyDark font-medium w-full"
             onPress={onClose}
           >
             <Text className="text-center">Oke</Text>
@@ -335,7 +335,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
           <View className="w-full h-[2px] bg-skyDark my-5" />
 
           <TouchableOpacity
-            className=" text-center text-skyDark font-medium"
+            className=" text-center text-skyDark font-medium w-full"
             onPress={onClose}
           >
             <Text className="text-center">Oke</Text>
@@ -353,7 +353,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
           <View className="w-full h-[2px] bg-skyDark my-5" />
 
           <TouchableOpacity
-            className=" text-center text-skyDark font-medium"
+            className=" text-center text-skyDark font-medium w-full"
             onPress={onClose}
           >
             <Text className="text-center">Oke</Text>
@@ -371,7 +371,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
           <View className="w-full h-[2px] bg-skyDark my-5" />
 
           <TouchableOpacity
-            className=" text-center text-skyDark font-medium"
+            className=" text-center text-skyDark font-medium w-full"
             onPress={onClose}
           >
             <Text className="text-center">Oke</Text>
@@ -379,7 +379,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
         </View>
       );
 
-      // prifle reset password
+    // prifle reset password
     case "pwkosong":
       return (
         <View>
@@ -390,7 +390,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
           <View className="w-full h-[2px] bg-skyDark my-5" />
 
           <TouchableOpacity
-            className=" text-center text-skyDark font-medium"
+            className=" text-center text-skyDark font-medium w-full"
             onPress={onClose}
           >
             <Text className="text-center">Oke</Text>
@@ -408,7 +408,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
           <View className="w-full h-[2px] bg-skyDark my-5" />
 
           <TouchableOpacity
-            className=" text-center text-skyDark font-medium"
+            className=" text-center text-skyDark font-medium w-full"
             onPress={onClose}
           >
             <Text className="text-center">Oke</Text>
@@ -426,7 +426,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
           <View className="w-full h-[2px] bg-skyDark my-5" />
 
           <TouchableOpacity
-            className=" text-center text-skyDark font-medium"
+            className=" text-center text-skyDark font-medium w-full"
             onPress={onClose}
           >
             <Text className="text-center">Oke</Text>
@@ -444,7 +444,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
           <View className="w-full h-[2px] bg-skyDark my-5" />
 
           <TouchableOpacity
-            className=" text-center text-skyDark font-medium"
+            className=" text-center text-skyDark font-medium w-full"
             onPress={onClose}
           >
             <Text className="text-center">Oke</Text>
@@ -452,24 +452,80 @@ const ModalContent: React.FC<ModalContentProps> = ({
         </View>
       );
 
-    // case "pwsalah":
-    //   return (
-    //     <View>
-    //       <Text className="text-center text-lg font-bold text-gray-700">
-    //         Password salah
-    //       </Text>
+    // RESET PASSWORD
+    case "ubahberhasil":
+      return (
+        <View>
+          <Text className="text-center text-lg font-bold text-gray-700">
+            Password berhasil diubah
+          </Text>
 
-    //       <View className="w-full h-[2px] bg-skyDark my-5" />
+          <View className="w-full h-[2px] bg-skyDark my-5" />
 
-    //       <TouchableOpacity
-    //         className=" text-center text-skyDark font-medium"
-    //         onPress={onClose}
-    //       >
-    //         <Text className="text-center">Oke</Text>
-    //       </TouchableOpacity>
-    //     </View>
-    //   );
+          <TouchableOpacity
+            className=" text-center text-skyDark font-medium w-full"
+            onPress={onClose}
+          >
+            <Text className="text-center">Oke</Text>
+          </TouchableOpacity>
+        </View>
+      );
 
+    case "pwlamasalah":
+      return (
+        <View>
+          <Text className="text-center text-lg font-bold text-gray-700">
+            Password lama salah
+          </Text>
+
+          <View className="w-full h-[2px] bg-skyDark my-5" />
+
+          <TouchableOpacity
+            className=" text-center text-skyDark font-medium w-full"
+            onPress={onClose}
+          >
+            <Text className="text-center">Oke</Text>
+          </TouchableOpacity>
+        </View>
+      );
+
+    case "pwtidakcocok":
+      return (
+        <View>
+          <Text className="text-center text-lg font-bold text-gray-700">
+            Konfirmasi password tidak cocok
+          </Text>
+
+          <View className="w-full h-[2px] bg-skyDark my-5" />
+
+          <TouchableOpacity
+            className=" text-center text-skyDark font-medium w-full"
+            onPress={onClose}
+          >
+            <Text className="text-center">Oke</Text>
+          </TouchableOpacity>
+        </View>
+      );
+
+    case "kolompwkosong":
+      return (
+        <View>
+          <Text className="text-center text-lg font-bold text-gray-700">
+            Semua kolom harus diisi
+          </Text>
+
+          <View className="w-full h-[2px] bg-skyDark my-5" />
+
+          <TouchableOpacity
+            className=" text-center text-skyDark font-medium w-full"
+            onPress={onClose}
+          >
+            <Text className="text-center">Oke</Text>
+          </TouchableOpacity>
+        </View>
+      );
+
+      
     default:
       return <Text>Modal tidak ditemukan.</Text>;
   }
