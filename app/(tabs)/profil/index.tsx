@@ -121,7 +121,7 @@ function App() {
       } else if (msg.includes("Semua field harus diisi")) {
         setModalType("kolompwkosong");
       } else {
-        setModalType("kolompwkosong"); // fallback
+        setModalType("kolompwkosong"); 
       }
       setModalVisible(true);
     }

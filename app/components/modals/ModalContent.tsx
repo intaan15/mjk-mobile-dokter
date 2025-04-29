@@ -66,34 +66,13 @@ const ModalContent: React.FC<ModalContentProps> = ({
   const router = useRouter();
   const handleLogout = async () => {
     await SecureStore.deleteItemAsync("userToken");
-    onClose?.(); // nutup modal
-    router.replace("/screens/signin"); // redirect ke halaman login
+    onClose?.();
+    router.replace("/screens/signin"); 
   };
 
   switch (modalType) {
-    case "keluarakun":
-      return (
-        <View>
-          <Text className="text-center text-lg font-bold text-skyDark">
-            Anda yakin akan keluar?
-          </Text>
 
-          <View className="flex flex-row justify-between items-center mt-5 px-20">
-            <TouchableOpacity onPress={onClose}>
-              <Text className=" text-center text-skyDark font-medium w-full">
-                Batal
-              </Text>
-            </TouchableOpacity>
-            <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
-            <TouchableOpacity onPress={handleLogout}>
-              <Text className=" text-center text-red-500 font-medium">
-                Keluar
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      );
-
+    // UBAH JADWAL DOKTER
     case "konfirm":
       return (
         <View className=" items-center">
@@ -131,57 +110,6 @@ const ModalContent: React.FC<ModalContentProps> = ({
             <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
             <TouchableOpacity onPress={onClose}>
               <Text className=" text-center text-red-500 font-medium">Oke</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      );
-
-    case "hapusakun":
-      return (
-        <View>
-          <Text className="text-center text-lg font-bold text-skyDark">
-            Anda yakin akan menghapus akun?
-          </Text>
-
-          <View className="flex flex-row justify-between items-center mt-5 px-20">
-            <TouchableOpacity onPress={onClose}>
-              <Text className=" text-center text-skyDark font-medium w-full">
-                Batal
-              </Text>
-            </TouchableOpacity>
-            <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
-            <TouchableOpacity onPress={onClose}>
-              <Text className=" text-center text-red-500 font-medium">
-                Hapus
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      );
-
-    case "hapusprofil":
-      return (
-        <View>
-          <Text className="text-center text-lg font-bold text-skyDark">
-            Anda yakin akan menghapus foto profil?
-          </Text>
-
-          <View className="flex flex-row justify-between items-center mt-5 px-20">
-            <TouchableOpacity onPress={onClose}>
-              <Text className=" text-center text-skyDark font-medium w-full">
-                Batal
-              </Text>
-            </TouchableOpacity>
-            <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
-            <TouchableOpacity
-              onPress={() => {
-                setImage?.(null);
-                onClose?.();
-              }}
-            >
-              <Text className=" text-center text-red-500 font-medium">
-                Hapus
-              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -255,6 +183,81 @@ const ModalContent: React.FC<ModalContentProps> = ({
         </View>
       );
 
+      // SETTINGS 
+    case "hapusakun":
+      return (
+        <View>
+          <Text className="text-center text-lg font-bold text-skyDark">
+            Anda yakin akan menghapus akun?
+          </Text>
+
+          <View className="flex flex-row justify-between items-center mt-5 px-20">
+            <TouchableOpacity onPress={onClose}>
+              <Text className=" text-center text-skyDark font-medium w-full">
+                Batal
+              </Text>
+            </TouchableOpacity>
+            <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
+            <TouchableOpacity onPress={onClose}>
+              <Text className=" text-center text-red-500 font-medium">
+                Hapus
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      );
+
+    case "keluarakun":
+      return (
+        <View>
+          <Text className="text-center text-lg font-bold text-skyDark">
+            Anda yakin akan keluar?
+          </Text>
+
+          <View className="flex flex-row justify-between items-center mt-5 px-20">
+            <TouchableOpacity onPress={onClose}>
+              <Text className=" text-center text-skyDark font-medium w-full">
+                Batal
+              </Text>
+            </TouchableOpacity>
+            <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
+            <TouchableOpacity onPress={handleLogout}>
+              <Text className=" text-center text-red-500 font-medium">
+                Keluar
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      );
+
+    case "hapusprofil":
+      return (
+        <View>
+          <Text className="text-center text-lg font-bold text-skyDark">
+            Anda yakin akan menghapus foto profil?
+          </Text>
+
+          <View className="flex flex-row justify-between items-center mt-5 px-20">
+            <TouchableOpacity onPress={onClose}>
+              <Text className=" text-center text-skyDark font-medium w-full">
+                Batal
+              </Text>
+            </TouchableOpacity>
+            <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
+            <TouchableOpacity
+              onPress={() => {
+                setImage?.(null);
+                onClose?.();
+              }}
+            >
+              <Text className=" text-center text-red-500 font-medium">
+                Hapus
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      );
+
     case "pilihgambar":
       return (
         <View className="bg-white p-6 rounded-2xl w-full items-center">
@@ -289,6 +292,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
         </View>
       );
 
+    // SIGN IN
     case "limiter":
       return (
         <View>
@@ -379,79 +383,6 @@ const ModalContent: React.FC<ModalContentProps> = ({
         </View>
       );
 
-    // prifle reset password
-    case "pwkosong":
-      return (
-        <View>
-          <Text className="text-center text-lg font-bold text-skyDark">
-            Semua kolom harus diisi
-          </Text>
-
-          <View className="w-full h-[2px] bg-skyDark my-5" />
-
-          <TouchableOpacity
-            className=" text-center text-skyDark font-medium w-full"
-            onPress={onClose}
-          >
-            <Text className="text-center text-skyDark">Oke</Text>
-          </TouchableOpacity>
-        </View>
-      );
-
-    case "konfirmtidakcocok":
-      return (
-        <View>
-          <Text className="text-center text-lg font-bold text-skyDark">
-            Konfirmasi password tidak cocok
-          </Text>
-
-          <View className="w-full h-[2px] bg-skyDark my-5" />
-
-          <TouchableOpacity
-            className=" text-center text-skyDark font-medium w-full"
-            onPress={onClose}
-          >
-            <Text className="text-center text-skyDark">Oke</Text>
-          </TouchableOpacity>
-        </View>
-      );
-
-    case "pwlamasalah":
-      return (
-        <View>
-          <Text className="text-center text-lg font-bold text-skyDark">
-            Password lama salah
-          </Text>
-
-          <View className="w-full h-[2px] bg-skyDark my-5" />
-
-          <TouchableOpacity
-            className=" text-center text-skyDark font-medium w-full"
-            onPress={onClose}
-          >
-            <Text className="text-center text-skyDark">Oke</Text>
-          </TouchableOpacity>
-        </View>
-      );
-
-    case "pwberhasildiubah":
-      return (
-        <View>
-          <Text className="text-center text-lg font-bold text-skyDark">
-            Password berhasil diubah
-          </Text>
-
-          <View className="w-full h-[2px] bg-skyDark my-5" />
-
-          <TouchableOpacity
-            className=" text-center text-skyDark font-medium w-full"
-            onPress={onClose}
-          >
-            <Text className="text-center text-skyDark">Oke</Text>
-          </TouchableOpacity>
-        </View>
-      );
-
     // RESET PASSWORD
     case "ubahberhasil":
       return (
@@ -525,7 +456,6 @@ const ModalContent: React.FC<ModalContentProps> = ({
         </View>
       );
 
-      
     default:
       return <Text>Modal tidak ditemukan.</Text>;
   }
