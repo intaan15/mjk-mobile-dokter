@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Text, View, TouchableOpacity } from "react-native";
+import { Text, View, TouchableOpacity, TextInput } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -71,7 +71,6 @@ const ModalContent: React.FC<ModalContentProps> = ({
   };
 
   switch (modalType) {
-
     // UBAH JADWAL DOKTER
     case "konfirm":
       return (
@@ -183,7 +182,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
         </View>
       );
 
-      // SETTINGS 
+    // SETTINGS
     case "hapusakun":
       return (
         <View>
@@ -453,6 +452,81 @@ const ModalContent: React.FC<ModalContentProps> = ({
           >
             <Text className="text-center text-skyDark">Oke</Text>
           </TouchableOpacity>
+        </View>
+      );
+
+    // PROFIL
+    case "editprofil":
+      return (
+        <View>
+          {/* Ganti Password */}
+          <Text className="font-bold text-2xl text-skyDark mt-4 text-center">
+            Edit profil
+          </Text>
+          {/* <View className="w-full h-[2px] bg-skyDark" /> */}
+          <View className="flex flex-col items-center px-5">
+            <Text className="w-full pl-1 text-base font-semibold text-skyDark pt-2">
+              Nama
+            </Text>
+            <TextInput
+              placeholder="Nama"
+              secureTextEntry
+              // value={}
+              // onChangeText={}
+              className="border-2 rounded-xl border-gray-400 p-2 w-full"
+              placeholderTextColor="#888"
+            />
+            <Text className="w-full pl-1 text-base font-semibold text-skyDark pt-2">
+              Username
+            </Text>
+            <TextInput
+              placeholder="contoh123"
+              secureTextEntry
+              // value={}
+              // onChangeText={}
+              className="border-2 rounded-xl border-gray-400 p-2 w-full"
+              placeholderTextColor="#888"
+            />
+            <Text className="w-full pl-1 text-base font-semibold text-skyDark pt-2">
+              Email
+            </Text>
+            <TextInput
+              placeholder="contoh@gmail.com"
+              secureTextEntry
+              // value={}
+              // onChangeText={}
+              className="border-2 rounded-xl border-gray-400 p-2 w-full"
+              placeholderTextColor="#888"
+            />
+            <Text className="w-full pl-1 text-base font-semibold text-skyDark pt-2">
+              Nomor telepon
+            </Text>
+            <TextInput
+              placeholder="0821312312312"
+              secureTextEntry
+              // value={}
+              // onChangeText={}
+              className="border-2 rounded-xl border-gray-400 p-2 w-full"
+              placeholderTextColor="#888"
+            />
+            <Text className="w-full pl-1 text-base font-semibold text-skyDark pt-2">
+              Spesialis
+            </Text>
+            <TextInput
+              placeholder="Tulang"
+              secureTextEntry
+              // value={}
+              // onChangeText={}
+              className="border-2 rounded-xl border-gray-400 p-2 w-full"
+              placeholderTextColor="#888"
+            />
+            <TouchableOpacity
+              className="p-2 rounded-xl w-2/4 mt-6 bg-skyDark"
+              onPress={onClose}
+            >
+              <Text className="text-white text-center font-bold">Simpan</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       );
 

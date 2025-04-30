@@ -19,6 +19,8 @@ import * as SecureStore from "expo-secure-store";
 import { Ionicons } from "@expo/vector-icons";
 import ModalContent from "@/components/modals/ModalContent";
 import ModalTemplate from "@/components/modals/ModalTemplate";
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+
 
 interface User {
   nama_dokter: string;
@@ -127,6 +129,11 @@ function App() {
     }
   };
 
+  const openModal = (type: string) => {
+    setModalType(type);
+    setModalVisible(true);
+  };
+
 
 
   return (
@@ -170,6 +177,12 @@ function App() {
               elevation: 15,
             }}
           >
+            <TouchableOpacity
+              className="items-end"
+              onPress={() => openModal("editprofil")}
+            >
+              <FontAwesome5 name="edit" size={24} color="#025F96" />
+            </TouchableOpacity>
             <Text className="font-bold text-lg text-skyDark">Nama</Text>
             <Text className="text-gray-700">{userData.nama_dokter}</Text>
 
