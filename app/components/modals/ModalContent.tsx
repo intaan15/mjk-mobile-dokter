@@ -75,22 +75,22 @@ const ModalContent: React.FC<ModalContentProps> = ({
     // UBAH JADWAL DOKTER
     case "konfirm":
       return (
-        <View className=" items-center">
-          <TouchableOpacity
-            onPress={onClose}
-            className="text-center text-lg font-bold text-gray-700"
-          >
-            <Text>Jadwal anda berhasil diubah</Text>
-          </TouchableOpacity>
+        <View className="flex flex-col ">
+          <Text className="text-center text-lg font-bold text-skyDark">
+            Simpan perubahan jadwal?
+          </Text>
 
-          <View className="w-full h-1 bg-skyDark my-5" />
-
-          <TouchableOpacity
-            onPress={onClose}
-            className=" text-center text-skyDark font-medium w-full"
-          >
-            <Text>Oke</Text>
-          </TouchableOpacity>
+          <View className="flex flex-row justify-between items-center px-20">
+            <TouchableOpacity onPress={onClose}>
+              <Text className=" text-center text-skyDark font-medium w-full">
+                Batal
+              </Text>
+            </TouchableOpacity>
+            <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
+            <TouchableOpacity onPress={onClose}>
+              <Text className=" text-center text-red-500 font-medium">Oke</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       );
 
@@ -101,7 +101,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
             Jadwal anda akan diatur secara default
           </Text>
 
-          <View className="flex flex-row justify-between items-center mt-5 px-20">
+          <View className="flex flex-row justify-between items-center px-20">
             <TouchableOpacity onPress={onClose}>
               <Text className=" text-center text-skyDark font-medium w-full">
                 Batal
@@ -191,7 +191,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
             Anda yakin akan menghapus akun?
           </Text>
 
-          <View className="flex flex-row justify-between items-center mt-5 px-20">
+          <View className="flex flex-row justify-between items-center px-20">
             <TouchableOpacity onPress={onClose}>
               <Text className=" text-center text-skyDark font-medium w-full">
                 Batal
@@ -214,7 +214,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
             Anda yakin akan keluar?
           </Text>
 
-          <View className="flex flex-row justify-between items-center mt-5 px-20">
+          <View className="flex flex-row justify-between items-center px-20">
             <TouchableOpacity onPress={onClose}>
               <Text className=" text-center text-skyDark font-medium w-full">
                 Batal
@@ -237,7 +237,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
             Anda yakin akan menghapus foto profil?
           </Text>
 
-          <View className="flex flex-row justify-between items-center mt-5 px-20">
+          <View className="flex flex-row justify-between items-center px-20">
             <TouchableOpacity onPress={onClose}>
               <Text className=" text-center text-skyDark font-medium w-full">
                 Batal
