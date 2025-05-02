@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Text, View, TouchableOpacity, TextInput } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -18,6 +18,17 @@ interface ModalContentProps {
   onOpenCamera?: () => void;
 }
 
+interface User {
+  nama_dokter: string;
+  username_dokter: string;
+  email_dokter: string;
+  spesialis_dokter: string;
+  str_dokter: string;
+  notlp_dokter: string;
+  rating_dokter: string;
+  foto_profil_dokter: string | null;
+}
+
 const ModalContent: React.FC<ModalContentProps> = ({
   modalType,
   onTimeSlotsChange,
@@ -29,6 +40,85 @@ const ModalContent: React.FC<ModalContentProps> = ({
   const [endTime, setEndTime] = useState<Date | null>(null);
   const [isPickerVisible, setPickerVisibility] = useState(false);
   const [isPickingStartTime, setIsPickingStartTime] = useState(true);
+
+  const [nama, setNama] = useState("");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [noTlp, setNoTlp] = useState("");
+  const [spesialis, setSpesialis] = useState("");
+
+  const [userData, setUserData] = useState<User | null>(null);
+
+  useEffect(() => {
+    if (userData) {
+      setNama(userData.nama_dokter || "");
+      setUsername(userData.username_dokter || "");
+      setEmail(userData.email_dokter || "");
+      setNoTlp(userData.notlp_dokter || "");
+      setSpesialis(userData.spesialis_dokter || "");
+    }
+  }, [userData]);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const dokterId = await SecureStore.getItemAsync("userId");
+        const cleanedId = dokterId?.replace(/"/g, "");
+
+        const response = await fetch(
+          `https://mjk-backend-production.up.railway.app/api/dokter/getbyid/${cleanedId}`
+        );
+        const json = await response.json();
+
+        if (response.ok) {
+          setUserData(json);
+        } else {
+          console.error("Gagal fetch user:", json.message);
+          alert(json.message || "Gagal mengambil data user");
+        }
+      } catch (error) {
+        console.error("Gagal mengambil data profil:", error);
+      }
+    };
+    
+
+    fetchUser();
+  }, []);
+
+  const handleSubmit = async () => {
+    try {
+      const dokterId = await SecureStore.getItemAsync("userId");
+      const cleanedDokterId = dokterId?.replace(/"/g, "");
+
+      const response = await fetch(
+        `https://mjk-backend-production.up.railway.app/api/dokter/update/${cleanedDokterId}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            nama_dokter: nama,
+            username_dokter: username,
+            email_dokter: email,
+            notlp_dokter: noTlp,
+            spesialis_dokter: spesialis,
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert("Data berhasil diperbarui!");
+      } else {
+        alert(result.message || "Gagal update data.");
+      }
+    } catch (error) {
+      console.error("Gagal update:", error);
+      alert("Gagal terhubung ke server.");
+    }
+  };
 
   const formatTime = (date: Date | null): string => {
     return date
@@ -67,10 +157,85 @@ const ModalContent: React.FC<ModalContentProps> = ({
   const handleLogout = async () => {
     await SecureStore.deleteItemAsync("userToken");
     onClose?.();
-    router.replace("/screens/signin"); 
+    router.replace("/screens/signin");
   };
 
   switch (modalType) {
+    // PROFIL
+    case "editprofil":
+      return (
+        <View>
+          {/* Ganti Password */}
+          <Text className="font-bold text-2xl text-skyDark mt-4 text-center">
+            Edit profil
+          </Text>
+          {/* <View className="w-full h-[2px] bg-skyDark" /> */}
+          <View className="flex flex-col items-center px-5">
+            <Text className="w-full pl-1 text-base font-semibold text-skyDark pt-2">
+              Nama
+            </Text>
+            <TextInput
+              placeholder="Nama"
+              // secureTextEntry
+              value={nama}
+              onChangeText={setNama}
+              className="border-2 rounded-xl border-gray-400 p-2 w-full"
+              placeholderTextColor="#888"
+            />
+            <Text className="w-full pl-1 text-base font-semibold text-skyDark pt-2">
+              Username
+            </Text>
+            <TextInput
+              placeholder="contoh123"
+              // secureTextEntry
+              value={username}
+              onChangeText={setUsername}
+              className="border-2 rounded-xl border-gray-400 p-2 w-full"
+              placeholderTextColor="#888"
+            />
+            <Text className="w-full pl-1 text-base font-semibold text-skyDark pt-2">
+              Email
+            </Text>
+            <TextInput
+              placeholder="contoh@gmail.com"
+              // secureTextEntry
+              value={email}
+              onChangeText={setEmail}
+              className="border-2 rounded-xl border-gray-400 p-2 w-full"
+              placeholderTextColor="#888"
+            />
+            <Text className="w-full pl-1 text-base font-semibold text-skyDark pt-2">
+              Nomor telepon
+            </Text>
+            <TextInput
+              placeholder="0821312312312"
+              // secureTextEntry
+              value={noTlp}
+              onChangeText={setNoTlp}
+              className="border-2 rounded-xl border-gray-400 p-2 w-full"
+              placeholderTextColor="#888"
+            />
+            <Text className="w-full pl-1 text-base font-semibold text-skyDark pt-2">
+              Spesialis
+            </Text>
+            <TextInput
+              placeholder="Tulang"
+              // secureTextEntry
+              value={spesialis}
+              onChangeText={setSpesialis}
+              className="border-2 rounded-xl border-gray-400 p-2 w-full"
+              placeholderTextColor="#888"
+            />
+            <TouchableOpacity
+              className="p-2 rounded-xl w-2/4 mt-6 bg-skyDark"
+              onPress={handleSubmit}
+            >
+              <Text className="text-white text-center font-bold">Simpan</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      );
+
     // UBAH JADWAL DOKTER
     case "konfirm":
       return (
@@ -452,81 +617,6 @@ const ModalContent: React.FC<ModalContentProps> = ({
           >
             <Text className="text-center text-skyDark">Oke</Text>
           </TouchableOpacity>
-        </View>
-      );
-
-    // PROFIL
-    case "editprofil":
-      return (
-        <View>
-          {/* Ganti Password */}
-          <Text className="font-bold text-2xl text-skyDark mt-4 text-center">
-            Edit profil
-          </Text>
-          {/* <View className="w-full h-[2px] bg-skyDark" /> */}
-          <View className="flex flex-col items-center px-5">
-            <Text className="w-full pl-1 text-base font-semibold text-skyDark pt-2">
-              Nama
-            </Text>
-            <TextInput
-              placeholder="Nama"
-              secureTextEntry
-              // value={}
-              // onChangeText={}
-              className="border-2 rounded-xl border-gray-400 p-2 w-full"
-              placeholderTextColor="#888"
-            />
-            <Text className="w-full pl-1 text-base font-semibold text-skyDark pt-2">
-              Username
-            </Text>
-            <TextInput
-              placeholder="contoh123"
-              secureTextEntry
-              // value={}
-              // onChangeText={}
-              className="border-2 rounded-xl border-gray-400 p-2 w-full"
-              placeholderTextColor="#888"
-            />
-            <Text className="w-full pl-1 text-base font-semibold text-skyDark pt-2">
-              Email
-            </Text>
-            <TextInput
-              placeholder="contoh@gmail.com"
-              secureTextEntry
-              // value={}
-              // onChangeText={}
-              className="border-2 rounded-xl border-gray-400 p-2 w-full"
-              placeholderTextColor="#888"
-            />
-            <Text className="w-full pl-1 text-base font-semibold text-skyDark pt-2">
-              Nomor telepon
-            </Text>
-            <TextInput
-              placeholder="0821312312312"
-              secureTextEntry
-              // value={}
-              // onChangeText={}
-              className="border-2 rounded-xl border-gray-400 p-2 w-full"
-              placeholderTextColor="#888"
-            />
-            <Text className="w-full pl-1 text-base font-semibold text-skyDark pt-2">
-              Spesialis
-            </Text>
-            <TextInput
-              placeholder="Tulang"
-              secureTextEntry
-              // value={}
-              // onChangeText={}
-              className="border-2 rounded-xl border-gray-400 p-2 w-full"
-              placeholderTextColor="#888"
-            />
-            <TouchableOpacity
-              className="p-2 rounded-xl w-2/4 mt-6 bg-skyDark"
-              onPress={onClose}
-            >
-              <Text className="text-white text-center font-bold">Simpan</Text>
-            </TouchableOpacity>
-          </View>
         </View>
       );
 
