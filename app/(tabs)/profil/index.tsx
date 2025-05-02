@@ -70,6 +70,11 @@ function App() {
     }
   };
 
+  const handleUpdateSuccess = () => {
+    fetchUserData(); 
+    setModalVisible(false);
+  };
+
   if (!userData) {
     return (
       <Background>
@@ -106,7 +111,7 @@ function App() {
         }
       );
 
-      setModalType("ubahberhasil"); // <- password berhasil diubah
+      setModalType("ubahberhasil");
       setModalVisible(true);
       setPasswordLama("");
       setPasswordBaru("");
@@ -264,6 +269,10 @@ function App() {
         <ModalContent
           modalType={modalType}
           onClose={() => setModalVisible(false)}
+          onUpdateSuccess={() => {
+            fetchUserData(); 
+            setModalVisible(false); 
+          }}
         />
       </ModalTemplate>
     </Background>

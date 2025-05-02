@@ -9,6 +9,7 @@ import ImagePickerComponent, {
 } from "@/components/picker/imagepicker";
 import * as SecureStore from "expo-secure-store";
 import { useRouter } from "expo-router";
+import axios from "axios";
 
 interface ModalContentProps {
   modalType: string;
@@ -16,6 +17,7 @@ interface ModalContentProps {
   onClose?: () => void;
   onPickImage?: () => void;
   onOpenCamera?: () => void;
+  onUpdateSuccess?: () => void;
 }
 
 interface User {
@@ -35,6 +37,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
   onClose,
   onPickImage,
   onOpenCamera,
+  onUpdateSuccess,
 }) => {
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [endTime, setEndTime] = useState<Date | null>(null);
@@ -48,6 +51,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
   const [spesialis, setSpesialis] = useState("");
 
   const [userData, setUserData] = useState<User | null>(null);
+  
 
   useEffect(() => {
     if (userData) {
@@ -65,58 +69,52 @@ const ModalContent: React.FC<ModalContentProps> = ({
         const dokterId = await SecureStore.getItemAsync("userId");
         const cleanedId = dokterId?.replace(/"/g, "");
 
-        const response = await fetch(
+        const response = await axios.get(
           `https://mjk-backend-production.up.railway.app/api/dokter/getbyid/${cleanedId}`
         );
-        const json = await response.json();
 
-        if (response.ok) {
-          setUserData(json);
-        } else {
-          console.error("Gagal fetch user:", json.message);
-          alert(json.message || "Gagal mengambil data user");
-        }
-      } catch (error) {
+        setUserData(response.data);
+      } catch (error: any) {
         console.error("Gagal mengambil data profil:", error);
+        alert(error.response?.data?.message || "Gagal mengambil data user");
       }
     };
-    
 
     fetchUser();
   }, []);
+
 
   const handleSubmit = async () => {
     try {
       const dokterId = await SecureStore.getItemAsync("userId");
       const cleanedDokterId = dokterId?.replace(/"/g, "");
 
-      const response = await fetch(
+      const response = await axios.patch(
         `https://mjk-backend-production.up.railway.app/api/dokter/update/${cleanedDokterId}`,
         {
-          method: "PATCH",
+          nama_dokter: nama,
+          username_dokter: username,
+          email_dokter: email,
+          notlp_dokter: noTlp,
+          spesialis_dokter: spesialis,
+        },
+        {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            nama_dokter: nama,
-            username_dokter: username,
-            email_dokter: email,
-            notlp_dokter: noTlp,
-            spesialis_dokter: spesialis,
-          }),
         }
       );
 
-      const result = await response.json();
-
-      if (response.ok) {
-        alert("Data berhasil diperbarui!");
+      // alert("Data berhasil diperbarui!");
+      onUpdateSuccess?.();
+    } catch (error: any) {
+      if (error.response) {
+        console.error("Gagal update:", error.response.data);
+        alert(error.response.data.message || "Gagal update data.");
       } else {
-        alert(result.message || "Gagal update data.");
+        console.error("Gagal update:", error.message);
+        alert("Gagal terhubung ke server.");
       }
-    } catch (error) {
-      console.error("Gagal update:", error);
-      alert("Gagal terhubung ke server.");
     }
   };
 

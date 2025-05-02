@@ -104,31 +104,32 @@ const chats = [
 ];
 
 export default function HomeScreen() {
+  const [userData, setUserData] = useState<User | null>(null);
   const router = useRouter();
   const [selectedTab, setSelectedTab] = useState("Berlangsung");
   const [selectedDate, setSelectedDate] = useState(moment().format("DD/MM/YY"));
-
   const filteredChats = chats.filter((chat) => chat.date === selectedDate);
-  const [userData, setUserData] = useState<User | null>(null);
-
-  useEffect(() => {
-    fetchUserData();
-  }, []);
 
   const fetchUserData = async () => {
     try {
-      const userId = await SecureStore.getItemAsync("userId");
-      const cleanedUserId = userId?.replace(/"/g, "");
-      if (cleanedUserId) {
-        const response = await axios.get(
-          `https://mjk-backend-production.up.railway.app/api/dokter/getbyid/${cleanedUserId}`
-        );
-        setUserData(response.data);
-      }
-    } catch (error) {
+      const dokterId = await SecureStore.getItemAsync("userId");
+      const cleanedId = dokterId?.replace(/"/g, "");
+
+      const response = await axios.get(
+        `https://mjk-backend-production.up.railway.app/api/dokter/getbyid/${cleanedId}`
+      );
+
+      setUserData(response.data); 
+    } catch (error: any) {
       console.error("Gagal mengambil data profil:", error);
+      alert(error.response?.data?.message || "Gagal mengambil data user");
     }
   };
+
+  useEffect(() => {
+    fetchUserData(); 
+  }, []);
+
   return (
     <Background>
       <View className="flex-1">
