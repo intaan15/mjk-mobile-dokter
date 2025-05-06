@@ -11,7 +11,7 @@ export default function ImagePickerComponent({ onImageSelected }) {
     });
 
     if (!result.canceled && result.assets?.length > 0) {
-      onImageSelected(result.assets[0].uri);
+      onImageSelected(result.assets[0]);
     }
   };
 
@@ -22,7 +22,7 @@ export default function ImagePickerComponent({ onImageSelected }) {
     });
 
     if (!result.canceled && result.assets?.length > 0) {
-      onImageSelected(result.assets[0].uri);
+      onImageSelected(result.assets[0]);
     }
   };
 

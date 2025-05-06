@@ -55,12 +55,12 @@ export default function Settings() {
   // Handler baru yang gabung pick image + tutup modal
   const handlePickImage = async () => {
     await openGallery();
-    setModalVisible(false); 
+    // setModalVisible(false); 
   };
 
   const handleOpenCamera = async () => {
     await openCamera(); 
-    setModalVisible(false); 
+    // setModalVisible(false); 
   };
 
   return (

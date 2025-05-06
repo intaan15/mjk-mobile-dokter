@@ -158,7 +158,89 @@ const ModalContent: React.FC<ModalContentProps> = ({
     router.replace("/screens/signin");
   };
 
+  // upload image 
+  const uploadImageToServer = async () => {
+    if (!profileImage) {
+      alert("Silakan pilih gambar terlebih dahulu.");
+      return;
+    }
+
+    const uri = profileImage.uri;
+    console.log("URI:", uri); // Log the URI to check its value
+    const fileName = uri.split("/").pop();
+    const fileType = fileName?.split(".").pop();
+
+    const formData = new FormData();
+    formData.append("photo", {
+      uri,
+      name: fileName,
+      type: `image/${fileType}`,
+    } as any);
+
+    try {
+      const response = await axios.post(
+        "http://10.52.170.97:3330/api/dokter/upload",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      console.log("Upload berhasil:", response.data);
+      alert("Foto berhasil diunggah!");
+      
+    } catch (error: any) {
+      console.error("Upload gagal:", error.message);
+      alert("Gagal upload gambar");
+    }
+  };
+
+
   switch (modalType) {
+    case "pilihgambar":
+      return (
+        <View className="bg-white p-6 rounded-2xl w-full items-center">
+          <Text className="text-xl font-semibold mb-4 text-center">
+            Pilih Foto
+          </Text>
+
+          <TouchableOpacity
+            className="flex-row items-center space-x-3 py-3 px-2 rounded-lg active:bg-gray-100 w-full"
+            onPress={onPickImage}
+          >
+            <MaterialCommunityIcons name="image" size={24} color="black" />
+            <Text className="text-base text-black">Ambil dari Galeri</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            className="flex-row items-center space-x-3 py-3 px-2 rounded-lg active:bg-gray-100 w-full"
+            onPress={onOpenCamera}
+          >
+            <MaterialCommunityIcons name="camera" size={24} color="black" />
+            <Text className="text-base text-black">Ambil dari Kamera</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            className="mt-5 py-3 bg-green-600 rounded-xl w-full"
+            onPress={uploadImageToServer}
+          >
+            <Text className="text-center text-white font-semibold text-base">
+              Upload Foto
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            className="mt-3 py-3 bg-skyDark rounded-xl w-full"
+            onPress={onClose}
+          >
+            <Text className="text-center text-white font-semibold text-base">
+              Batal
+            </Text>
+          </TouchableOpacity>
+        </View>
+      );
     // PROFIL
     case "editprofil":
       return (
@@ -417,40 +499,6 @@ const ModalContent: React.FC<ModalContentProps> = ({
               </Text>
             </TouchableOpacity>
           </View>
-        </View>
-      );
-
-    case "pilihgambar":
-      return (
-        <View className="bg-white p-6 rounded-2xl w-full items-center">
-          <Text className="text-xl font-semibold mb-4 text-center">
-            Pilih Foto
-          </Text>
-
-          <TouchableOpacity
-            className="flex-row items-center space-x-3 py-3 px-2 rounded-lg active:bg-gray-100 w-full"
-            onPress={onPickImage}
-          >
-            <MaterialCommunityIcons name="image" size={24} color="black" />
-            <Text className="text-base text-black">Ambil dari Galeri</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            className="flex-row items-center space-x-3 py-3 px-2 rounded-lg active:bg-gray-100 w-full"
-            onPress={onOpenCamera}
-          >
-            <MaterialCommunityIcons name="camera" size={24} color="black" />
-            <Text className="text-base text-black">Ambil dari Kamera</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            className="mt-5 py-3 bg-skyDark rounded-xl w-full"
-            onPress={onClose}
-          >
-            <Text className="text-center text-white font-semibold text-base">
-              Batal
-            </Text>
-          </TouchableOpacity>
         </View>
       );
 
