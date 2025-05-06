@@ -160,26 +160,35 @@ const ModalContent: React.FC<ModalContentProps> = ({
 
   // upload image 
   const uploadImageToServer = async () => {
-    if (!profileImage) {
+    if (!profileImage?.uri) {
       alert("Silakan pilih gambar terlebih dahulu.");
       return;
     }
 
     const uri = profileImage.uri;
-    console.log("URI:", uri); // Log the URI to check its value
     const fileName = uri.split("/").pop();
     const fileType = fileName?.split(".").pop();
 
+    // Ambil userId dari SecureStore
+    const userId = await SecureStore.getItemAsync("userId");
+    const cleanedUserId = userId?.replace(/"/g, "");
+
+    if (!cleanedUserId) {
+      alert("User ID tidak ditemukan.");
+      return;
+    }
+
     const formData = new FormData();
-    formData.append("photo", {
+    formData.append("image", {
       uri,
       name: fileName,
       type: `image/${fileType}`,
     } as any);
+    formData.append("id", cleanedUserId); // Kirim userId sebagai bagian dari form data
 
     try {
       const response = await axios.post(
-        "http://10.52.170.97:3330/api/dokter/upload",
+        "http://192.168.18.109:3330/api/dokter/upload",
         formData,
         {
           headers: {
@@ -190,12 +199,13 @@ const ModalContent: React.FC<ModalContentProps> = ({
 
       console.log("Upload berhasil:", response.data);
       alert("Foto berhasil diunggah!");
-      
     } catch (error: any) {
       console.error("Upload gagal:", error.message);
       alert("Gagal upload gambar");
     }
   };
+
+
 
 
   switch (modalType) {
