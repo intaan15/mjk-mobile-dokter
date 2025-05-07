@@ -6,69 +6,71 @@ import {
   ScrollView,
   StatusBar,
 } from "react-native";
-import DatePickerComponent from "@/components/picker/datepicker";
+import DatePickerComponent from "@/components/picker/datepicker"; 
 import Background from "@/components/background";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useRouter } from "expo-router";
+import axios from "axios";
+import * as SecureStore from 'expo-secure-store';
 
-const scheduleByDay = {
-  Monday: ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30"],
-  Tuesday: ["09:15", "09:45", "10:15", "10:45", "11:15", "11:45"],
-  Wednesday: [
-    "09:00",
-    "09:20",
-    "09:40",
-    "10:00",
-    "10:20",
-    "10:40",
-    "11:00",
-    "11:20",
-    "11:40",
-  ],
-  Thursday: [
-    "09:10",
-    "09:30",
-    "09:50",
-    "10:10",
-    "10:30",
-    "10:50",
-    "11:10",
-    "11:30",
-    "11:50",
-  ],
-  Friday: [
-    "09:05",
-    "09:25",
-    "09:45",
-    "10:05",
-    "10:25",
-    "10:45",
-    "11:05",
-    "11:25",
-    "11:45",
-  ],
-  Saturday: ["10:00", "10:30", "11:00", "11:30"],
-  Sunday: ["10:15", "10:45", "11:15", "11:45"],
+type Jadwal = {
+  tanggal: string;
+  jam: { time: string; available: boolean }[];
+};
+
+type AvailableTime = {
+  time: string;
+  available: boolean;
 };
 
 const ScheduleScreen = () => {
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [availableTimes, setAvailableTimes] = useState([]);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [jadwal, setJadwal] = useState<Jadwal[]>([]);
+  const [availableTimes, setAvailableTimes] = useState<AvailableTime[]>([]);
+  const [availableDates, setAvailableDates] = useState<string[]>([]); 
+  const [userId, setUserId] = useState<string | null>(null); 
   const router = useRouter();
 
   useEffect(() => {
-    const dayOfWeek = new Intl.DateTimeFormat("en-US", {
-      weekday: "long",
-    }).format(new Date());
-    setAvailableTimes(scheduleByDay[dayOfWeek] || []);
+    const getUserId = async () => {
+      try {
+        const userIdFromStore = await SecureStore.getItemAsync('userId');
+        if (userIdFromStore) {
+          setUserId(userIdFromStore);
+        } else {
+          console.log("userId tidak ditemukan di SecureStore");
+        }
+      } catch (error) {
+        console.error("Error fetching userId from SecureStore:", error);
+      }
+    };
+    
+    getUserId();
   }, []);
 
-  const handleDateChange = (date) => {
+  useEffect(() => {
+    if (userId) {
+      axios
+        .get(`https://mjk-backend-production.up.railway.app/api/dokter/jadwal/${userId}`)
+        .then((res) => {
+          setJadwal(res.data); 
+          const datesWithSchedule = res.data
+            .filter(j => j.jam && j.jam.length > 0) 
+            .map(j => new Date(j.tanggal).toISOString().split("T")[0]);
+          setAvailableDates(datesWithSchedule);
+        })
+        .catch((err) => console.log("Error fetching jadwal:", err));
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    const selected = selectedDate.toISOString().split("T")[0];
+    const item = jadwal.find((j) => j.tanggal.split("T")[0] === selected);
+    setAvailableTimes(item?.jam?.filter((j) => j.available) || []); 
+  }, [selectedDate, jadwal]);
+
+  const handleDateChange = (date: Date) => {
     setSelectedDate(date);
-    const dayOfWeek = new Intl.DateTimeFormat("en-US", {
-      weekday: "long",
-    }).format(date);
-    setAvailableTimes(scheduleByDay[dayOfWeek] || []);
   };
 
   return (
@@ -92,32 +94,38 @@ const ScheduleScreen = () => {
         className="px-6 py-4 mt-[-30px]"
         contentContainerStyle={{ paddingBottom: 100 }}
       >
-        {/* Tanggal */}
         <View className="flex-1 flex-col p-2">
           <DatePickerComponent
             label="Pilih Tanggal"
             onDateChange={handleDateChange}
-            // defaultValue={selectedDate}
+            availableDates={availableDates} 
           />
           <View className="w-full h-[2px] bg-skyDark mt-1" />
 
+          {/* Menampilkan Jadwal */}
           {selectedDate && (
             <View className="mt-4">
               <Text className="text-lg font-bold text-skyDark mb-2">
                 Jam Tersedia ({selectedDate?.toLocaleDateString()}):
               </Text>
-              <View className="flex flex-wrap flex-row gap-2 justify-between">
-                {availableTimes.map((time, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    className="p-2 border-2 border-skyDark rounded-md w-[23%] text-center"
-                  >
-                    <Text className="text-lg text-skyDark text-center">
-                      {time}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
+              {availableTimes.length > 0 ? (
+                <View className="flex flex-wrap flex-row gap-2 justify-between">
+                  {availableTimes.map((slot, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      className="p-2 border-2 border-skyDark rounded-md w-[23%] text-center"
+                    >
+                      <Text className="text-lg text-skyDark text-center">
+                        {slot.time}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              ) : (
+                <Text className="text-gray-500 italic mt-2">
+                  Tidak ada jadwal tersedia
+                </Text>
+              )}
             </View>
           )}
         </View>

@@ -188,7 +188,8 @@ const ModalContent: React.FC<ModalContentProps> = ({
 
     try {
       const response = await axios.post(
-        "http://192.168.18.109:3330/api/dokter/upload",
+        // "http://192.168.18.109:3330/api/dokter/upload",
+        "http://10.52.170.35:3330/api/dokter/upload",
         formData,
         {
           headers: {
