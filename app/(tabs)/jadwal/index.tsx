@@ -6,12 +6,12 @@ import {
   ScrollView,
   StatusBar,
 } from "react-native";
-import DatePickerComponent from "@/components/picker/datepicker"; 
+import DatePickerComponent from "@/components/picker/datepicker";
 import Background from "@/components/background";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useRouter } from "expo-router";
 import axios from "axios";
-import * as SecureStore from 'expo-secure-store';
+import * as SecureStore from "expo-secure-store";
 
 type Jadwal = {
   tanggal: string;
@@ -27,14 +27,14 @@ const ScheduleScreen = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [jadwal, setJadwal] = useState<Jadwal[]>([]);
   const [availableTimes, setAvailableTimes] = useState<AvailableTime[]>([]);
-  const [availableDates, setAvailableDates] = useState<string[]>([]); 
-  const [userId, setUserId] = useState<string | null>(null); 
+  const [availableDates, setAvailableDates] = useState<string[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     const getUserId = async () => {
       try {
-        const userIdFromStore = await SecureStore.getItemAsync('userId');
+        const userIdFromStore = await SecureStore.getItemAsync("userId");
         if (userIdFromStore) {
           setUserId(userIdFromStore);
         } else {
@@ -44,19 +44,21 @@ const ScheduleScreen = () => {
         console.error("Error fetching userId from SecureStore:", error);
       }
     };
-    
+
     getUserId();
   }, []);
 
   useEffect(() => {
     if (userId) {
       axios
-        .get(`https://mjk-backend-production.up.railway.app/api/dokter/jadwal/${userId}`)
+        .get(
+          `https://mjk-backend-production.up.railway.app/api/dokter/jadwal/${userId}`
+        )
         .then((res) => {
-          setJadwal(res.data); 
+          setJadwal(res.data);
           const datesWithSchedule = res.data
-            .filter(j => j.jam && j.jam.length > 0) 
-            .map(j => new Date(j.tanggal).toISOString().split("T")[0]);
+            .filter((j) => j.jam && j.jam.length > 0)
+            .map((j) => new Date(j.tanggal).toISOString().split("T")[0]);
           setAvailableDates(datesWithSchedule);
         })
         .catch((err) => console.log("Error fetching jadwal:", err));
@@ -66,7 +68,7 @@ const ScheduleScreen = () => {
   useEffect(() => {
     const selected = selectedDate.toISOString().split("T")[0];
     const item = jadwal.find((j) => j.tanggal.split("T")[0] === selected);
-    setAvailableTimes(item?.jam?.filter((j) => j.available) || []); 
+    setAvailableTimes(item?.jam?.filter((j) => j.available) || []);
   }, [selectedDate, jadwal]);
 
   const handleDateChange = (date: Date) => {
@@ -98,7 +100,7 @@ const ScheduleScreen = () => {
           <DatePickerComponent
             label="Pilih Tanggal"
             onDateChange={handleDateChange}
-            availableDates={availableDates} 
+            availableDates={availableDates}
           />
           <View className="w-full h-[2px] bg-skyDark mt-1" />
 
@@ -106,7 +108,12 @@ const ScheduleScreen = () => {
           {selectedDate && (
             <View className="mt-4">
               <Text className="text-lg font-bold text-skyDark mb-2">
-                Jam Tersedia ({selectedDate?.toLocaleDateString()}):
+                {selectedDate.toLocaleDateString("id-ID", {
+                  weekday: "long",
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })} :
               </Text>
               {availableTimes.length > 0 ? (
                 <View className="flex flex-wrap flex-row gap-2 justify-between">

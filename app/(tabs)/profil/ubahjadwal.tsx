@@ -16,14 +16,13 @@ import { useRouter } from "expo-router";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import ModalContent from "@/components/modals/ModalContent";
 import ModalTemplate from "@/components/modals/ModalTemplate";
-import ImagePickerComponent, {
-  useImage,
-} from "@/components/picker/imagepicker";
+import ImagePickerComponent, { useImage } from "@/components/picker/imagepicker";
+import * as SecureStore from "expo-secure-store";
+import axios from "axios";
 
 const App = () => {
   const [selectedDate, setSelectedDate] = useState(null);
-  const [timeSlots, setTimeSlots] = useState([]);
-
+  const [timeSlots, setTimeSlots] = useState<string[]>([]);
   const [modalType, setModalType] = useState("info");
   const [isModalVisible, setModalVisible] = useState(false);
   const imageContext = useImage();
@@ -45,7 +44,45 @@ const App = () => {
     setModalVisible(false);
     setTimeout(() => {
       setModalVisible(false);
-    }, 300); // Close modal automatically after receiving time slots
+    }, 300);
+  };
+
+  const handleSubmitSchedule = async () => {
+    if (!selectedDate || timeSlots.length === 0) {
+      alert("Harap pilih tanggal dan jam praktek.");
+      return;
+    }
+  
+    const token = await SecureStore.getItemAsync("userToken");
+    const dokterId = await SecureStore.getItemAsync("userId");
+    const jamMulai = timeSlots[0].replace(".", ":");
+    const jamSelesai = timeSlots[timeSlots.length - 1].replace(".", ":");
+    try {
+      const response = await axios.post(
+        "https://mjk-backend-production.up.railway.app/api/dokter/jadwal/add/" + dokterId, 
+        {
+          tanggal: selectedDate,
+          jam_mulai: jamMulai,
+          jam_selesai: jamSelesai,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          }
+        }
+      );
+      
+      if (response.status === 201) {
+        alert("Jadwal berhasil ditambahkan.");
+        router.replace("/(tabs)/home");
+      } else {
+        alert(`Gagal menambahkan jadwal: ${response.data.message}`);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Terjadi kesalahan, coba lagi nanti.");
+    }
   };
 
   return (
@@ -58,7 +95,9 @@ const App = () => {
           <TouchableOpacity onPress={() => router.replace("./homescreen")}>
             <MaterialIcons name="arrow-back-ios" size={24} color="#025F96" />
           </TouchableOpacity>
-          <Text className="text-skyDark font-bold text-xl ml-2">Zuditanit</Text>
+          <Text className="text-skyDark font-bold text-xl ml-2">
+            Ubah Jadwal
+          </Text>
         </View>
         <Image
           className="h-10 w-12"
@@ -101,7 +140,7 @@ const App = () => {
                 {timeSlots.map((time, index) => (
                   <View
                     key={index}
-                    className="bg-white border border-skyDark rounded-xl p-2 min-w-[80px] flex justify-center items-center"
+                    className="bg-transparent border-2 border-skyDark rounded-lg p-2 min-w-[80px] flex justify-center items-center"
                   >
                     <Text className="text-lg font-semibold text-skyDark">
                       {time}
@@ -133,20 +172,23 @@ const App = () => {
               <Text className="text-white font-bold">Set as Default</Text>
             </TouchableOpacity>
           </View>
-          <ModalTemplate
-            isVisible={isModalVisible}
-            onClose={() => setModalVisible(false)}
-          >
-            <ModalContent
-              modalType={modalType}
-              onPickImage={openGallery}
-              onOpenCamera={openCamera}
-              onClose={() => setModalVisible(false)}
-              onTimeSlotsChange={handleTimeSlotsChange}
-            />
-          </ModalTemplate>
         </View>
       </ScrollView>
+
+      {/* Modal Template */}
+      <ModalTemplate
+        isVisible={isModalVisible}
+        onClose={() => setModalVisible(false)}
+      >
+        <ModalContent
+          modalType={modalType}
+          onPickImage={openGallery}
+          onOpenCamera={openCamera}
+          onClose={() => setModalVisible(false)}
+          onConfirm={handleSubmitSchedule} 
+          onTimeSlotsChange={handleTimeSlotsChange}
+        />
+      </ModalTemplate>
     </Background>
   );
 };

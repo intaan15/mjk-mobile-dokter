@@ -18,6 +18,7 @@ interface ModalContentProps {
   onPickImage?: () => void;
   onOpenCamera?: () => void;
   onUpdateSuccess?: () => void;
+  onConfirm?: () => void;
 }
 
 interface User {
@@ -38,6 +39,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
   onPickImage,
   onOpenCamera,
   onUpdateSuccess,
+  onConfirm
 }) => {
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [endTime, setEndTime] = useState<Date | null>(null);
@@ -51,7 +53,6 @@ const ModalContent: React.FC<ModalContentProps> = ({
   const [spesialis, setSpesialis] = useState("");
 
   const [userData, setUserData] = useState<User | null>(null);
-  
 
   useEffect(() => {
     if (userData) {
@@ -82,7 +83,6 @@ const ModalContent: React.FC<ModalContentProps> = ({
 
     fetchUser();
   }, []);
-
 
   const handleSubmit = async () => {
     try {
@@ -139,9 +139,9 @@ const ModalContent: React.FC<ModalContentProps> = ({
       end.setDate(end.getDate() + 1);
     }
 
-    while (currentTime <= end) {
+    while (currentTime < end) {
       slots.push(formatTime(currentTime));
-      currentTime.setMinutes(currentTime.getMinutes() + 15);
+      currentTime.setMinutes(currentTime.getMinutes() + 30);
     }
 
     return slots;
@@ -158,7 +158,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
     router.replace("/screens/signin");
   };
 
-  // upload image 
+  // upload image
   const uploadImageToServer = async () => {
     if (!profileImage?.uri) {
       alert("Silakan pilih gambar terlebih dahulu.");
@@ -205,9 +205,6 @@ const ModalContent: React.FC<ModalContentProps> = ({
       alert("Gagal upload gambar");
     }
   };
-
-
-
 
   switch (modalType) {
     case "pilihgambar":
@@ -342,7 +339,10 @@ const ModalContent: React.FC<ModalContentProps> = ({
               </Text>
             </TouchableOpacity>
             <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
-            <TouchableOpacity onPress={onClose}>
+            <TouchableOpacity  onPress={() => {
+            if (onConfirm) onConfirm();  // Pastikan onConfirm ada sebelum dipanggil
+            if (onClose) onClose();     // Pastikan onClose ada sebelum dipanggil
+          }}>
               <Text className=" text-center text-red-500 font-medium">Oke</Text>
             </TouchableOpacity>
           </View>
