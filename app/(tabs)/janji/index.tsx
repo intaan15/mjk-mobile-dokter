@@ -15,13 +15,22 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import TabButton from "../../components/tabbutton";
 import { images } from "@/constants/images";
+import * as SecureStore from "expo-secure-store";
+import { Ionicons } from "@expo/vector-icons";
 
 const { width } = Dimensions.get("window");
 
 type Jadwal = {
   _id: string;
+  dokter_id: {
+    _id: string;
+    nama_dokter: string;
+    spesialis_dokter: string;
+    rating_dokter: number;
+  };
   masyarakat_id: {
     nama_masyarakat: string;
+    foto_profil_masyarakat?: string;
   };
   tgl_konsul: string;
   jam_konsul: string;
@@ -63,17 +72,31 @@ const formatTanggalIndo = (isoDate: string) => {
   return `${hari}, ${tanggalNum} ${bulan} ${tahun}`;
 };
 
-
 export default function JadwalScreen() {
   const router = useRouter();
   const [selectedTab, setSelectedTab] = useState("menunggu");
   const [jadwals, setJadwal] = useState<Jadwal[]>([]);
 
   useEffect(() => {
-    axios
-      .get("https://mjk-backend-production.up.railway.app/api/jadwal/getall")
-      .then((res) => setJadwal(res.data))
-      .catch((err) => console.error("Error fetching jadwals:", err));
+    const fetchJadwal = async () => {
+      try {
+        const userId = await SecureStore.getItemAsync("userId");
+        const response = await axios.get(
+          "https://mjk-backend-production.up.railway.app/api/jadwal/getall"
+        );
+
+        if (userId) {
+          const filtered = response.data.filter(
+            (jadwal: Jadwal) => jadwal.dokter_id?._id === userId
+          );
+          setJadwal(filtered);
+        }
+      } catch (err) {
+        console.error("Error fetching jadwals:", err);
+      }
+    };
+
+    fetchJadwal();
   }, []);
 
   const updateJadwalStatus = (
@@ -109,9 +132,7 @@ export default function JadwalScreen() {
             <TouchableOpacity onPress={() => router.replace("./homescreen")}>
               <MaterialIcons name="arrow-back-ios" size={24} color="#025F96" />
             </TouchableOpacity>
-            <Text className="text-skyDark font-bold text-xl ml-2">
-              Janji
-            </Text>
+            <Text className="text-skyDark font-bold text-xl ml-2">Janji</Text>
           </View>
           <Image
             className="h-10 w-12"
@@ -152,11 +173,19 @@ export default function JadwalScreen() {
                   }}
                 >
                   <View className="flex flex-row items-center px-3 pt-2">
-                    <Image
-                      source={images.foto}
-                      className="h-20 w-20 rounded-full border border-gray-300"
-                      resizeMode="cover"
-                    />
+                    {jadwal.masyarakat_id?.foto_profil_masyarakat && jadwal.masyarakat_id?.nama_masyarakat ? (
+                      <Image
+                        source={{
+                          uri: `https://mjk-backend-production.up.railway.app/uploads/${jadwal.masyarakat_id.foto_profil_masyarakat}`,
+                        }}
+                        className="h-20 w-20 rounded-full border border-gray-300"
+                        resizeMode="cover"
+                      />
+                    ) : (
+                      <View className="h-20 w-20 rounded-full border border-gray-300 items-center justify-center bg-gray-200">
+                        <Ionicons name="person" size={40} color="#0C4A6E" />
+                      </View>
+                    )}
                     <View className="ml-4 flex-1">
                       <Text className="font-bold text-lg text-skyDark pb-1">
                         {jadwal?.masyarakat_id?.nama_masyarakat ?? "Pasien"}
