@@ -189,7 +189,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
     try {
       const response = await axios.post(
         // "http://192.168.18.109:3330/api/dokter/upload",
-        "http://10.52.170.35:3330/api/dokter/upload",
+        "http://10.52.170.231:3330/api/dokter/upload",
         formData,
         {
           headers: {
@@ -204,6 +204,11 @@ const ModalContent: React.FC<ModalContentProps> = ({
       console.error("Upload gagal:", error.message);
       alert("Gagal upload gambar");
     }
+  };
+
+  const handleUpload = async () => {
+    await uploadImageToServer();
+    onClose?.();
   };
 
   switch (modalType) {
@@ -234,7 +239,10 @@ const ModalContent: React.FC<ModalContentProps> = ({
             className="mt-5 py-3 bg-green-600 rounded-xl w-full"
             onPress={uploadImageToServer}
           >
-            <Text className="text-center text-white font-semibold text-base">
+            <Text
+              className="text-center text-white font-semibold text-base"
+              onPress={handleUpload}
+            >
               Upload Foto
             </Text>
           </TouchableOpacity>
@@ -249,6 +257,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
           </TouchableOpacity>
         </View>
       );
+    
     // PROFIL
     case "editprofil":
       return (
@@ -339,10 +348,12 @@ const ModalContent: React.FC<ModalContentProps> = ({
               </Text>
             </TouchableOpacity>
             <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
-            <TouchableOpacity  onPress={() => {
-            if (onConfirm) onConfirm();  // Pastikan onConfirm ada sebelum dipanggil
-            if (onClose) onClose();     // Pastikan onClose ada sebelum dipanggil
-          }}>
+            <TouchableOpacity
+              onPress={() => {
+                if (onConfirm) onConfirm(); // Pastikan onConfirm ada sebelum dipanggil
+                if (onClose) onClose(); // Pastikan onClose ada sebelum dipanggil
+              }}
+            >
               <Text className=" text-center text-red-500 font-medium">Oke</Text>
             </TouchableOpacity>
           </View>
