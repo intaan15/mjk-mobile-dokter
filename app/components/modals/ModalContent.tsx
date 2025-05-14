@@ -349,7 +349,28 @@ const ModalContent: React.FC<ModalContentProps> = ({
         </View>
       );
 
-    case "jadwaldefault":
+    case "aturjadwaldefault":
+      return (
+        <View>
+          <Text className="text-center text-lg font-bold text-skyDark">
+            Jadwal anda akan diatur secara default
+          </Text>
+
+          <View className="flex flex-row justify-between items-center px-20">
+            <TouchableOpacity onPress={onClose}>
+              <Text className=" text-center text-skyDark font-medium w-full">
+                Batal
+              </Text>
+            </TouchableOpacity>
+            <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
+            <TouchableOpacity onPress={onClose}>
+              <Text className=" text-center text-red-500 font-medium">Oke</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      );
+
+    case "ubahjadwaldefault":
       return (
         <View>
           <Text className="text-center text-lg font-bold text-skyDark">

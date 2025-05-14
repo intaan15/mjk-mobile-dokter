@@ -167,7 +167,7 @@ const App = () => {
           <View className="flex-1 justify-center items-center mt-6">
             <TouchableOpacity
               className="bg-skyDark px-4 py-4 rounded-xl"
-              onPress={() => openModal("jadwaldefault")}
+              onPress={() => openModal("aturjadwaldefault")}
             >
               <Text className="text-white font-bold px-5">Atur Default</Text>
             </TouchableOpacity>

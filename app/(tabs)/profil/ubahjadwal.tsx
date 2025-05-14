@@ -53,15 +53,22 @@ const App = () => {
       return;
     }
   
-    const token = await SecureStore.getItemAsync("userToken");
-    const dokterId = await SecureStore.getItemAsync("userId");
-    const jamMulai = timeSlots[0].replace(".", ":");
-    const jamSelesai = timeSlots[timeSlots.length - 1].replace(".", ":");
     try {
-      const response = await axios.post(
-        "https://mjk-backend-production.up.railway.app/api/dokter/jadwal/" + dokterId + "/tanggal", 
+      const token = await SecureStore.getItemAsync("userToken");
+      const dokterId = await SecureStore.getItemAsync("userId");
+      
+      if (timeSlots.length === 1) {
+        alert("Pilih minimal 2 slot waktu untuk jam mulai dan selesai");
+        return;
+      }
+  
+      const jamMulai = timeSlots[0].replace(".", ":") + ":00";
+      const jamSelesai = timeSlots[timeSlots.length - 1].replace(".", ":") + ":00";
+      const tanggal = new Date(selectedDate).toISOString();
+      const response = await axios.patch(
+        `https://mjk-backend-production.up.railway.app/api/dokter/${dokterId}/jadwal/update`,
         {
-          tanggal: selectedDate,
+          tanggal,
           jam_mulai: jamMulai,
           jam_selesai: jamSelesai,
         },
@@ -69,19 +76,30 @@ const App = () => {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
-          }
+          },
         }
       );
-      
-      if (response.status === 201) {
-        alert("Jadwal berhasil ditambahkan.");
+  
+      if (response.data.success) {
+        alert("Jadwal berhasil diupdate!");
         router.replace("/(tabs)/profil");
-      } else {
-        alert(`Gagal menambahkan jadwal: ${response.data.message}`);
       }
-    } catch (error) {
-      console.error(error);
-      alert("Terjadi kesalahan, coba lagi nanti.");
+    } catch (error:any) {
+      console.error("Error detail:", {
+        message: error.message,
+        response: error.response?.data,
+      });
+      
+      let errorMessage = "Terjadi kesalahan server";
+      if (error.response) {
+        if (error.response.status === 400) {
+          errorMessage = error.response.data.message || "Data tidak valid";
+        } else if (error.response.status === 404) {
+          errorMessage = "Jadwal tidak ditemukan";
+        }
+      }
+      
+      alert(errorMessage);
     }
   };
 
@@ -167,7 +185,7 @@ const App = () => {
           <View className="flex-1 justify-center items-center mt-6">
             <TouchableOpacity
               className="bg-skyDark px-4 py-4 rounded-xl"
-              onPress={() => openModal("jadwaldefault")}
+              onPress={() => openModal("ubahjadwaldefault")}
             >
               <Text className="text-white font-bold px-5">Ubah Default</Text>
             </TouchableOpacity>
