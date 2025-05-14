@@ -24,7 +24,7 @@ export default function SplashScreen() {
               className="h-48 w-96"
               resizeMode="contain"
             />
-            <Text className="text-2xl font-bold mt-4 text-blue-900">
+            <Text className="text-2xl font-bold mt-4 text-skyDark">
               MOJOKERTO SEHAT
             </Text>
             <Text className="text-sm text-gray-600">By timtujuh UNEJ</Text>

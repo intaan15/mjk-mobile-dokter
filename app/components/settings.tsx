@@ -104,9 +104,19 @@ export default function Settings() {
 
       <TouchableOpacity
         className="flex flex-row items-center gap-3 py-1 pl-1"
-        onPress={() => router.push("/profil/ubahjadwal")}
+        onPress={() => router.push("/profil/aturjadwal")}
       >
         <FontAwesome5 name="clipboard-list" size={22} color="#025F96" />
+        <Text className="font-bold text-lg text-skyDark">Atur Jadwal</Text>
+      </TouchableOpacity>
+
+      <View className="w-full h-[2px] bg-skyDark" />
+
+      <TouchableOpacity
+        className="flex flex-row items-center gap-3 py-1 pl-1"
+        onPress={() => router.push("/profil/ubahjadwal")}
+      >
+        <FontAwesome5 name="calendar-day" size={19} color="#025F96" />
         <Text className="font-bold text-lg text-skyDark">Ubah Jadwal</Text>
       </TouchableOpacity>
 

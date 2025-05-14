@@ -59,7 +59,7 @@ const App = () => {
     const jamSelesai = timeSlots[timeSlots.length - 1].replace(".", ":");
     try {
       const response = await axios.post(
-        "https://mjk-backend-production.up.railway.app/api/dokter/jadwal/" + dokterId + "/tanggal", 
+        "https://mjk-backend-production.up.railway.app/api/dokter/jadwal/add/" + dokterId, 
         {
           tanggal: selectedDate,
           jam_mulai: jamMulai,
@@ -96,7 +96,7 @@ const App = () => {
             <MaterialIcons name="arrow-back-ios" size={24} color="#025F96" />
           </TouchableOpacity>
           <Text className="text-skyDark font-bold text-xl ml-2">
-            Ubah Jadwal
+            Atur Jadwal
           </Text>
         </View>
         <Image
@@ -129,7 +129,7 @@ const App = () => {
               size={24}
               color="#025F96"
             />
-            <Text className="text-skyDark text-lg">Ubah Jam Praktek</Text>
+            <Text className="text-skyDark text-lg">Atur Jam Praktek</Text>
           </TouchableOpacity>
 
           {/* Menampilkan Waktu yang Disimpan */}
@@ -169,7 +169,7 @@ const App = () => {
               className="bg-skyDark px-4 py-4 rounded-xl"
               onPress={() => openModal("jadwaldefault")}
             >
-              <Text className="text-white font-bold px-5">Ubah Default</Text>
+              <Text className="text-white font-bold px-5">Atur Default</Text>
             </TouchableOpacity>
           </View>
         </View>

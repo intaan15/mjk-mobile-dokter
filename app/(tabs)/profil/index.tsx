@@ -162,8 +162,8 @@ function App() {
           <View className="absolute top-28 left-1/2 -translate-x-1/2">
             {userData.foto_profil_dokter ? (
               <Image
-                source={{ uri: userData.foto_profil_dokter }}
-                className="w-32 h-32 rounded-full border-4 border-skyDark"
+              source={{ uri: `https://mjk-backend-production.up.railway.app${userData.foto_profil_dokter}` }}
+              className="w-32 h-32 rounded-full border-4 border-skyDark"
               />
             ) : (
               <View className="w-32 h-32 rounded-full border-4 border-skyDark items-center justify-center bg-gray-200">
