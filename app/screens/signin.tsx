@@ -78,20 +78,21 @@ export default function SignIn() {
 
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1 w-full h-full"
+        style={{ flex: 1 }}
       >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <ScrollView
+            className="flex-1"
             contentContainerStyle={{
               flexGrow: 1,
               justifyContent: "center",
-              alignItems: "center",
-              paddingVertical: 20,
+              paddingHorizontal: 20,
+              paddingVertical: 40,
             }}
             keyboardShouldPersistTaps="handled"
           >
             {/* Logo & Title */}
-            <View className="items-center mb-24">
+            <View className="items-center mb-6 pb-24">
               <Image
                 className="w-44 h-48"
                 source={require("../../assets/images/logo.png")}
@@ -101,7 +102,7 @@ export default function SignIn() {
             </View>
 
             {/* Form */}
-            <View className="w-full max-w-sm flex items-center">
+            <View className="w-full px-8">
               <View className="flex flex-col gap-4 w-full">
                 <Text>Nama Pengguna atau STR</Text>
                 <TextInput
@@ -124,7 +125,7 @@ export default function SignIn() {
 
               {/* Tombol Login */}
               <TouchableOpacity
-                className="bg-skyDark py-3 px-6 rounded-3xl mt-6 w-4/6"
+                className="bg-skyDark py-3 px-6 rounded-xl mt-6 w-4/6 self-center"
                 onPress={handleLogin}
               >
                 <Text className="text-xl font-normal text-white text-center">
