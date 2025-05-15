@@ -168,8 +168,6 @@ const ModalContent: React.FC<ModalContentProps> = ({
     const uri = profileImage.uri;
     const fileName = uri.split("/").pop();
     const fileType = fileName?.split(".").pop();
-
-    // Ambil userId dari SecureStore
     const userId = await SecureStore.getItemAsync("userId");
     const cleanedUserId = userId?.replace(/"/g, "");
 
@@ -184,8 +182,8 @@ const ModalContent: React.FC<ModalContentProps> = ({
       name: fileName,
       type: `image/${fileType}`,
     } as any);
-    formData.append("id", cleanedUserId); // Kirim userId sebagai bagian dari form data
-
+    formData.append("id", cleanedUserId); 
+    
     try {
       const response = await axios.post(
         // "http://192.168.18.109:3330/api/dokter/upload",
@@ -209,6 +207,37 @@ const ModalContent: React.FC<ModalContentProps> = ({
   const handleUpload = async () => {
     await uploadImageToServer();
     onClose?.();
+  };
+  const handleDeleteAccount = async () => {
+    try {
+      const userId = await SecureStore.getItemAsync("userId");
+      const token = await SecureStore.getItemAsync("token");
+
+      if (!userId || !token) {
+        alert("Token atau user ID tidak ditemukan.");
+        return;
+      }
+
+      const response = await axios.delete(
+        `http://<YOUR_BACKEND_URL>/delete/${userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        alert("Akun berhasil dihapus.");
+        await SecureStore.deleteItemAsync("token");
+        await SecureStore.deleteItemAsync("userId");
+      } else {
+        alert("Terjadi kesalahan saat menghapus akun.");
+      }
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      alert("Terjadi kesalahan server.");
+    }
   };
 
   switch (modalType) {
@@ -350,8 +379,8 @@ const ModalContent: React.FC<ModalContentProps> = ({
             <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
             <TouchableOpacity
               onPress={() => {
-                if (onConfirm) onConfirm(); // Pastikan onConfirm ada sebelum dipanggil
-                if (onClose) onClose(); // Pastikan onClose ada sebelum dipanggil
+                if (onConfirm) onConfirm(); 
+                if (onClose) onClose();
               }}
             >
               <Text className=" text-center text-red-500 font-medium">Oke</Text>
@@ -485,7 +514,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
               </Text>
             </TouchableOpacity>
             <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
-            <TouchableOpacity onPress={onClose}>
+            <TouchableOpacity onPress={handleDeleteAccount}>
               <Text className=" text-center text-red-500 font-medium">
                 Hapus
               </Text>
