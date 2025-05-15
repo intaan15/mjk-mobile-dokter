@@ -208,10 +208,11 @@ const ModalContent: React.FC<ModalContentProps> = ({
     await uploadImageToServer();
     onClose?.();
   };
+
   const handleDeleteAccount = async () => {
     try {
       const userId = await SecureStore.getItemAsync("userId");
-      const token = await SecureStore.getItemAsync("token");
+      const token = await SecureStore.getItemAsync("userToken");
 
       if (!userId || !token) {
         alert("Token atau user ID tidak ditemukan.");
@@ -219,7 +220,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
       }
 
       const response = await axios.delete(
-        `http://<YOUR_BACKEND_URL>/delete/${userId}`,
+        `http://mjk-backend-production.up.railway.app/api/dokter/delete/${userId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -228,9 +229,10 @@ const ModalContent: React.FC<ModalContentProps> = ({
       );
 
       if (response.status === 200) {
-        alert("Akun berhasil dihapus.");
-        await SecureStore.deleteItemAsync("token");
+        await SecureStore.deleteItemAsync("userToken");
         await SecureStore.deleteItemAsync("userId");
+        onClose?.();
+        router.replace("/screens/signin");
       } else {
         alert("Terjadi kesalahan saat menghapus akun.");
       }
