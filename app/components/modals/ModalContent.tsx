@@ -246,12 +246,12 @@ const ModalContent: React.FC<ModalContentProps> = ({
 
   const handleUbahDefault = async () => {
     if (!selectedDate) return;
-  
+
     try {
       const token = await SecureStore.getItemAsync("userToken");
       const dokterId = await SecureStore.getItemAsync("userId");
       const tanggal = selectedDate.toISOString();
-      
+
       const response = await axios.patch(
         `https://mjk-backend-production.up.railway.app/api/dokter/${dokterId}/jadwal/update`,
         {
@@ -266,7 +266,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
           },
         }
       );
-  
+
       if (response.data.success) {
         onClose?.();
         router.push("/(tabs)/profil");
@@ -279,12 +279,12 @@ const ModalContent: React.FC<ModalContentProps> = ({
 
   const handleAturDefault = async () => {
     if (!selectedDate) return;
-  
+
     try {
       const token = await SecureStore.getItemAsync("userToken");
       const dokterId = await SecureStore.getItemAsync("userId");
       const tanggal = selectedDate.toISOString();
-      
+
       const response = await axios.post(
         `https://mjk-backend-production.up.railway.app/api/dokter/jadwal/add/${dokterId}`,
         {
@@ -299,7 +299,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
           },
         }
       );
-  
+
       if (response.status === 201) {
         onClose?.();
         router.push("/(tabs)/profil");
@@ -442,7 +442,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
 
           <View className="flex flex-row justify-between items-center px-20">
             <TouchableOpacity onPress={onClose}>
-              <Text className=" text-center text-skyDark font-medium w-full">
+              <Text className=" text-center text-skyDark font-medium w-full py-2">
                 Batal
               </Text>
             </TouchableOpacity>
@@ -468,7 +468,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
 
           <View className="flex flex-row justify-between items-center px-20">
             <TouchableOpacity onPress={onClose}>
-              <Text className=" text-center text-skyDark font-medium w-full">
+              <Text className=" text-center text-skyDark font-medium w-full py-2">
                 Batal
               </Text>
             </TouchableOpacity>
@@ -489,7 +489,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
 
           <View className="flex flex-row justify-between items-center px-20">
             <TouchableOpacity onPress={onClose}>
-              <Text className=" text-center text-skyDark font-medium w-full">
+              <Text className=" text-center text-skyDark font-medium w-full py-2">
                 Batal
               </Text>
             </TouchableOpacity>
@@ -577,14 +577,17 @@ const ModalContent: React.FC<ModalContentProps> = ({
             Anda yakin akan menghapus akun?
           </Text>
 
-          <View className="flex flex-row justify-between items-center px-20">
-            <TouchableOpacity onPress={onClose}>
+          <View className="flex flex-row justify-between items-center px-5">
+            <TouchableOpacity className="px-10 py-3" onPress={onClose}>
               <Text className=" text-center text-skyDark font-medium w-full">
                 Batal
               </Text>
             </TouchableOpacity>
             <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
-            <TouchableOpacity onPress={handleDeleteAccount}>
+            <TouchableOpacity
+              className="px-10 py-3"
+              onPress={handleDeleteAccount}
+            >
               <Text className=" text-center text-red-500 font-medium">
                 Hapus
               </Text>
@@ -600,14 +603,17 @@ const ModalContent: React.FC<ModalContentProps> = ({
             Anda yakin akan keluar?
           </Text>
 
-          <View className="flex flex-row justify-between items-center px-20">
-            <TouchableOpacity onPress={onClose}>
+          <View className="flex flex-row justify-between items-center px-5">
+            <TouchableOpacity
+              className="px-10 py-3"
+              onPress={onClose}
+            >
               <Text className=" text-center text-skyDark font-medium w-full">
                 Batal
               </Text>
             </TouchableOpacity>
             <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
-            <TouchableOpacity onPress={handleLogout}>
+            <TouchableOpacity className="px-10 py-3" onPress={handleLogout}>
               <Text className=" text-center text-red-500 font-medium">
                 Keluar
               </Text>
@@ -623,14 +629,15 @@ const ModalContent: React.FC<ModalContentProps> = ({
             Anda yakin akan menghapus foto profil?
           </Text>
 
-          <View className="flex flex-row justify-between items-center px-20">
-            <TouchableOpacity onPress={onClose}>
+          <View className="flex flex-row justify-between items-center px-5">
+            <TouchableOpacity className="px-10 py-3" onPress={onClose}>
               <Text className=" text-center text-skyDark font-medium w-full">
                 Batal
               </Text>
             </TouchableOpacity>
             <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
             <TouchableOpacity
+              className="px-10 py-3"
               onPress={() => {
                 setImage?.(null);
                 onClose?.();
@@ -651,11 +658,9 @@ const ModalContent: React.FC<ModalContentProps> = ({
           <Text className="text-center text-lg font-bold text-skyDark">
             Terlalu banyak percobaan login. Coba lagi nanti.
           </Text>
-
-          <View className="w-full h-[2px] bg-skyDark my-5" />
-
+          <View className="w-full h-[2px] bg-skyDark mt-5 mb-3" />
           <TouchableOpacity
-            className=" text-center text-skyDark font-medium w-full"
+            className=" text-center text-skyDark font-medium w-full py-2"
             onPress={onClose}
           >
             <Text className="text-center text-skyDark">Oke</Text>
@@ -669,11 +674,9 @@ const ModalContent: React.FC<ModalContentProps> = ({
           <Text className="text-center text-lg font-bold text-skyDark">
             Galat! Terjadi kesalahan yang tidak terduga
           </Text>
-
-          <View className="w-full h-[2px] bg-skyDark my-5" />
-
+          <View className="w-full h-[2px] bg-skyDark mt-5 mb-3" />
           <TouchableOpacity
-            className=" text-center text-skyDark font-medium w-full"
+            className=" text-center text-skyDark font-medium w-full py-2"
             onPress={onClose}
           >
             <Text className="text-center text-skyDark">Oke</Text>
@@ -687,11 +690,9 @@ const ModalContent: React.FC<ModalContentProps> = ({
           <Text className="text-center text-lg font-bold text-skyDark">
             Harap masukkan username/STR dan password
           </Text>
-
-          <View className="w-full h-[2px] bg-skyDark my-5" />
-
+          <View className="w-full h-[2px] bg-skyDark mt-5 mb-3" />
           <TouchableOpacity
-            className=" text-center text-skyDark font-medium w-full"
+            className=" text-center text-skyDark font-medium w-full py-2"
             onPress={onClose}
           >
             <Text className="text-center text-skyDark">Oke</Text>
@@ -705,11 +706,9 @@ const ModalContent: React.FC<ModalContentProps> = ({
           <Text className="text-center text-lg font-bold text-skyDark">
             Akun tidak ditemukan
           </Text>
-
-          <View className="w-full h-[2px] bg-skyDark my-5" />
-
+          <View className="w-full h-[2px] bg-skyDark mt-5 mb-3" />
           <TouchableOpacity
-            className=" text-center text-skyDark font-medium w-full"
+            className=" text-center text-skyDark font-medium w-full py-2"
             onPress={onClose}
           >
             <Text className="text-center text-skyDark">Oke</Text>
@@ -723,11 +722,9 @@ const ModalContent: React.FC<ModalContentProps> = ({
           <Text className="text-center text-lg font-bold text-skyDark">
             Password salah
           </Text>
-
-          <View className="w-full h-[2px] bg-skyDark my-5" />
-
+          <View className="w-full h-[2px] bg-skyDark mt-5 mb-3" />
           <TouchableOpacity
-            className=" text-center text-skyDark font-medium w-full"
+            className=" text-center text-skyDark font-medium w-full py-2"
             onPress={onClose}
           >
             <Text className="text-center text-skyDark">Oke</Text>
@@ -742,11 +739,9 @@ const ModalContent: React.FC<ModalContentProps> = ({
           <Text className="text-center text-lg font-bold text-skyDark">
             Password berhasil diubah
           </Text>
-
-          <View className="w-full h-[2px] bg-skyDark my-5" />
-
+          <View className="w-full h-[2px] bg-skyDark mt-5 mb-3" />
           <TouchableOpacity
-            className=" text-center text-skyDark font-medium w-full"
+            className=" text-center text-skyDark font-medium w-full py-2"
             onPress={onClose}
           >
             <Text className="text-center text-skyDark">Oke</Text>
@@ -760,11 +755,9 @@ const ModalContent: React.FC<ModalContentProps> = ({
           <Text className="text-center text-lg font-bold text-skyDark">
             Password lama salah
           </Text>
-
-          <View className="w-full h-[2px] bg-skyDark my-5" />
-
+          <View className="w-full h-[2px] bg-skyDark mt-5 mb-3" />
           <TouchableOpacity
-            className=" text-center text-skyDark font-medium w-full"
+            className=" text-center text-skyDark font-medium w-full py-2"
             onPress={onClose}
           >
             <Text className="text-center text-skyDark">Oke</Text>
@@ -778,11 +771,9 @@ const ModalContent: React.FC<ModalContentProps> = ({
           <Text className="text-center text-lg font-bold text-skyDark">
             Konfirmasi password tidak cocok
           </Text>
-
-          <View className="w-full h-[2px] bg-skyDark my-5" />
-
+          <View className="w-full h-[2px] bg-skyDark mt-5 mb-3" />
           <TouchableOpacity
-            className=" text-center text-skyDark font-medium w-full"
+            className=" text-center text-skyDark font-medium w-full py-2"
             onPress={onClose}
           >
             <Text className="text-center text-skyDark">Oke</Text>
@@ -796,11 +787,9 @@ const ModalContent: React.FC<ModalContentProps> = ({
           <Text className="text-center text-lg font-bold text-skyDark">
             Semua kolom harus diisi
           </Text>
-
-          <View className="w-full h-[2px] bg-skyDark my-5" />
-
+          <View className="w-full h-[2px] bg-skyDark mt-5 mb-3" />
           <TouchableOpacity
-            className=" text-center text-skyDark font-medium w-full"
+            className=" text-center text-skyDark font-medium w-full py-2"
             onPress={onClose}
           >
             <Text className="text-center text-skyDark">Oke</Text>

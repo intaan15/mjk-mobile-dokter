@@ -280,6 +280,16 @@ const App = () => {
                 <Text className="text-white font-bold px-5">Ubah Default</Text>
               </TouchableOpacity>
             </View>
+
+            {/* Modal Hapus Jadwal */}
+            <View className="flex-1 justify-center items-center mt-6">
+              <TouchableOpacity
+                className="bg-skyDark px-4 py-4 rounded-xl items-center w-44"
+                onPress={() => openModal("hapusjadwal")}
+              >
+                <Text className="text-white font-bold px-5">Hapus Jadwal</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </ScrollView>

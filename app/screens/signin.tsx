@@ -128,7 +128,7 @@ export default function SignIn() {
                 className="bg-skyDark py-3 px-6 rounded-xl mt-6 w-4/6 self-center"
                 onPress={handleLogin}
               >
-                <Text className="text-xl font-normal text-white text-center">
+                <Text className="text-xl font-semibold text-white text-center">
                   Masuk
                 </Text>
               </TouchableOpacity>
