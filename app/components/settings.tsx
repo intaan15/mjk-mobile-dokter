@@ -138,7 +138,7 @@ export default function Settings() {
           onPress={() => openModal("keluarakun")}
         >
           <AntDesign name="logout" size={22} color="#dc2626" />
-          <Text className="font-bold text-lg text-red-600">Log Out</Text>
+          <Text className="font-bold text-lg text-red-600">Keluar</Text>
         </TouchableOpacity>
 
         <ModalTemplate

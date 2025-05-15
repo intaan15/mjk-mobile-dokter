@@ -656,7 +656,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
       return (
         <View>
           <Text className="text-center text-lg font-bold text-skyDark">
-            Terlalu banyak percobaan login. Coba lagi nanti.
+            Terlalu banyak percobaan masuk. Coba lagi nanti.
           </Text>
           <View className="w-full h-[2px] bg-skyDark mt-5 mb-3" />
           <TouchableOpacity
@@ -688,7 +688,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
       return (
         <View>
           <Text className="text-center text-lg font-bold text-skyDark">
-            Harap masukkan username/STR dan password
+            Harap masukkan Nama Pengguna/STR dan Kata Sandi
           </Text>
           <View className="w-full h-[2px] bg-skyDark mt-5 mb-3" />
           <TouchableOpacity
@@ -720,7 +720,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
       return (
         <View>
           <Text className="text-center text-lg font-bold text-skyDark">
-            Password salah
+            Kata Sandi salah
           </Text>
           <View className="w-full h-[2px] bg-skyDark mt-5 mb-3" />
           <TouchableOpacity
@@ -753,7 +753,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
       return (
         <View>
           <Text className="text-center text-lg font-bold text-skyDark">
-            Password lama salah
+            Kata Sandi lama salah
           </Text>
           <View className="w-full h-[2px] bg-skyDark mt-5 mb-3" />
           <TouchableOpacity
@@ -769,7 +769,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
       return (
         <View>
           <Text className="text-center text-lg font-bold text-skyDark">
-            Konfirmasi password tidak cocok
+            Konfirmasi Kata Sandi tidak cocok
           </Text>
           <View className="w-full h-[2px] bg-skyDark mt-5 mb-3" />
           <TouchableOpacity

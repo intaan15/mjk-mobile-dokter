@@ -191,28 +191,21 @@ function App() {
             <Text className="font-bold text-lg text-skyDark">Nama</Text>
             <Text className="text-gray-700">{userData.nama_dokter}</Text>
 
-            <Text className="font-bold text-lg text-skyDark mt-2">
-              Username
-            </Text>
-
+            <Text className="font-bold text-lg text-skyDark mt-2">Nama Pengguna</Text>
             <Text className="text-gray-700">{userData.username_dokter}</Text>
 
             <Text className="font-bold text-lg text-skyDark mt-2">Email</Text>
             <Text className="text-gray-700">{userData.email_dokter}</Text>
 
-            <Text className="font-bold text-lg text-skyDark mt-2">
-              Nomor Telepon
-            </Text>
+            <Text className="font-bold text-lg text-skyDark mt-2">Nomor Telepon</Text>
             <Text className="text-gray-700">{userData.notlp_dokter}</Text>
 
-            <Text className="font-bold text-lg text-skyDark mt-2">
-              Spesialis
-            </Text>
+            <Text className="font-bold text-lg text-skyDark mt-2">Spesialis</Text>
             <Text className="text-gray-700">{userData.spesialis_dokter}</Text>
 
             {/* Ganti Password */}
             <Text className="font-bold text-lg text-skyDark mt-4">
-              Ganti Password
+              Ganti Kata Sandi
             </Text>
             <View className="w-full h-[2px] bg-skyDark" />
             <View className="flex flex-col items-center">
