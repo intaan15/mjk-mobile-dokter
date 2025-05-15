@@ -20,14 +20,17 @@ import ImagePickerComponent, {
 } from "@/components/picker/imagepicker";
 import * as SecureStore from "expo-secure-store";
 import axios from "axios";
+
 type Jadwal = {
   tanggal: string;
   jam: { time: string; available: boolean }[];
 };
+
 type AvailableTime = {
   time: string;
   available: boolean;
 };
+
 const App = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [timeSlots, setTimeSlots] = useState<string[]>([]);
@@ -65,23 +68,23 @@ const App = () => {
           console.log("User ID tidak ditemukan di SecureStore.");
           return;
         }
-  
+
         const res = await axios.get(
           `https://mjk-backend-production.up.railway.app/api/dokter/jadwal/${id}`
         );
-  
+
         setJadwal(res.data);
-  
+
         const datesWithSchedule = res.data
           .filter((j) => j.jam && j.jam.length > 0)
           .map((j) => new Date(j.tanggal).toISOString().split("T")[0]);
-  
+
         setAvailableDates(datesWithSchedule);
       } catch (err) {
         console.log("Error fetching jadwal:", err);
       }
     };
-  
+
     fetchJadwal();
   }, []);
 
@@ -92,14 +95,14 @@ const App = () => {
       const jadwalDateStr = new Date(j.tanggal).toISOString().split("T")[0];
       return jadwalDateStr === selectedDateStr;
     });
-  
+
     if (jadwalHariIni && Array.isArray(jadwalHariIni.jam)) {
       setAvailableTimes(jadwalHariIni.jam);
     } else {
       setAvailableTimes([]);
     }
   }, [selectedDate, jadwal]);
-  
+
   const handleSubmitSchedule = async () => {
     if (!selectedDate || timeSlots.length === 0) {
       alert("Harap pilih tanggal dan jam praktek.");
@@ -208,7 +211,8 @@ const App = () => {
           {selectedDate && (
             <View className="mt-4">
               <Text className="font-bold text-skyDark mb-2">
-                Jadwal hari {selectedDate.toLocaleDateString("id-ID", {
+                Jadwal hari{" "}
+                {selectedDate.toLocaleDateString("id-ID", {
                   weekday: "long",
                   day: "numeric",
                   month: "long",
@@ -236,7 +240,7 @@ const App = () => {
               )}
             </View>
           )}
-          
+
           {/* Menampilkan Waktu yang Disimpan */}
           {timeSlots.length > 0 && (
             <View className="mt-6 w-full flex items-center">
@@ -247,35 +251,35 @@ const App = () => {
                     key={index}
                     className="bg-transparent border-2 border-skyDark rounded-md p-2 min-w-[80px] flex justify-center items-center"
                   >
-                    <Text className="text-lg text-skyDark">
-                      {time}
-                    </Text>
+                    <Text className="text-lg text-skyDark">{time}</Text>
                   </View>
                 ))}
               </View>
             </View>
           )}
 
-          {/* Modal Simpan Perubahan */}
-          {timeSlots.length > 0 && (
+          <View className="flex-row">
+            {/* Modal Simpan Perubahan */}
+            {timeSlots.length > 0 && (
+              <View className="flex-1 justify-center items-center mt-6">
+                <TouchableOpacity
+                  className="bg-skyDark px-4 py-4 rounded-xl items-center w-44"
+                  onPress={() => openModal("konfirm")}
+                >
+                  <Text className="text-white font-bold">Simpan Perubahan</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {/* Modal Set as Default */}
             <View className="flex-1 justify-center items-center mt-6">
               <TouchableOpacity
-                onPress={() => openModal("konfirm")}
-                className="bg-skyDark px-4 py-4 rounded-xl"
+                className="bg-skyDark px-4 py-4 rounded-xl items-center w-44"
+                onPress={() => openModal("ubahjadwaldefault")}
               >
-                <Text className="text-white font-bold">Simpan Perubahan</Text>
+                <Text className="text-white font-bold px-5">Ubah Default</Text>
               </TouchableOpacity>
             </View>
-          )}
-
-          {/* Modal Set as Default */}
-          <View className="flex-1 justify-center items-center mt-6">
-            <TouchableOpacity
-              className="bg-skyDark px-4 py-4 rounded-xl"
-              onPress={() => openModal("ubahjadwaldefault")}
-            >
-              <Text className="text-white font-bold px-5">Ubah Default</Text>
-            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
@@ -292,6 +296,7 @@ const App = () => {
           onClose={() => setModalVisible(false)}
           onConfirm={handleSubmitSchedule}
           onTimeSlotsChange={handleTimeSlotsChange}
+          selectedDate={selectedDate}
         />
       </ModalTemplate>
     </Background>

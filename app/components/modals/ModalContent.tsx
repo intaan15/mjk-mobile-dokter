@@ -19,6 +19,7 @@ interface ModalContentProps {
   onOpenCamera?: () => void;
   onUpdateSuccess?: () => void;
   onConfirm?: () => void;
+  selectedDate?: Date;
 }
 
 interface User {
@@ -39,7 +40,8 @@ const ModalContent: React.FC<ModalContentProps> = ({
   onPickImage,
   onOpenCamera,
   onUpdateSuccess,
-  onConfirm
+  onConfirm,
+  selectedDate,
 }) => {
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [endTime, setEndTime] = useState<Date | null>(null);
@@ -182,8 +184,8 @@ const ModalContent: React.FC<ModalContentProps> = ({
       name: fileName,
       type: `image/${fileType}`,
     } as any);
-    formData.append("id", cleanedUserId); 
-    
+    formData.append("id", cleanedUserId);
+
     try {
       const response = await axios.post(
         // "http://192.168.18.109:3330/api/dokter/upload",
@@ -242,6 +244,72 @@ const ModalContent: React.FC<ModalContentProps> = ({
     }
   };
 
+  const handleUbahDefault = async () => {
+    if (!selectedDate) return;
+  
+    try {
+      const token = await SecureStore.getItemAsync("userToken");
+      const dokterId = await SecureStore.getItemAsync("userId");
+      const tanggal = selectedDate.toISOString();
+      
+      const response = await axios.patch(
+        `https://mjk-backend-production.up.railway.app/api/dokter/${dokterId}/jadwal/update`,
+        {
+          tanggal,
+          jam_mulai: "08:00",
+          jam_selesai: "16:00",
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
+      if (response.data.success) {
+        onClose?.();
+        router.push("/(tabs)/profil");
+      }
+    } catch (error: any) {
+      console.error("Gagal mengubah jadwal default:", error);
+      alert(error.response?.data?.message || "Gagal mengubah jadwal default");
+    }
+  };
+
+  const handleAturDefault = async () => {
+    if (!selectedDate) return;
+  
+    try {
+      const token = await SecureStore.getItemAsync("userToken");
+      const dokterId = await SecureStore.getItemAsync("userId");
+      const tanggal = selectedDate.toISOString();
+      
+      const response = await axios.post(
+        `https://mjk-backend-production.up.railway.app/api/dokter/jadwal/add/${dokterId}`,
+        {
+          tanggal,
+          jam_mulai: "08:00",
+          jam_selesai: "16:00",
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
+      if (response.status === 201) {
+        onClose?.();
+        router.push("/(tabs)/profil");
+      }
+    } catch (error: any) {
+      console.error("Gagal mengatur jadwal default:", error);
+      alert(error.response?.data?.message || "Gagal mengatur jadwal default");
+    }
+  };
+
   switch (modalType) {
     case "pilihgambar":
       return (
@@ -288,7 +356,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
           </TouchableOpacity>
         </View>
       );
-    
+
     // PROFIL
     case "editprofil":
       return (
@@ -381,7 +449,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
             <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
             <TouchableOpacity
               onPress={() => {
-                if (onConfirm) onConfirm(); 
+                if (onConfirm) onConfirm();
                 if (onClose) onClose();
               }}
             >
@@ -405,7 +473,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
               </Text>
             </TouchableOpacity>
             <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
-            <TouchableOpacity onPress={onClose}>
+            <TouchableOpacity onPress={handleAturDefault}>
               <Text className=" text-center text-red-500 font-medium">Oke</Text>
             </TouchableOpacity>
           </View>
@@ -416,7 +484,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
       return (
         <View>
           <Text className="text-center text-lg font-bold text-skyDark">
-            Jadwal anda akan diatur secara default
+            Jadwal anda akan diubah secara default
           </Text>
 
           <View className="flex flex-row justify-between items-center px-20">
@@ -426,7 +494,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
               </Text>
             </TouchableOpacity>
             <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
-            <TouchableOpacity onPress={onClose}>
+            <TouchableOpacity onPress={handleUbahDefault}>
               <Text className=" text-center text-red-500 font-medium">Oke</Text>
             </TouchableOpacity>
           </View>

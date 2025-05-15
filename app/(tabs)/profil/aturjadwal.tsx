@@ -16,12 +16,14 @@ import { useRouter } from "expo-router";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import ModalContent from "@/components/modals/ModalContent";
 import ModalTemplate from "@/components/modals/ModalTemplate";
-import ImagePickerComponent, { useImage } from "@/components/picker/imagepicker";
+import ImagePickerComponent, {
+  useImage,
+} from "@/components/picker/imagepicker";
 import * as SecureStore from "expo-secure-store";
 import axios from "axios";
 
 const App = () => {
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [timeSlots, setTimeSlots] = useState<string[]>([]);
   const [modalType, setModalType] = useState("info");
   const [isModalVisible, setModalVisible] = useState(false);
@@ -52,14 +54,15 @@ const App = () => {
       alert("Harap pilih tanggal dan jam praktek.");
       return;
     }
-  
+
     const token = await SecureStore.getItemAsync("userToken");
     const dokterId = await SecureStore.getItemAsync("userId");
     const jamMulai = timeSlots[0].replace(".", ":");
     const jamSelesai = timeSlots[timeSlots.length - 1].replace(".", ":");
     try {
       const response = await axios.post(
-        "https://mjk-backend-production.up.railway.app/api/dokter/jadwal/add/" + dokterId, 
+        "https://mjk-backend-production.up.railway.app/api/dokter/jadwal/add/" +
+          dokterId,
         {
           tanggal: selectedDate,
           jam_mulai: jamMulai,
@@ -69,10 +72,10 @@ const App = () => {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
-          }
+          },
         }
       );
-      
+
       if (response.status === 201) {
         alert("Jadwal berhasil ditambahkan.");
         router.replace("/(tabs)/profil");
@@ -151,26 +154,28 @@ const App = () => {
             </View>
           )}
 
-          {/* Modal Simpan Perubahan */}
-          {timeSlots.length > 0 && (
+          <View className="flex-row">
+            {/* Modal Simpan Perubahan */}
+            {timeSlots.length > 0 && (
+              <View className="flex-1 justify-center items-center mt-6">
+                <TouchableOpacity
+                  className="bg-skyDark px-4 py-4 rounded-xl items-center w-44"
+                  onPress={() => openModal("konfirm")}
+                >
+                  <Text className="text-white font-bold">Simpan Perubahan</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {/* Modal Set as Default */}
             <View className="flex-1 justify-center items-center mt-6">
               <TouchableOpacity
-                onPress={() => openModal("konfirm")}
-                className="bg-skyDark px-4 py-4 rounded-xl"
+                className="bg-skyDark px-4 py-4 rounded-xl items-center w-44"
+                onPress={() => openModal("aturjadwaldefault")}
               >
-                <Text className="text-white font-bold">Simpan Perubahan</Text>
+                <Text className="text-white font-bold px-5">Atur Default</Text>
               </TouchableOpacity>
             </View>
-          )}
-
-          {/* Modal Set as Default */}
-          <View className="flex-1 justify-center items-center mt-6">
-            <TouchableOpacity
-              className="bg-skyDark px-4 py-4 rounded-xl"
-              onPress={() => openModal("aturjadwaldefault")}
-            >
-              <Text className="text-white font-bold px-5">Atur Default</Text>
-            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
@@ -185,8 +190,9 @@ const App = () => {
           onPickImage={openGallery}
           onOpenCamera={openCamera}
           onClose={() => setModalVisible(false)}
-          onConfirm={handleSubmitSchedule} 
+          onConfirm={handleSubmitSchedule}
           onTimeSlotsChange={handleTimeSlotsChange}
+          selectedDate={selectedDate}
         />
       </ModalTemplate>
     </Background>
