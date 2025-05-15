@@ -257,7 +257,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
         {
           tanggal,
           jam_mulai: "08:00",
-          jam_selesai: "16:00",
+          jam_selesai: "15:30",
         },
         {
           headers: {
@@ -290,7 +290,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
         {
           tanggal,
           jam_mulai: "08:00",
-          jam_selesai: "16:00",
+          jam_selesai: "15:30",
         },
         {
           headers: {
