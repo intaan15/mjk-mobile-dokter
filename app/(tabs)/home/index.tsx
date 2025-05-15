@@ -6,7 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "expo-router";
 import Background from "../../components/background";
 import { images } from "@/constants/images";
@@ -15,6 +15,7 @@ import DatePickerComponent from "@/components/picker/datepicker";
 import moment from "moment";
 import * as SecureStore from "expo-secure-store";
 import axios from "axios";
+import { useFocusEffect } from "@react-navigation/native";
 
 const { width } = Dimensions.get("window");
 
@@ -119,16 +120,18 @@ export default function HomeScreen() {
         `https://mjk-backend-production.up.railway.app/api/dokter/getbyid/${cleanedId}`
       );
 
-      setUserData(response.data); 
+      setUserData(response.data);
     } catch (error: any) {
       console.error("Gagal mengambil data profil:", error);
       alert(error.response?.data?.message || "Gagal mengambil data user");
     }
   };
 
-  useEffect(() => {
-    fetchUserData(); 
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchUserData();
+    }, [])
+  );
 
   return (
     <Background>
