@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   ScrollView,
   StatusBar,
-  Button,
 } from "react-native";
 import DatePickerComponent from "@/components/picker/datepicker";
 import Background from "@/components/background";
@@ -16,18 +15,30 @@ import { useRouter } from "expo-router";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import ModalContent from "@/components/modals/ModalContent";
 import ModalTemplate from "@/components/modals/ModalTemplate";
-import ImagePickerComponent, { useImage } from "@/components/picker/imagepicker";
+import ImagePickerComponent, {
+  useImage,
+} from "@/components/picker/imagepicker";
 import * as SecureStore from "expo-secure-store";
 import axios from "axios";
-
+type Jadwal = {
+  tanggal: string;
+  jam: { time: string; available: boolean }[];
+};
+type AvailableTime = {
+  time: string;
+  available: boolean;
+};
 const App = () => {
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [timeSlots, setTimeSlots] = useState<string[]>([]);
   const [modalType, setModalType] = useState("info");
   const [isModalVisible, setModalVisible] = useState(false);
   const imageContext = useImage();
   const profileImage = imageContext?.profileImage;
   const setImage = imageContext?.setImage;
+  const [jadwal, setJadwal] = useState<Jadwal[]>([]);
+  const [availableTimes, setAvailableTimes] = useState<AvailableTime[]>([]);
+  const [availableDates, setAvailableDates] = useState<string[]>([]);
   const { openGallery, openCamera } = ImagePickerComponent({
     onImageSelected: setImage,
   });
@@ -46,24 +57,67 @@ const App = () => {
       setModalVisible(false);
     }, 300);
   };
+  useEffect(() => {
+    const fetchJadwal = async () => {
+      try {
+        const id = await SecureStore.getItemAsync("userId");
+        if (!id) {
+          console.log("User ID tidak ditemukan di SecureStore.");
+          return;
+        }
+  
+        const res = await axios.get(
+          `https://mjk-backend-production.up.railway.app/api/dokter/jadwal/${id}`
+        );
+  
+        setJadwal(res.data);
+  
+        const datesWithSchedule = res.data
+          .filter((j) => j.jam && j.jam.length > 0)
+          .map((j) => new Date(j.tanggal).toISOString().split("T")[0]);
+  
+        setAvailableDates(datesWithSchedule);
+      } catch (err) {
+        console.log("Error fetching jadwal:", err);
+      }
+    };
+  
+    fetchJadwal();
+  }, []);
 
+  useEffect(() => {
+    if (!selectedDate) return;
+    const selectedDateStr = selectedDate.toISOString().split("T")[0];
+    const jadwalHariIni = jadwal.find((j) => {
+      const jadwalDateStr = new Date(j.tanggal).toISOString().split("T")[0];
+      return jadwalDateStr === selectedDateStr;
+    });
+  
+    if (jadwalHariIni && Array.isArray(jadwalHariIni.jam)) {
+      setAvailableTimes(jadwalHariIni.jam);
+    } else {
+      setAvailableTimes([]);
+    }
+  }, [selectedDate, jadwal]);
+  
   const handleSubmitSchedule = async () => {
     if (!selectedDate || timeSlots.length === 0) {
       alert("Harap pilih tanggal dan jam praktek.");
       return;
     }
-  
+
     try {
       const token = await SecureStore.getItemAsync("userToken");
       const dokterId = await SecureStore.getItemAsync("userId");
-      
+
       if (timeSlots.length === 1) {
         alert("Pilih minimal 2 slot waktu untuk jam mulai dan selesai");
         return;
       }
-  
+
       const jamMulai = timeSlots[0].replace(".", ":") + ":00";
-      const jamSelesai = timeSlots[timeSlots.length - 1].replace(".", ":") + ":00";
+      const jamSelesai =
+        timeSlots[timeSlots.length - 1].replace(".", ":") + ":00";
       const tanggal = new Date(selectedDate).toISOString();
       const response = await axios.patch(
         `https://mjk-backend-production.up.railway.app/api/dokter/${dokterId}/jadwal/update`,
@@ -79,17 +133,17 @@ const App = () => {
           },
         }
       );
-  
+
       if (response.data.success) {
         alert("Jadwal berhasil diupdate!");
         router.replace("/(tabs)/profil");
       }
-    } catch (error:any) {
+    } catch (error: any) {
       console.error("Error detail:", {
         message: error.message,
         response: error.response?.data,
       });
-      
+
       let errorMessage = "Terjadi kesalahan server";
       if (error.response) {
         if (error.response.status === 400) {
@@ -98,7 +152,7 @@ const App = () => {
           errorMessage = "Jadwal tidak ditemukan";
         }
       }
-      
+
       alert(errorMessage);
     }
   };
@@ -150,6 +204,39 @@ const App = () => {
             <Text className="text-skyDark text-lg">Ubah Jam Praktek</Text>
           </TouchableOpacity>
 
+          {/* Menampilkan Jadwal */}
+          {selectedDate && (
+            <View className="mt-4">
+              <Text className="font-bold text-skyDark mb-2">
+                Jadwal hari {selectedDate.toLocaleDateString("id-ID", {
+                  weekday: "long",
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })}{" "}
+                :
+              </Text>
+              {availableTimes.length > 0 ? (
+                <View className="flex flex-wrap flex-row gap-2 justify-center">
+                  {availableTimes.map((slot, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      className="p-2 border-2 border-skyDark rounded-md min-w-[80px] text-center"
+                    >
+                      <Text className="text-lg text-skyDark text-center">
+                        {slot.time}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              ) : (
+                <Text className="text-gray-500 italic">
+                  Tidak ada jadwal tersedia
+                </Text>
+              )}
+            </View>
+          )}
+          
           {/* Menampilkan Waktu yang Disimpan */}
           {timeSlots.length > 0 && (
             <View className="mt-6 w-full flex items-center">
@@ -158,9 +245,9 @@ const App = () => {
                 {timeSlots.map((time, index) => (
                   <View
                     key={index}
-                    className="bg-transparent border-2 border-skyDark rounded-lg p-2 min-w-[80px] flex justify-center items-center"
+                    className="bg-transparent border-2 border-skyDark rounded-md p-2 min-w-[80px] flex justify-center items-center"
                   >
-                    <Text className="text-lg font-semibold text-skyDark">
+                    <Text className="text-lg text-skyDark">
                       {time}
                     </Text>
                   </View>
@@ -203,7 +290,7 @@ const App = () => {
           onPickImage={openGallery}
           onOpenCamera={openCamera}
           onClose={() => setModalVisible(false)}
-          onConfirm={handleSubmitSchedule} 
+          onConfirm={handleSubmitSchedule}
           onTimeSlotsChange={handleTimeSlotsChange}
         />
       </ModalTemplate>
