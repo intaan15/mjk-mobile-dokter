@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useRouter } from "expo-router";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
+import { useFocusEffect } from "@react-navigation/native";
 
 type Jadwal = {
   tanggal: string;
@@ -48,22 +49,29 @@ const ScheduleScreen = () => {
     getUserId();
   }, []);
 
-  useEffect(() => {
-    if (userId) {
-      axios
-        .get(
-          `https://mjk-backend-production.up.railway.app/api/dokter/jadwal/${userId}`
-        )
-        .then((res) => {
+  useFocusEffect(
+    useCallback(() => {
+      const fetchJadwal = async () => {
+        if (!userId) return;
+  
+        try {
+          const res = await axios.get(
+            `https://mjk-backend-production.up.railway.app/api/dokter/jadwal/${userId}`
+          );
           setJadwal(res.data);
           const datesWithSchedule = res.data
             .filter((j) => j.jam && j.jam.length > 0)
             .map((j) => new Date(j.tanggal).toISOString().split("T")[0]);
           setAvailableDates(datesWithSchedule);
-        })
-        .catch((err) => console.log("Error fetching jadwal:", err));
-    }
-  }, [userId]);
+        } catch (err) {
+          console.log("Error fetching jadwal:", err);
+        }
+      };
+  
+      fetchJadwal();
+    }, [userId])
+  );
+  
 
   useEffect(() => {
     const selected = selectedDate.toISOString().split("T")[0];
