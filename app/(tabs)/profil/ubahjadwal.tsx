@@ -142,21 +142,11 @@ const App = () => {
         router.replace("/(tabs)/profil");
       }
     } catch (error: any) {
-      console.error("Error detail:", {
-        message: error.message,
-        response: error.response?.data,
-      });
-
-      let errorMessage = "Terjadi kesalahan server";
-      if (error.response) {
-        if (error.response.status === 400) {
-          errorMessage = error.response.data.message || "Data tidak valid";
-        } else if (error.response.status === 404) {
-          errorMessage = "Jadwal tidak ditemukan";
+        if (error.response.status === 404) {
+          alert("YEAYYY JADWAL TIDAK ADA SILAHKAN ATUR DULU");
+          router.push("/(tabs)/profil/aturjadwal");
         }
-      }
-
-      alert(errorMessage);
+      
     }
   };
 
@@ -280,16 +270,16 @@ const App = () => {
                 <Text className="text-white font-bold px-5">Ubah Default</Text>
               </TouchableOpacity>
             </View>
+          </View>
 
-            {/* Modal Hapus Jadwal */}
-            <View className="flex-1 justify-center items-center mt-6">
-              <TouchableOpacity
-                className="bg-skyDark px-4 py-4 rounded-xl items-center w-44"
-                onPress={() => openModal("hapusjadwal")}
-              >
-                <Text className="text-white font-bold px-5">Hapus Jadwal</Text>
-              </TouchableOpacity>
-            </View>
+          {/* Modal Hapus Jadwal */}
+          <View className="flex-1 justify-center items-center mt-6">
+            <TouchableOpacity
+              className="bg-red-600 px-4 py-4 rounded-xl items-center w-44"
+              onPress={() => openModal("hapusjadwal")}
+            >
+              <Text className="text-white font-bold px-5">Hapus Jadwal</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>

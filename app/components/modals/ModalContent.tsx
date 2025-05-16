@@ -269,13 +269,18 @@ const ModalContent: React.FC<ModalContentProps> = ({
       );
 
       if (response.data.success) {
-        alert("YEAYYY UBAH JADWAL");
+        alert("YEAYYY JADWAL DIUBAH DEFOLT");
         onClose?.();
         router.push("/(tabs)/profil");
       }
     } catch (error: any) {
-      console.error("Gagal mengubah jadwal default:", error);
-      alert(error.response?.data?.message || "Gagal mengubah jadwal default");
+      if (error.response?.status === 404) {
+        alert("YEAYYY JADWAL TIDAK ADA SILAHKAN ATUR DULU");
+        onClose?.();
+        router.push("/(tabs)/profil/aturjadwal");
+      } else {
+        console.error("Gagal mengatur jadwal default:", error);
+      }
     }
   };
 
@@ -303,13 +308,50 @@ const ModalContent: React.FC<ModalContentProps> = ({
       );
 
       if (response.status === 201) {
-        alert("YEAYYY UBAH JADWAL");
+        alert("YEAYYY JADWAL DIATUR DEFOLT");
         onClose?.();
         router.push("/(tabs)/profil");
       }
     } catch (error: any) {
       console.error("Gagal mengatur jadwal default:", error);
-      alert(error.response?.data?.message || "Gagal mengatur jadwal default");
+    }
+  };
+
+  const handleDeleteJadwal = async () => {
+    try {
+      const token = await SecureStore.getItemAsync("userToken");
+      const dokterId = await SecureStore.getItemAsync("userId");
+
+      if (!selectedDate || !token || !dokterId) {
+        alert("Data tidak lengkap");
+        return;
+      }
+      const tanggalHapus = new Date(selectedDate);
+      tanggalHapus.setUTCHours(0, 0, 0, 0);
+      const response = await axios.delete(
+        `https://mjk-backend-production.up.railway.app/api/dokter/jadwal/hapus/${dokterId}`,
+        {
+          data: {
+            tanggal: tanggalHapus.toISOString(),
+          },
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.data.success) {
+        alert("YEAYY JADWAL DIHAPUS WAKTUNYA LIBUR");
+        onClose?.();
+        router.replace("/(tabs)/profil");
+      }
+    } catch (error: any) {
+      console.error("Delete Error:", {
+        message: error.message,
+        response: error.response?.data,
+        request: error.config,
+      });
     }
   };
 
@@ -582,6 +624,39 @@ const ModalContent: React.FC<ModalContentProps> = ({
             }}
             onCancel={() => setPickerVisibility(false)}
           />
+        </View>
+      );
+
+    case "hapusjadwal":
+      return (
+        <View>
+          <Text className="text-center text-lg font-bold text-skyDark">
+            Anda yakin akan menghapus jadwal pada hari{" "}
+            {selectedDate?.toLocaleDateString("id-ID", {
+              weekday: "long",
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })}{" "}
+            ?
+          </Text>
+
+          <View className="flex flex-row justify-between items-center px-5">
+            <TouchableOpacity className="px-10 py-3" onPress={onClose}>
+              <Text className="text-center text-skyDark font-medium w-full">
+                Batal
+              </Text>
+            </TouchableOpacity>
+            <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
+            <TouchableOpacity
+              className="px-10 py-3"
+              onPress={handleDeleteJadwal}
+            >
+              <Text className="text-center text-red-500 font-medium">
+                Hapus
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       );
 
