@@ -28,6 +28,7 @@ const ScheduleScreen = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [jadwal, setJadwal] = useState<Jadwal[]>([]);
   const [availableTimes, setAvailableTimes] = useState<AvailableTime[]>([]);
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [availableDates, setAvailableDates] = useState<string[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
   const router = useRouter();
@@ -53,7 +54,7 @@ const ScheduleScreen = () => {
     useCallback(() => {
       const fetchJadwal = async () => {
         if (!userId) return;
-  
+
         try {
           const res = await axios.get(
             `https://mjk-backend-production.up.railway.app/api/dokter/jadwal/${userId}`
@@ -67,16 +68,16 @@ const ScheduleScreen = () => {
           console.log("Error fetching jadwal:", err);
         }
       };
-  
+
       fetchJadwal();
     }, [userId])
   );
-  
 
   useEffect(() => {
     const selected = selectedDate.toISOString().split("T")[0];
     const item = jadwal.find((j) => j.tanggal.split("T")[0] === selected);
-    setAvailableTimes(item?.jam?.filter((j) => j.available) || []);
+    // setAvailableTimes(item?.jam?.filter((j) => j.available) || []);
+    setAvailableTimes(item?.jam || []);
   }, [selectedDate, jadwal]);
 
   const handleDateChange = (date: Date) => {
@@ -121,7 +122,8 @@ const ScheduleScreen = () => {
                   day: "numeric",
                   month: "long",
                   year: "numeric",
-                })} :
+                })}{" "}
+                :
               </Text>
               {availableTimes.length > 0 ? (
                 <View className="flex flex-wrap flex-row gap-2 justify-between">
@@ -129,8 +131,34 @@ const ScheduleScreen = () => {
                     <TouchableOpacity
                       key={index}
                       className="p-2 border-2 border-skyDark rounded-md w-[23%] text-center"
+                      style={{
+                        padding: 8,
+                        borderRadius: 8,
+                        width: "23%",
+                        borderWidth: 2,
+                        backgroundColor: slot.available
+                          ? selectedTime === slot.time
+                            ? "#025F96"
+                            : "transparent"
+                          : "#D1D5DB",
+                        borderColor: slot.available
+                          ? selectedTime === slot.time
+                            ? "#025F96"
+                            : "#025F96"
+                          : "#D1D5DB",
+                      }}
                     >
-                      <Text className="text-lg text-skyDark text-center">
+                      <Text
+                        className="text-lg text-skyDark text-center"
+                        style={{
+                          color: slot.available
+                            ? selectedTime === slot.time
+                              ? "white"
+                              : "#025F96"
+                            : "white",
+                          textAlign: "center",
+                        }}
+                      >
                         {slot.time}
                       </Text>
                     </TouchableOpacity>

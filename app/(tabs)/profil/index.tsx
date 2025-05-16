@@ -176,7 +176,7 @@ function App() {
           <View
             className="bg-white rounded-xl mx-10 mt-28 p-6"
             style={{
-              shadowOffset: { width: 0, height: -20 },
+              shadowOffset: { width: 0, height: 5 },
               shadowOpacity: 0.2,
               shadowRadius: 11,
               elevation: 15,
@@ -243,7 +243,7 @@ function App() {
                 placeholderTextColor="#888"
               />
               <TouchableOpacity
-                className="p-2 rounded-xl w-2/4 mt-6 bg-skyDark"
+                className="px-12 py-3 rounded-xl mt-6 bg-skyDark"
                 onPress={handleGantiPassword}
               >
                 <Text className="text-white text-center font-bold">Simpan</Text>

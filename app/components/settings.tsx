@@ -67,7 +67,7 @@ export default function Settings() {
     <View
       className="bg-white rounded-xl mx-10 mt-10 p-6 mb-24"
       style={{
-        shadowOffset: { width: 0, height: -20 },
+        shadowOffset: { width: 0, height: 5 },
         shadowOpacity: 0.2,
         shadowRadius: 11,
         elevation: 15,
@@ -92,7 +92,7 @@ export default function Settings() {
       <TouchableOpacity
         className="flex flex-row items-center gap-2 py-1"
         onPress={() => openModal("hapusprofil")}
-        disabled={!profileImage}
+        // disabled={!profileImage}
       >
         <MaterialCommunityIcons name="image-remove" size={22} color="#025F96" />
         <Text className="font-bold text-lg text-skyDark">

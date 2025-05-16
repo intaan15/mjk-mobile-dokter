@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "expo-router";
 import axios from "axios";
 import Background from "../../components/background";
@@ -17,6 +17,7 @@ import TabButton from "../../components/tabbutton";
 import { images } from "@/constants/images";
 import * as SecureStore from "expo-secure-store";
 import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
 
 const { width } = Dimensions.get("window");
 
@@ -77,35 +78,35 @@ export default function JadwalScreen() {
   const [selectedTab, setSelectedTab] = useState("menunggu");
   const [jadwals, setJadwal] = useState<Jadwal[]>([]);
 
-  useEffect(() => {
-    const fetchJadwal = async () => {
-      try {
-        const userId = await SecureStore.getItemAsync("userId");
-        const response = await axios.get(
-          "https://mjk-backend-production.up.railway.app/api/jadwal/getall"
-        );
-
-        if (userId) {
-          const filtered = response.data.filter(
-            (jadwal: Jadwal) => jadwal.dokter_id?._id === userId
+  useFocusEffect(
+    useCallback(() => {
+      const fetchJadwal = async () => {
+        try {
+          const userId = await SecureStore.getItemAsync("userId");
+          const response = await axios.get(
+            "https://mjk-backend-production.up.railway.app/api/jadwal/getall"
           );
-          setJadwal(filtered);
-        }
-      } catch (err) {
-        console.error("Error fetching jadwals:", err);
-      }
-    };
 
-    fetchJadwal();
-  }, []);
+          if (userId) {
+            const filtered = response.data.filter(
+              (jadwal: Jadwal) => jadwal.dokter_id?._id === userId
+            );
+            setJadwal(filtered);
+          }
+        } catch (err) {
+          console.error("Error fetching jadwals:", err);
+        }
+      };
+
+      fetchJadwal();
+    }, [])
+  );
 
   const updateJadwalStatus = (
     id: string,
     newStatus: Jadwal["status_konsul"]
   ) => {
-    axios
-      .patch(
-        `https://mjk-backend-production.up.railway.app/api/jadwal/update/status/${id}`,
+    axios.patch(`https://mjk-backend-production.up.railway.app/api/jadwal/update/status/${id}`,
         {
           status_konsul: newStatus,
         }
@@ -173,7 +174,8 @@ export default function JadwalScreen() {
                   }}
                 >
                   <View className="flex flex-row items-center px-3 pt-2">
-                    {jadwal.masyarakat_id?.foto_profil_masyarakat && jadwal.masyarakat_id?.nama_masyarakat ? (
+                    {jadwal.masyarakat_id?.foto_profil_masyarakat &&
+                    jadwal.masyarakat_id?.nama_masyarakat ? (
                       <Image
                         source={{
                           uri: `https://mjk-backend-production.up.railway.app/uploads/${jadwal.masyarakat_id.foto_profil_masyarakat}`,
@@ -206,7 +208,7 @@ export default function JadwalScreen() {
                   {selectedTab === "menunggu" && (
                     <View className="flex flex-row justify-between px-10 mt-2 mb-4 items-center">
                       <TouchableOpacity
-                        className="bg-red-600 w-2/5 rounded-xl px-4 py-2 flex flex-row items-center justify-center gap-2"
+                        className="bg-red-600 w-2/5 rounded-lg px-4 py-2 flex flex-row items-center justify-center gap-2"
                         onPress={() =>
                           updateJadwalStatus(jadwal._id, "ditolak")
                         }
@@ -219,7 +221,7 @@ export default function JadwalScreen() {
                         <Text className="text-white font-bold">Tolak</Text>
                       </TouchableOpacity>
                       <TouchableOpacity
-                        className="bg-green-600 w-2/5 rounded-xl px-4 py-2 flex flex-row items-center justify-center gap-2"
+                        className="bg-green-600 w-2/5 rounded-lg px-4 py-2 flex flex-row items-center justify-center gap-2"
                         onPress={() =>
                           updateJadwalStatus(jadwal._id, "diterima")
                         }
