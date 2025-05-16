@@ -122,8 +122,7 @@ export default function HomeScreen() {
 
       setUserData(response.data);
     } catch (error: any) {
-      console.error("Gagal mengambil data profil:", error);
-      alert(error.response?.data?.message || "Gagal mengambil data user");
+      router.push("/screens/signin")
     }
   };
 

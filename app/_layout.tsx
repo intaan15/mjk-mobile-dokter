@@ -9,7 +9,7 @@ export default function RootLayout() {
       {/* <StatusBar hidden={true} /> */}
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen
-          name="screens/signin"
+          name="(tabs)/home"
           options={{
             headerShown: false,
           }}
