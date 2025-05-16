@@ -10,6 +10,7 @@ import ImagePickerComponent, {
 import * as SecureStore from "expo-secure-store";
 import { useRouter } from "expo-router";
 import axios from "axios";
+import { FontAwesome5 } from "@expo/vector-icons";
 
 interface ModalContentProps {
   modalType: string;
@@ -268,6 +269,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
       );
 
       if (response.data.success) {
+        alert("YEAYYY UBAH JADWAL");
         onClose?.();
         router.push("/(tabs)/profil");
       }
@@ -301,6 +303,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
       );
 
       if (response.status === 201) {
+        alert("YEAYYY UBAH JADWAL");
         onClose?.();
         router.push("/(tabs)/profil");
       }
@@ -323,7 +326,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
             onPress={onPickImage}
           >
             <MaterialCommunityIcons name="image" size={24} color="black" />
-            <Text className="text-base text-black">Ambil dari Galeri</Text>
+            <Text className="text-base text-black"> Ambil dari Galeri</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -331,18 +334,18 @@ const ModalContent: React.FC<ModalContentProps> = ({
             onPress={onOpenCamera}
           >
             <MaterialCommunityIcons name="camera" size={24} color="black" />
-            <Text className="text-base text-black">Ambil dari Kamera</Text>
+            <Text className="text-base text-black"> Ambil dari Kamera</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            className="mt-5 py-3 bg-green-600 rounded-xl w-full"
+            className="mt-5 py-3 bg-green-700 rounded-xl w-full"
             onPress={uploadImageToServer}
           >
             <Text
               className="text-center text-white font-semibold text-base"
               onPress={handleUpload}
             >
-              Upload Foto
+              Unggah Foto
             </Text>
           </TouchableOpacity>
 
@@ -379,7 +382,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
               placeholderTextColor="#888"
             />
             <Text className="w-full pl-1 text-base font-semibold text-skyDark pt-2">
-              Username
+              Nama Pengguna
             </Text>
             <TextInput
               placeholder="contoh123"
@@ -423,7 +426,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
               placeholderTextColor="#888"
             />
             <TouchableOpacity
-              className="p-2 rounded-xl w-2/4 mt-6 bg-skyDark"
+              className="px-12 py-3 rounded-xl mt-6 mb-3 bg-skyDark"
               onPress={handleSubmit}
             >
               <Text className="text-white text-center font-bold">Simpan</Text>
@@ -440,20 +443,21 @@ const ModalContent: React.FC<ModalContentProps> = ({
             Simpan perubahan jadwal?
           </Text>
 
-          <View className="flex flex-row justify-between items-center px-20">
-            <TouchableOpacity onPress={onClose}>
-              <Text className=" text-center text-skyDark font-medium w-full py-2">
+          <View className="flex flex-row justify-between items-center px-10">
+            <TouchableOpacity className="px-10 py-3" onPress={onClose}>
+              <Text className=" text-center text-red-500 font-medium w-full">
                 Batal
               </Text>
             </TouchableOpacity>
             <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
             <TouchableOpacity
+              className="px-10 py-3"
               onPress={() => {
                 if (onConfirm) onConfirm();
                 if (onClose) onClose();
               }}
             >
-              <Text className=" text-center text-red-500 font-medium">Oke</Text>
+              <Text className=" text-center text-skyDark font-medium">Oke</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -466,15 +470,18 @@ const ModalContent: React.FC<ModalContentProps> = ({
             Jadwal anda akan diatur secara default
           </Text>
 
-          <View className="flex flex-row justify-between items-center px-20">
-            <TouchableOpacity onPress={onClose}>
-              <Text className=" text-center text-skyDark font-medium w-full py-2">
+          <View className="flex flex-row justify-between items-center px-10">
+            <TouchableOpacity className="px-10 py-3" onPress={onClose}>
+              <Text className=" text-center text-red-500 font-medium w-full">
                 Batal
               </Text>
             </TouchableOpacity>
             <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
-            <TouchableOpacity onPress={handleAturDefault}>
-              <Text className=" text-center text-red-500 font-medium">Oke</Text>
+            <TouchableOpacity
+              className="px-10 py-3"
+              onPress={handleAturDefault}
+            >
+              <Text className=" text-center text-skyDark font-medium">Oke</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -487,15 +494,18 @@ const ModalContent: React.FC<ModalContentProps> = ({
             Jadwal anda akan diubah secara default
           </Text>
 
-          <View className="flex flex-row justify-between items-center px-20">
-            <TouchableOpacity onPress={onClose}>
-              <Text className=" text-center text-skyDark font-medium w-full py-2">
+          <View className="flex flex-row justify-between items-center px-10">
+            <TouchableOpacity className="px-10 py-3" onPress={onClose}>
+              <Text className=" text-center text-red-500 font-medium w-full">
                 Batal
               </Text>
             </TouchableOpacity>
             <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
-            <TouchableOpacity onPress={handleUbahDefault}>
-              <Text className=" text-center text-red-500 font-medium">Oke</Text>
+            <TouchableOpacity
+              className="px-10 py-3"
+              onPress={handleUbahDefault}
+            >
+              <Text className=" text-center text-skyDark font-medium">Oke</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -509,34 +519,40 @@ const ModalContent: React.FC<ModalContentProps> = ({
             onPress={onClose}
           ></TouchableOpacity>
 
-          <Text className="text-lg font-semibold text-gray-800 mb-6">
+          <Text className="text-lg font-semibold text-skyDark mb-6">
             Pilih Rentang Waktu
           </Text>
 
           <View className="flex-row items-center justify-center mb-6">
             <TouchableOpacity
-              className="px-4 py-2 border border-gray-400 rounded-lg mr-4"
+              className="px-5 py-3 border border-gray-400 rounded-lg mr-4"
               onPress={() => {
                 setIsPickingStartTime(true);
                 setPickerVisibility(true);
               }}
             >
-              <Text className="text-base">⏰ {formatTime(startTime)}</Text>
+              <Text className="text-base text-skyDark">
+                <FontAwesome5 name="clock" size={19} color="#025F96" />{" "}
+                {formatTime(startTime)}
+              </Text>
             </TouchableOpacity>
-            <Text className="text-lg font-semibold text-gray-600"> - </Text>
+            <Text className="text-lg font-semibold text-skyDark"> s.d.</Text>
             <TouchableOpacity
-              className="px-4 py-2 border border-gray-400 rounded-lg ml-4"
+              className="px-5 py-3 border border-gray-400 rounded-lg ml-4"
               onPress={() => {
                 setIsPickingStartTime(false);
                 setPickerVisibility(true);
               }}
             >
-              <Text className="text-base">⏰ {formatTime(endTime)}</Text>
+              <Text className="text-base text-skyDark">
+                <FontAwesome5 name="clock" size={19} color="#025F96" />{" "}
+                {formatTime(endTime)}
+              </Text>
             </TouchableOpacity>
           </View>
 
           <TouchableOpacity
-            className={`px-6 py-3 rounded-xl ${
+            className={`px-10 py-3 rounded-lg ${
               startTime && endTime ? "bg-skyDark" : "bg-gray-400"
             }`}
             disabled={!startTime || !endTime}
@@ -547,7 +563,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
               }
             }}
           >
-            <Text className="text-white text-lg font-semibold text-center">
+            <Text className="text-white text-base font-semibold text-center">
               Simpan
             </Text>
           </TouchableOpacity>
@@ -604,10 +620,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
           </Text>
 
           <View className="flex flex-row justify-between items-center px-5">
-            <TouchableOpacity
-              className="px-10 py-3"
-              onPress={onClose}
-            >
+            <TouchableOpacity className="px-10 py-3" onPress={onClose}>
               <Text className=" text-center text-skyDark font-medium w-full">
                 Batal
               </Text>
