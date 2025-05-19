@@ -425,7 +425,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
         <View>
           {/* Ganti Password */}
           <Text className="font-bold text-2xl text-skyDark mt-4 text-center">
-            Edit profil
+            Ubah profil
           </Text>
           {/* <View className="w-full h-[2px] bg-skyDark" /> */}
           <View className="flex flex-col items-center px-5">
@@ -484,12 +484,20 @@ const ModalContent: React.FC<ModalContentProps> = ({
               className="border-2 rounded-xl border-gray-400 p-2 w-full"
               placeholderTextColor="#888"
             />
-            <TouchableOpacity
-              className="px-12 py-3 rounded-xl mt-6 mb-3 bg-skyDark"
-              onPress={handleSubmit}
-            >
-              <Text className="text-white text-center font-bold">Simpan</Text>
-            </TouchableOpacity>
+            <View className="flex-row gap-12">
+              <TouchableOpacity
+                className="w-2/5 h-10 justify-center rounded-xl mt-6 mb-3 bg-red-700"
+                onPress={onClose}
+              >
+                <Text className="text-white text-center font-bold">Batal</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="w-2/5 h-10 justify-center rounded-xl mt-6 mb-3 bg-skyDark"
+                onPress={handleSubmit}
+              >
+                <Text className="text-white text-center font-bold">Simpan</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       );
