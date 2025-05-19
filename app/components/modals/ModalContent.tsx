@@ -157,6 +157,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
   const router = useRouter();
   const handleLogout = async () => {
     await SecureStore.deleteItemAsync("userToken");
+    await SecureStore.deleteItemAsync("userId");
     onClose?.();
     router.replace("/screens/signin");
   };
@@ -286,16 +287,29 @@ const ModalContent: React.FC<ModalContentProps> = ({
 
   const handleAturDefault = async () => {
     if (!selectedDate) return;
-
+  
     try {
       const token = await SecureStore.getItemAsync("userToken");
       const dokterId = await SecureStore.getItemAsync("userId");
-      const tanggal = selectedDate.toISOString();
-
+      const cekRes = await axios.get(
+        `https://mjk-backend-production.up.railway.app/api/dokter/jadwal/${dokterId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
+      if (cekRes.data && cekRes.data.length > 0) {
+        onClose?.();
+        alert("Jadwal pada tanggal ini sudah ada. Tidak bisa atur default.");
+        return;
+      }
+  
       const response = await axios.post(
         `https://mjk-backend-production.up.railway.app/api/dokter/jadwal/add/${dokterId}`,
         {
-          tanggal,
+          tanggal: selectedDate,
           jam_mulai: "08:00",
           jam_selesai: "15:30",
         },
@@ -306,16 +320,20 @@ const ModalContent: React.FC<ModalContentProps> = ({
           },
         }
       );
-
+  
       if (response.status === 201) {
         alert("YEAYYY JADWAL DIATUR DEFOLT");
         onClose?.();
         router.push("/(tabs)/profil");
+      } else {
+        alert("Gagal mengatur jadwal default: " + response.data.message);
       }
     } catch (error: any) {
       console.error("Gagal mengatur jadwal default:", error);
+      alert("Terjadi kesalahan saat menyimpan jadwal default.");
     }
   };
+  
 
   const handleDeleteJadwal = async () => {
     try {
@@ -347,11 +365,10 @@ const ModalContent: React.FC<ModalContentProps> = ({
         router.replace("/(tabs)/profil");
       }
     } catch (error: any) {
-      console.error("Delete Error:", {
-        message: error.message,
-        response: error.response?.data,
-        request: error.config,
-      });
+      if (error.response?.status === 404) {
+        onClose?.();
+        alert("Tidak ada jadwal pada tanggal ini untuk dihapus.");
+      } 
     }
   };
 

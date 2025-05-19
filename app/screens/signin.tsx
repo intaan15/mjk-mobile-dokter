@@ -42,7 +42,6 @@ export default function SignIn() {
         }
       );
       const { token, userId } = response.data;
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       await SecureStore.setItemAsync("userToken", token);
       await SecureStore.setItemAsync("userId", userId);
       router.replace("/(tabs)/home");

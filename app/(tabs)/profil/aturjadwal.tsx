@@ -49,20 +49,34 @@ const App = () => {
     }, 300);
   };
 
-  const handleSubmitSchedule = async () => {
+  const handleSubmitAturJadwal = async () => {
     if (!selectedDate || timeSlots.length === 0) {
       alert("Harap pilih tanggal dan jam praktek.");
       return;
     }
-
+  
     const token = await SecureStore.getItemAsync("userToken");
     const dokterId = await SecureStore.getItemAsync("userId");
     const jamMulai = timeSlots[0].replace(".", ":");
     const jamSelesai = timeSlots[timeSlots.length - 1].replace(".", ":");
+    
     try {
+      const cekRes = await axios.get(
+        `https://mjk-backend-production.up.railway.app/api/dokter/jadwal/${dokterId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
+      if (cekRes.data && cekRes.data.length > 0) {
+        alert("Jadwal pada tanggal ini sudah ada. Silahkan ubah jadwal anda pada menu ubah jadwal");
+        return;
+      }
+  
       const response = await axios.post(
-        "https://mjk-backend-production.up.railway.app/api/dokter/jadwal/add/" +
-          dokterId,
+        `https://mjk-backend-production.up.railway.app/api/dokter/jadwal/add/${dokterId}`,
         {
           tanggal: selectedDate,
           jam_mulai: jamMulai,
@@ -75,7 +89,7 @@ const App = () => {
           },
         }
       );
-
+  
       if (response.status === 201) {
         alert("Jadwal berhasil ditambahkan.");
         router.replace("/(tabs)/profil");
@@ -84,7 +98,7 @@ const App = () => {
       }
     } catch (error) {
       console.error(error);
-      alert("Terjadi kesalahan, coba lagi nanti.");
+      alert("Terjadi kesalahan saat menyimpan jadwal.");
     }
   };
 
@@ -190,7 +204,7 @@ const App = () => {
           onPickImage={openGallery}
           onOpenCamera={openCamera}
           onClose={() => setModalVisible(false)}
-          onConfirm={handleSubmitSchedule}
+          onConfirm={handleSubmitAturJadwal}
           onTimeSlotsChange={handleTimeSlotsChange}
           selectedDate={selectedDate}
         />

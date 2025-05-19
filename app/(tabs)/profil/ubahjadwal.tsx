@@ -64,13 +64,20 @@ const App = () => {
     const fetchJadwal = async () => {
       try {
         const id = await SecureStore.getItemAsync("userId");
+        const token = await SecureStore.getItemAsync("userToken");
         if (!id) {
           console.log("User ID tidak ditemukan di SecureStore.");
           return;
         }
 
         const res = await axios.get(
-          `https://mjk-backend-production.up.railway.app/api/dokter/jadwal/${id}`
+          `https://mjk-backend-production.up.railway.app/api/dokter/jadwal/${id}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
 
         setJadwal(res.data);
