@@ -236,6 +236,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
         await SecureStore.deleteItemAsync("userToken");
         await SecureStore.deleteItemAsync("userId");
         onClose?.();
+        alert("akun anda berhasil dihapus")
         router.replace("/screens/signin");
       } else {
         alert("Terjadi kesalahan saat menghapus akun.");
