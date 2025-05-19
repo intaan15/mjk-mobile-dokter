@@ -376,7 +376,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
     case "pilihgambar":
       return (
         <View className="bg-white p-6 rounded-2xl w-full items-center">
-          <Text className="text-xl font-semibold mb-4 text-center">
+          <Text className="text-xl font-semibold mb-4 text-center text-skyDark">
             Pilih Foto
           </Text>
 
@@ -384,16 +384,16 @@ const ModalContent: React.FC<ModalContentProps> = ({
             className="flex-row items-center space-x-3 py-3 px-2 rounded-lg active:bg-gray-100 w-full"
             onPress={onPickImage}
           >
-            <MaterialCommunityIcons name="image" size={24} color="black" />
-            <Text className="text-base text-black"> Ambil dari Galeri</Text>
+            <MaterialCommunityIcons name="image" size={24} color="#025F96" />
+            <Text className="text-base text-skyDark"> Ambil dari Galeri</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             className="flex-row items-center space-x-3 py-3 px-2 rounded-lg active:bg-gray-100 w-full"
             onPress={onOpenCamera}
           >
-            <MaterialCommunityIcons name="camera" size={24} color="black" />
-            <Text className="text-base text-black"> Ambil dari Kamera</Text>
+            <MaterialCommunityIcons name="camera" size={24} color="#025F96" />
+            <Text className="text-base text-skyDark"> Ambil dari Kamera</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
