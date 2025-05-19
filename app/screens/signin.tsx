@@ -16,8 +16,8 @@ import { useRouter } from "expo-router";
 import Background from "../components/background";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
-import ModalTemplate from "@/components/modals/ModalTemplate"; // Import ModalTemplate
-import ModalContent from "@/components/modals/ModalContent"; // Import ModalContent
+import ModalTemplate from "@/components/modals/ModalTemplate"; 
+import ModalContent from "@/components/modals/ModalContent";
 
 export default function SignIn() {
   const [identifier, setIdentifier] = useState("");
@@ -41,8 +41,8 @@ export default function SignIn() {
           password_dokter: password,
         }
       );
-
       const { token, userId } = response.data;
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       await SecureStore.setItemAsync("userToken", token);
       await SecureStore.setItemAsync("userId", userId);
       router.replace("/(tabs)/home");
