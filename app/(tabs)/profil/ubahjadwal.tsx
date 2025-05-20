@@ -69,7 +69,6 @@ const App = () => {
           console.log("User ID tidak ditemukan di SecureStore.");
           return;
         }
-
         const res = await axios.get(
           `https://mjk-backend-production.up.railway.app/api/dokter/jadwal/${id}`,
           {

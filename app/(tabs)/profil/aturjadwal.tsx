@@ -70,10 +70,10 @@ const App = () => {
         }
       );
   
-      if (cekRes.data && cekRes.data.length > 0) {
-        alert("Jadwal pada tanggal ini sudah ada. Silahkan ubah jadwal anda pada menu ubah jadwal");
-        return;
-      }
+      // if (cekRes.data && cekRes.data.length > 0) {
+      //   alert("Jadwal pada tanggal ini sudah ada. Silahkan ubah jadwal anda pada menu ubah jadwal");
+      //   return;
+      // }
   
       const response = await axios.post(
         `https://mjk-backend-production.up.railway.app/api/dokter/jadwal/add/${dokterId}`,

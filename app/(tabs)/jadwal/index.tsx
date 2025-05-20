@@ -33,31 +33,26 @@ const ScheduleScreen = () => {
   const [userId, setUserId] = useState<string | null>(null);
   const router = useRouter();
 
-  useEffect(() => {
-    const getUserId = async () => {
-      try {
-        const userIdFromStore = await SecureStore.getItemAsync("userId");
-        if (userIdFromStore) {
-          setUserId(userIdFromStore);
-        } else {
-          console.log("userId tidak ditemukan di SecureStore");
-        }
-      } catch (error) {
-        console.error("Error fetching userId from SecureStore:", error);
-      }
-    };
-
-    getUserId();
-  }, []);
-
   useFocusEffect(
     useCallback(() => {
       const fetchJadwal = async () => {
-        if (!userId) return;
-
         try {
+          const token = await SecureStore.getItemAsync("userToken");
+          const storedUserId = await SecureStore.getItemAsync("userId");
+
+          if (!token || !storedUserId) {
+            console.log("Token atau userId tidak ditemukan");
+            return;
+          }
+
+          setUserId(storedUserId);
           const res = await axios.get(
-            `https://mjk-backend-production.up.railway.app/api/dokter/jadwal/${userId}`
+            `https://mjk-backend-production.up.railway.app/api/dokter/jadwal/${storedUserId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
           );
           setJadwal(res.data);
           const datesWithSchedule = res.data
@@ -68,9 +63,8 @@ const ScheduleScreen = () => {
           console.log("Error fetching jadwal:", err);
         }
       };
-
       fetchJadwal();
-    }, [userId])
+    }, [])
   );
 
   useEffect(() => {
