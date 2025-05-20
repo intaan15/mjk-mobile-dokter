@@ -106,7 +106,9 @@ export default function JadwalScreen() {
     id: string,
     newStatus: Jadwal["status_konsul"]
   ) => {
-    axios.patch(`https://mjk-backend-production.up.railway.app/api/jadwal/update/status/${id}`,
+    axios
+      .patch(
+        `https://mjk-backend-production.up.railway.app/api/jadwal/update/status/${id}`,
         {
           status_konsul: newStatus,
         }
@@ -128,7 +130,7 @@ export default function JadwalScreen() {
     <Background>
       <View className="flex-1">
         {/* Header */}
-        <View className="flex flex-row justify-between items-center mb-4 w-full px-5 py-5 pt-10">
+        <View className="flex flex-row justify-between items-center mb-4 w-full px-5 pt-10">
           <View className="flex flex-row items-center">
             <TouchableOpacity onPress={() => router.replace("./homescreen")}>
               <MaterialIcons name="arrow-back-ios" size={24} color="#025F96" />
@@ -143,7 +145,7 @@ export default function JadwalScreen() {
         </View>
 
         {/* Menu Tab */}
-        <View className="flex flex-row mx-6 rounded-xl border-2 border-skyDark overflow-hidden">
+        <View className="flex flex-row mx-6 rounded-xl border-2 border-skyDark overflow-hidden mb-5">
           {["menunggu", "diterima", "ditolak"].map((tab) => (
             <TabButton
               key={tab}
@@ -158,7 +160,7 @@ export default function JadwalScreen() {
         <View className="flex-1">
           <ScrollView
             className="px-6 py-4"
-            contentContainerStyle={{ paddingBottom: 100 }}
+            contentContainerStyle={{ paddingTop: 1, paddingBottom: 100 }}
           >
             {jadwals
               .filter((jadwal) => jadwal.status_konsul === selectedTab)
@@ -169,7 +171,7 @@ export default function JadwalScreen() {
                   style={{
                     shadowOffset: { width: 0, height: 1 },
                     shadowOpacity: 0.2,
-                    shadowRadius: 30,
+                    shadowRadius: 12,
                     elevation: 15,
                   }}
                 >
@@ -208,7 +210,7 @@ export default function JadwalScreen() {
                   {selectedTab === "menunggu" && (
                     <View className="flex flex-row justify-between px-10 mt-2 mb-4 items-center">
                       <TouchableOpacity
-                        className="bg-red-600 w-2/5 rounded-lg px-4 py-2 flex flex-row items-center justify-center gap-2"
+                        className="bg-red-700 w-2/5 rounded-lg px-4 py-2 flex flex-row items-center justify-center gap-2"
                         onPress={() =>
                           updateJadwalStatus(jadwal._id, "ditolak")
                         }

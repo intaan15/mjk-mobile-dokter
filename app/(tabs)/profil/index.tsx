@@ -9,7 +9,7 @@ import {
   Alert,
 } from "react-native";
 import Background from "../../components/background";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { images } from "@/constants/images";
 import Settings from "@/components/settings";
@@ -20,7 +20,7 @@ import { Ionicons } from "@expo/vector-icons";
 import ModalContent from "@/components/modals/ModalContent";
 import ModalTemplate from "@/components/modals/ModalTemplate";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-
+import { useFocusEffect } from "@react-navigation/native";
 
 interface User {
   nama_dokter: string;
@@ -49,12 +49,11 @@ function App() {
   const [modalType, setModalType] = useState("");
   const [isModalVisible, setModalVisible] = useState(false);
 
-
-
-  useEffect(() => {
-    fetchUserData();
-  }, []);
-
+  useFocusEffect(
+    useCallback(() => {
+      fetchUserData();
+    }, [])
+  );
   const fetchUserData = async () => {
     try {
       const userId = await SecureStore.getItemAsync("userId");

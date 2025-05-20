@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
+  Image,
   TouchableOpacity,
   ScrollView,
   StatusBar,
@@ -10,6 +11,7 @@ import DatePickerComponent from "@/components/picker/datepicker";
 import Background from "@/components/background";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useRouter } from "expo-router";
+import { images } from "../../constants/images";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import { useFocusEffect } from "@react-navigation/native";
@@ -83,16 +85,19 @@ const ScheduleScreen = () => {
       <StatusBar translucent backgroundColor="transparent" />
 
       {/* Header */}
-      <View className="flex flex-row justify-between items-center mb-4 w-full px-5 py-5 pt-10">
-        <View className="flex flex-row items-center">
-          <TouchableOpacity onPress={() => router.replace("./homescreen")}>
-            <MaterialIcons name="arrow-back-ios" size={24} color="#025F96" />
-          </TouchableOpacity>
-          <Text className="text-skyDark font-bold text-xl ml-2">
-            Jadwal Dokter
-          </Text>
+      <View className="flex flex-row justify-between items-center mb-4 w-full px-5 py-3 pt-10">
+          <View className="flex flex-row items-center">
+            <TouchableOpacity onPress={() => router.replace("./homescreen")}>
+              <MaterialIcons name="arrow-back-ios" size={24} color="#025F96" />
+            </TouchableOpacity>
+            <Text className="text-skyDark font-bold text-xl ml-2">Jadwal Dokter</Text>
+          </View>
+          <Image
+            className="h-10 w-12"
+            source={images.logo}
+            resizeMode="contain"
+          />
         </View>
-      </View>
 
       {/* Main Content */}
       <ScrollView
