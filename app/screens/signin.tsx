@@ -18,6 +18,7 @@ import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import ModalTemplate from "@/components/modals/ModalTemplate"; 
 import ModalContent from "@/components/modals/ModalContent";
+import { BASE_URL } from "@env";
 
 export default function SignIn() {
   const [identifier, setIdentifier] = useState("");
@@ -35,7 +36,7 @@ export default function SignIn() {
 
     try {
       const response = await axios.post(
-        "https://mjk-backend-production.up.railway.app/api/auth/login_dokter",
+        `${BASE_URL}/auth/login_dokter`,
         {
           identifier_dokter: identifier,
           password_dokter: password,

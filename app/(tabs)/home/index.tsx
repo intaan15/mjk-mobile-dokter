@@ -16,6 +16,7 @@ import moment from "moment";
 import * as SecureStore from "expo-secure-store";
 import axios from "axios";
 import { useFocusEffect } from "@react-navigation/native";
+import { BASE_URL } from "@env";
 
 const { width } = Dimensions.get("window");
 
@@ -117,7 +118,7 @@ export default function HomeScreen() {
       const cleanedId = dokterId?.replace(/"/g, "");
 
       const response = await axios.get(
-        `https://mjk-backend-production.up.railway.app/api/dokter/getbyid/${cleanedId}`
+        `${BASE_URL}/dokter/getbyid/${cleanedId}`
       );
 
       setUserData(response.data);

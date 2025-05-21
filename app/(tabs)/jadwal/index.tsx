@@ -15,6 +15,7 @@ import { images } from "../../constants/images";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import { useFocusEffect } from "@react-navigation/native";
+import { BASE_URL } from "@env";
 
 type Jadwal = {
   tanggal: string;
@@ -49,7 +50,7 @@ const ScheduleScreen = () => {
 
           setUserId(storedUserId);
           const res = await axios.get(
-            `https://mjk-backend-production.up.railway.app/api/dokter/jadwal/${storedUserId}`,
+            `${BASE_URL}/dokter/jadwal/${storedUserId}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,

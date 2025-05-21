@@ -18,6 +18,7 @@ import { images } from "@/constants/images";
 import * as SecureStore from "expo-secure-store";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
+import { BASE_URL } from "@env";
 
 const { width } = Dimensions.get("window");
 
@@ -84,7 +85,7 @@ export default function JadwalScreen() {
         try {
           const userId = await SecureStore.getItemAsync("userId");
           const response = await axios.get(
-            "https://mjk-backend-production.up.railway.app/api/jadwal/getall"
+            `${BASE_URL}/jadwal/getall`
           );
 
           if (userId) {
@@ -108,7 +109,7 @@ export default function JadwalScreen() {
   ) => {
     axios
       .patch(
-        `https://mjk-backend-production.up.railway.app/api/jadwal/update/status/${id}`,
+        `${BASE_URL}/jadwal/update/status/${id}`,
         {
           status_konsul: newStatus,
         }

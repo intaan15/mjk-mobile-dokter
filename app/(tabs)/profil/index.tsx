@@ -21,6 +21,7 @@ import ModalContent from "@/components/modals/ModalContent";
 import ModalTemplate from "@/components/modals/ModalTemplate";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { useFocusEffect } from "@react-navigation/native";
+import { BASE_URL } from "@env";
 
 interface User {
   nama_dokter: string;
@@ -60,7 +61,7 @@ function App() {
       const cleanedUserId = userId?.replace(/"/g, "");
       if (cleanedUserId) {
         const response = await axios.get(
-          `https://mjk-backend-production.up.railway.app/api/dokter/getbyid/${cleanedUserId}`
+          `${BASE_URL}/dokter/getbyid/${cleanedUserId}`
         );
         setUserData(response.data);
       }
@@ -97,7 +98,7 @@ function App() {
       }
 
       const res = await axios.patch(
-        "https://mjk-backend-production.up.railway.app/api/dokter/ubah-password",
+        `${BASE_URL}/dokter/ubah-password`,
         {
           password_lama: passwordLama,
           password_baru: passwordBaru,
