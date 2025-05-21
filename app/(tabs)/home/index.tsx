@@ -115,10 +115,16 @@ export default function HomeScreen() {
   const fetchUserData = async () => {
     try {
       const dokterId = await SecureStore.getItemAsync("userId");
+      const token = await SecureStore.getItemAsync("userToken");
       const cleanedId = dokterId?.replace(/"/g, "");
-
       const response = await axios.get(
-        `${BASE_URL}/dokter/getbyid/${cleanedId}`
+        `${BASE_URL}/dokter/getbyid/${cleanedId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
       setUserData(response.data);

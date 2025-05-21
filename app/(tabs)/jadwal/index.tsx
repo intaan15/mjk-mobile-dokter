@@ -53,6 +53,7 @@ const ScheduleScreen = () => {
             `${BASE_URL}/dokter/jadwal/${storedUserId}`,
             {
               headers: {
+                "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
               },
             }

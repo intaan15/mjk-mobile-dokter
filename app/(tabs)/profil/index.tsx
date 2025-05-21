@@ -58,10 +58,17 @@ function App() {
   const fetchUserData = async () => {
     try {
       const userId = await SecureStore.getItemAsync("userId");
+      const token = await SecureStore.getItemAsync("userToken");
       const cleanedUserId = userId?.replace(/"/g, "");
       if (cleanedUserId) {
         const response = await axios.get(
-          `${BASE_URL}/dokter/getbyid/${cleanedUserId}`
+          `${BASE_URL}/dokter/getbyid/${cleanedUserId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
         setUserData(response.data);
       }

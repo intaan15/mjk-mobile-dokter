@@ -84,8 +84,16 @@ export default function JadwalScreen() {
       const fetchJadwal = async () => {
         try {
           const userId = await SecureStore.getItemAsync("userId");
+          const token = await SecureStore.getItemAsync("userToken");
+
           const response = await axios.get(
-            `${BASE_URL}/jadwal/getall`
+            `${BASE_URL}/jadwal/getall`,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
           );
 
           if (userId) {
@@ -103,29 +111,35 @@ export default function JadwalScreen() {
     }, [])
   );
 
-  const updateJadwalStatus = (
+  const updateJadwalStatus = async (
     id: string,
     newStatus: Jadwal["status_konsul"]
   ) => {
-    axios
-      .patch(
+    try {
+      const token = await SecureStore.getItemAsync("userToken");
+      await axios.patch(
         `${BASE_URL}/jadwal/update/status/${id}`,
         {
           status_konsul: newStatus,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         }
-      )
-      .then(() => {
-        setJadwal((prev) =>
-          prev.map((jadwal) =>
-            jadwal._id === id ? { ...jadwal, status_konsul: newStatus } : jadwal
-          )
-        );
-      })
-      .catch((err) => {
-        Alert.alert("Gagal", "Gagal memperbarui status");
-        console.error("Error updating status:", err);
-      });
-  };
+      );
+  
+      setJadwal((prev) =>
+        prev.map((jadwal) =>
+          jadwal._id === id ? { ...jadwal, status_konsul: newStatus } : jadwal
+        )
+      );
+    } catch (err) {
+      Alert.alert("Gagal", "Gagal memperbarui status");
+      console.error("Error updating status:", err);
+    }
+  };  
 
   return (
     <Background>
