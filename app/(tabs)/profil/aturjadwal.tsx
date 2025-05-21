@@ -21,6 +21,7 @@ import ImagePickerComponent, {
 } from "@/components/picker/imagepicker";
 import * as SecureStore from "expo-secure-store";
 import axios from "axios";
+import { BASE_URL } from "@env";
 
 const App = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -62,21 +63,21 @@ const App = () => {
     
     try {
       const cekRes = await axios.get(
-        `https://mjk-backend-production.up.railway.app/api/dokter/jadwal/${dokterId}`,
+        `${BASE_URL}/dokter/jadwal/${dokterId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
       );
-  
-      // if (cekRes.data && cekRes.data.length > 0) {
-      //   alert("Jadwal pada tanggal ini sudah ada. Silahkan ubah jadwal anda pada menu ubah jadwal");
-      //   return;
-      // }
+
+      if (cekRes.data && cekRes.data.length > 0) {
+        alert("Jadwal pada tanggal ini sudah ada. Silahkan ubah jadwal anda pada menu ubah jadwal");
+        return;
+      }
   
       const response = await axios.post(
-        `https://mjk-backend-production.up.railway.app/api/dokter/jadwal/add/${dokterId}`,
+        `${BASE_URL}/dokter/jadwal/add/${dokterId}`,
         {
           tanggal: selectedDate,
           jam_mulai: jamMulai,

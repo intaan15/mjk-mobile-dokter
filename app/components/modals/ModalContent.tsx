@@ -11,6 +11,7 @@ import * as SecureStore from "expo-secure-store";
 import { useRouter } from "expo-router";
 import axios from "axios";
 import { FontAwesome5 } from "@expo/vector-icons";
+import { BASE_URL } from "@env";
 
 interface ModalContentProps {
   modalType: string;
@@ -74,7 +75,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
         const cleanedId = dokterId?.replace(/"/g, "");
 
         const response = await axios.get(
-          `https://mjk-backend-production.up.railway.app/api/dokter/getbyid/${cleanedId}`
+          `${BASE_URL}/dokter/getbyid/${cleanedId}`
         );
 
         setUserData(response.data);
@@ -93,7 +94,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
       const cleanedDokterId = dokterId?.replace(/"/g, "");
 
       const response = await axios.patch(
-        `https://mjk-backend-production.up.railway.app/api/dokter/update/${cleanedDokterId}`,
+        `${BASE_URL}/dokter/update/${cleanedDokterId}`,
         {
           nama_dokter: nama,
           username_dokter: username,
@@ -129,6 +130,15 @@ const ModalContent: React.FC<ModalContentProps> = ({
           hour12: false,
         })
       : "--:--";
+  };
+
+  const formatDate = (date: string | Date) => {
+    const d = new Date(date);
+    return d.toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
   };
 
   const generateTimeSlots = (): string[] => {
@@ -224,7 +234,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
       }
 
       const response = await axios.delete(
-        `http://mjk-backend-production.up.railway.app/api/dokter/delete/${userId}`,
+        `${BASE_URL}/dokter/delete/${userId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -236,7 +246,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
         await SecureStore.deleteItemAsync("userToken");
         await SecureStore.deleteItemAsync("userId");
         onClose?.();
-        alert("akun anda berhasil dihapus")
+        alert("akun anda berhasil dihapus");
         router.replace("/screens/signin");
       } else {
         alert("Terjadi kesalahan saat menghapus akun.");
@@ -256,7 +266,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
       const tanggal = selectedDate.toISOString();
 
       const response = await axios.patch(
-        `https://mjk-backend-production.up.railway.app/api/dokter/${dokterId}/jadwal/update`,
+        `${BASE_URL}/dokter/${dokterId}/jadwal/update`,
         {
           tanggal,
           jam_mulai: "08:00",
@@ -288,27 +298,31 @@ const ModalContent: React.FC<ModalContentProps> = ({
 
   const handleAturDefault = async () => {
     if (!selectedDate) return;
-  
+
     try {
       const token = await SecureStore.getItemAsync("userToken");
       const dokterId = await SecureStore.getItemAsync("userId");
-      const cekRes = await axios.get(
-        `https://mjk-backend-production.up.railway.app/api/dokter/jadwal/${dokterId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-  
-      if (cekRes.data && cekRes.data.length > 0) {
+      const cekRes = await axios.get(`${BASE_URL}/dokter/jadwal/${dokterId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const tanggalDipilih = formatDate(new Date(selectedDate));
+
+      const sudahAda = cekRes.data.some((item: any) => {
+        const tanggalDB = formatDate(new Date(item.tanggal));
+        return tanggalDB === tanggalDipilih;
+      });
+
+      if (sudahAda) {
         onClose?.();
         alert("Jadwal pada tanggal ini sudah ada. Tidak bisa atur default.");
         return;
       }
-  
+
       const response = await axios.post(
-        `https://mjk-backend-production.up.railway.app/api/dokter/jadwal/add/${dokterId}`,
+        `${BASE_URL}/dokter/jadwal/add/${dokterId}`,
         {
           tanggal: selectedDate,
           jam_mulai: "08:00",
@@ -321,7 +335,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
           },
         }
       );
-  
+
       if (response.status === 201) {
         alert("YEAYYY JADWAL DIATUR DEFOLT");
         onClose?.();
@@ -334,7 +348,6 @@ const ModalContent: React.FC<ModalContentProps> = ({
       alert("Terjadi kesalahan saat menyimpan jadwal default.");
     }
   };
-  
 
   const handleDeleteJadwal = async () => {
     try {
@@ -348,7 +361,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
       const tanggalHapus = new Date(selectedDate);
       tanggalHapus.setUTCHours(0, 0, 0, 0);
       const response = await axios.delete(
-        `https://mjk-backend-production.up.railway.app/api/dokter/jadwal/hapus/${dokterId}`,
+        `${BASE_URL}/dokter/jadwal/hapus/${dokterId}`,
         {
           data: {
             tanggal: tanggalHapus.toISOString(),
@@ -369,7 +382,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
       if (error.response?.status === 404) {
         onClose?.();
         alert("Tidak ada jadwal pada tanggal ini untuk dihapus.");
-      } 
+      }
     }
   };
 

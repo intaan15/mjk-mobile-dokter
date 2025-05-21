@@ -20,6 +20,7 @@ import ImagePickerComponent, {
 } from "@/components/picker/imagepicker";
 import * as SecureStore from "expo-secure-store";
 import axios from "axios";
+import { BASE_URL } from "@env";
 
 type Jadwal = {
   tanggal: string;
@@ -70,7 +71,7 @@ const App = () => {
           return;
         }
         const res = await axios.get(
-          `https://mjk-backend-production.up.railway.app/api/dokter/jadwal/${id}`,
+          `${BASE_URL}/dokter/jadwal/${id}`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -129,7 +130,7 @@ const App = () => {
         timeSlots[timeSlots.length - 1].replace(".", ":") + ":00";
       const tanggal = new Date(selectedDate).toISOString();
       const response = await axios.patch(
-        `https://mjk-backend-production.up.railway.app/api/dokter/${dokterId}/jadwal/update`,
+        `${BASE_URL}/dokter/${dokterId}/jadwal/update`,
         {
           tanggal,
           jam_mulai: jamMulai,
