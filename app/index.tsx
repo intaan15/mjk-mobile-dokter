@@ -3,6 +3,7 @@ import SplashScreen from "./splashscreen";
 import * as SecureStore from "expo-secure-store";
 import { useRouter } from "expo-router";
 import axios from "axios";
+import { BASE_URL } from "@env";
 
 export default function Index() {
   const [isLoading, setIsLoading] = useState(true);
@@ -16,12 +17,12 @@ export default function Index() {
 
       if (token) {
         try {
-          await axios.get(
-            "https://mjk-backend-production.up.railway.app/api/auth/login_dokter",
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
+          await axios.get(`${BASE_URL}/auth/login_dokter`, {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
           router.replace("/(tabs)/home");
         } catch (error) {
           await SecureStore.deleteItemAsync("userToken");
