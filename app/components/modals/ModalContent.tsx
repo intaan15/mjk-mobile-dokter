@@ -451,14 +451,12 @@ const ModalContent: React.FC<ModalContentProps> = ({
           <Text className="font-bold text-2xl text-skyDark mt-4 text-center">
             Ubah profil
           </Text>
-          {/* <View className="w-full h-[2px] bg-skyDark" /> */}
           <View className="flex flex-col items-center px-5">
             <Text className="w-full pl-1 text-base font-semibold text-skyDark pt-2">
               Nama
             </Text>
             <TextInput
               placeholder="Nama"
-              // secureTextEntry
               value={nama}
               onChangeText={setNama}
               className="border-2 rounded-xl border-gray-400 p-2 w-full"
@@ -469,7 +467,6 @@ const ModalContent: React.FC<ModalContentProps> = ({
             </Text>
             <TextInput
               placeholder="contoh123"
-              // secureTextEntry
               value={username}
               onChangeText={setUsername}
               className="border-2 rounded-xl border-gray-400 p-2 w-full"
@@ -480,7 +477,6 @@ const ModalContent: React.FC<ModalContentProps> = ({
             </Text>
             <TextInput
               placeholder="contoh@gmail.com"
-              // secureTextEntry
               value={email}
               onChangeText={setEmail}
               className="border-2 rounded-xl border-gray-400 p-2 w-full"
@@ -491,7 +487,6 @@ const ModalContent: React.FC<ModalContentProps> = ({
             </Text>
             <TextInput
               placeholder="0821312312312"
-              // secureTextEntry
               value={noTlp}
               onChangeText={setNoTlp}
               className="border-2 rounded-xl border-gray-400 p-2 w-full"
@@ -502,7 +497,6 @@ const ModalContent: React.FC<ModalContentProps> = ({
             </Text>
             <TextInput
               placeholder="Tulang"
-              // secureTextEntry
               value={spesialis}
               onChangeText={setSpesialis}
               className="border-2 rounded-xl border-gray-400 p-2 w-full"
