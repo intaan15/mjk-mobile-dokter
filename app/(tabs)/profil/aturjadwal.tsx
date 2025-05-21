@@ -66,6 +66,7 @@ const App = () => {
         `${BASE_URL}/dokter/jadwal/${dokterId}`,
         {
           headers: {
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
         }

@@ -73,9 +73,16 @@ const ModalContent: React.FC<ModalContentProps> = ({
       try {
         const dokterId = await SecureStore.getItemAsync("userId");
         const cleanedId = dokterId?.replace(/"/g, "");
+        const token = await SecureStore.getItemAsync("userToken");
 
         const response = await axios.get(
-          `${BASE_URL}/dokter/getbyid/${cleanedId}`
+          `${BASE_URL}/dokter/getbyid/${cleanedId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
 
         setUserData(response.data);
@@ -92,6 +99,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
     try {
       const dokterId = await SecureStore.getItemAsync("userId");
       const cleanedDokterId = dokterId?.replace(/"/g, "");
+      const token = await SecureStore.getItemAsync("userToken");
 
       const response = await axios.patch(
         `${BASE_URL}/dokter/update/${cleanedDokterId}`,
@@ -105,6 +113,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
         {
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -237,6 +246,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
         `${BASE_URL}/dokter/delete/${userId}`,
         {
           headers: {
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
         }
@@ -367,8 +377,8 @@ const ModalContent: React.FC<ModalContentProps> = ({
             tanggal: tanggalHapus.toISOString(),
           },
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
         }
       );
