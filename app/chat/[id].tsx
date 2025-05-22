@@ -9,11 +9,14 @@ import {
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "expo-router";
-import Background from "../components/background";
+import Background from "../../components/background";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import * as ImagePicker from "expo-image-picker";
 import { io } from "socket.io-client";
+import * as SecureStore from "expo-secure-store";
+import axios from "axios";
+import { BASE_URL } from "@env";
 
 const socket = io("https://mjk-backend-production.up.railway.app", {
   transports: ["websocket"], // <--- penting supaya pakai websocket langsung
@@ -21,85 +24,108 @@ const socket = io("https://mjk-backend-production.up.railway.app", {
 
 export default function ChatScreen() {
   const router = useRouter();
-  const [username] = useState("User" + Math.floor(Math.random() * 1000));
+  const [username, setUsername] = useState("");
   const [message, setMessage] = useState("");
-  interface Message {
-    sender: string;
-    text?: string;
-    image?: string;
-    type: "text" | "image";
-  }
-  
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState([]);
   const [previewImage, setPreviewImage] = useState(null);
 
- useEffect(() => {
-   // Event yang akan dipanggil saat koneksi berhasil
-   socket.on("connected", (data) => {
-     console.log(data.message); // Akan muncul "Successfully connected to backend"
-   });
+  // Ambil data user dari backend
+  useEffect(() => {
+    const fetchUsername = async () => {
+      try {
+        const userId = await SecureStore.getItemAsync("userId");
+        const token = await SecureStore.getItemAsync("userToken");
 
-   socket.on("connect", () => {
-     console.log("Connected to backend!");
-   });
+        if (!userId || !token) {
+          console.log("Token atau ID tidak ditemukan.");
+          router.push("/screens/signin");
+          return;
+        }
 
-   socket.on("chat history", (msgs) => {
-     console.log("Chat history received:", msgs);
-     setMessages(msgs);
-   });
+        const cleanedId = userId.replace(/"/g, "");
+        const response = await axios.get(
+          `${BASE_URL}/dokter/getbyid/${cleanedId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-    socket.on("chat message", (newMsg) => {
-      console.log("New chat message:", newMsg);
-      setMessages((prevMessages) => [...prevMessages, newMsg]);
+        const user = response.data;
+        if (user && user.nama_dokter) {
+          setUsername(user.nama_dokter);
+        } else {
+          console.log("Nama user tidak ditemukan dalam response.");
+          // router.push("/screens/signin");
+        }
+      } catch (error) {
+        console.log("Gagal fetch username:", error);
+        // router.push("/screens/signin");
+      }
+    };
+
+    fetchUsername();
+  }, []);
+
+  useEffect(() => {
+    console.log("Current username:", username);
+  }, [username]);
+
+  // Terima pesan dari socket
+  useEffect(() => {
+    socket.on("chat message", (msg) => {
+      console.log("Received message from socket:", msg);
+      setMessages((prev) => [...prev, msg]);
     });
 
-   // Bersihkan listener ketika komponen unmount
-   return () => {
-     socket.off("connect");
-     socket.off("connected");
-     socket.off("chat history");
-     socket.off("chat message");
-   };
+    return () => {
+      socket.off("chat message");
+    };
+  }, []);
 
- }, []);
-
-
+  // Kirim pesan teks
   const sendMessage = () => {
-    if (message.trim()) {
+    if (message.trim() && username) {
       const msgData = {
         text: message,
         sender: username,
         type: "text",
       };
-      console.log("Sending message:", msgData);
       socket.emit("chat message", msgData);
       setMessage("");
     }
   };
 
+  // Kirim gambar dari galeri/kamera
   const sendImage = async (fromCamera = false) => {
-    let result;
-    if (fromCamera) {
-      result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        quality: 0.7,
-        base64: true,
-      });
-    } else {
-      result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        quality: 0.7,
-        base64: true,
-      });
-    }
+    try {
+      let result;
+      if (fromCamera) {
+        result = await ImagePicker.launchCameraAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          quality: 0.7,
+          base64: true,
+        });
+      } else {
+        result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          quality: 0.7,
+          base64: true,
+        });
+      }
 
-    if (!result.canceled && result.assets?.length > 0) {
-      const base64Image = `data:image/jpeg;base64,${result.assets[0].base64}`;
-      socket.emit("chat message", {
-        sender: username,
-        image: base64Image,
-        type: "image",
-      });
+      if (!result.canceled && result.assets?.length > 0) {
+        const base64Image = `data:image/jpeg;base64,${result.assets[0].base64}`;
+        socket.emit("chat message", {
+          sender: username,
+          image: base64Image,
+          type: "image",
+        });
+      }
+    } catch (error) {
+      console.error("Gagal mengirim gambar:", error);
     }
   };
 
@@ -133,7 +159,6 @@ export default function ChatScreen() {
       </View>
     );
   };
-
 
   return (
     <Background>
@@ -187,7 +212,10 @@ export default function ChatScreen() {
 
           <TouchableOpacity
             onPress={sendMessage}
-            className="bg-blue-500 px-4 py-2 rounded-lg mr-1"
+            disabled={!username || !message.trim()}
+            className={`bg-blue-500 px-4 py-2 rounded-lg mr-1 ${
+              !username || !message.trim() ? "opacity-50" : ""
+            }`}
           >
             <Text className="text-white font-semibold">Kirim</Text>
           </TouchableOpacity>
