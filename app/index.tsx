@@ -9,30 +9,31 @@ export default function Index() {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
+  
   useEffect(() => {
     const handleStartup = async () => {
-      await new Promise((resolve) => setTimeout(resolve, 5000));
-
+      // await SecureStore.deleteItemAsync("userToken");
+      // await SecureStore.deleteItemAsync("userId");
       const token = await SecureStore.getItemAsync("userToken");
+      const userId = await SecureStore.getItemAsync("userId");
 
-      if (token) {
-        try {
-          await axios.get(`${BASE_URL}/auth/login_dokter`, {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          });
+      console.log("Retrieved token:", token);
+      console.log("Retrieved userId:", userId);
+
+
+      if (token && userId) {
+        setTimeout(() => {
+          setIsLoading(false);
           router.replace("/(tabs)/home");
-        } catch (error) {
-          await SecureStore.deleteItemAsync("userToken");
-          router.replace("/screens/signin");
-        }
+        }, 2000);
       } else {
-        router.replace("/screens/signin");
+        await SecureStore.deleteItemAsync("userToken");
+        await SecureStore.deleteItemAsync("userId");
+        setTimeout(() => {
+          setIsLoading(false);
+          router.replace("/screens/signin");
+        }, 2000);
       }
-
-      setIsLoading(false);
     };
 
     handleStartup();

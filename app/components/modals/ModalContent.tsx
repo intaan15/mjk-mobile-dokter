@@ -74,7 +74,12 @@ const ModalContent: React.FC<ModalContentProps> = ({
         const dokterId = await SecureStore.getItemAsync("userId");
         const cleanedId = dokterId?.replace(/"/g, "");
         const token = await SecureStore.getItemAsync("userToken");
-
+        console.log("Dokter ID:", cleanedId);
+        console.log("token:", token);
+        // if (!cleanedId || !token) {
+        //   alert("Token atau user ID tidak ditemukan.");
+        //   return;
+        // }
         const response = await axios.get(
           `${BASE_URL}/dokter/getbyid/${cleanedId}`,
           {
@@ -84,11 +89,11 @@ const ModalContent: React.FC<ModalContentProps> = ({
             },
           }
         );
-
+        console.log("Response data:", response.data);
         setUserData(response.data);
       } catch (error: any) {
-        console.error("Gagal mengambil data profil:", error);
-        alert(error.response?.data?.message || "Gagal mengambil data user");
+        console.log("Gagal mengambil data profil dari modal:", error);
+        // alert(error.response?.data?.message || "Gagal mengambil data user");
       }
     };
 
@@ -122,10 +127,10 @@ const ModalContent: React.FC<ModalContentProps> = ({
       onUpdateSuccess?.();
     } catch (error: any) {
       if (error.response) {
-        console.error("Gagal update:", error.response.data);
+        console.log("Gagal update:", error.response.data);
         alert(error.response.data.message || "Gagal update data.");
       } else {
-        console.error("Gagal update:", error.message);
+        console.log("Gagal update:", error.message);
         alert("Gagal terhubung ke server.");
       }
     }
@@ -222,7 +227,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
       console.log("Upload berhasil:", response.data);
       alert("Foto berhasil diunggah!");
     } catch (error: any) {
-      console.error("Upload gagal:", error.message);
+      console.log("Upload gagal:", error.message);
       alert("Gagal upload gambar");
     }
   };
@@ -262,7 +267,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
         alert("Terjadi kesalahan saat menghapus akun.");
       }
     } catch (error) {
-      console.error("Error deleting account:", error);
+      console.log("Error deleting account:", error);
       alert("Terjadi kesalahan server.");
     }
   };
@@ -301,7 +306,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
         onClose?.();
         router.push("/(tabs)/profil/aturjadwal");
       } else {
-        console.error("Gagal mengatur jadwal default:", error);
+        console.log("Gagal mengatur jadwal default:", error);
       }
     }
   };
@@ -354,7 +359,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
         alert("Gagal mengatur jadwal default: " + response.data.message);
       }
     } catch (error: any) {
-      console.error("Gagal mengatur jadwal default:", error);
+      console.log("Gagal mengatur jadwal default:", error);
       alert("Terjadi kesalahan saat menyimpan jadwal default.");
     }
   };

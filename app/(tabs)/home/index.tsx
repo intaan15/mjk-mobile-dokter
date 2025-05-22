@@ -128,8 +128,9 @@ export default function HomeScreen() {
       );
 
       setUserData(response.data);
-    } catch (error: any) {
-      router.push("/screens/signin")
+    } 
+    catch (error: any) {
+      // router.push("/screens/signin")
     }
   };
 

@@ -86,15 +86,12 @@ export default function JadwalScreen() {
           const userId = await SecureStore.getItemAsync("userId");
           const token = await SecureStore.getItemAsync("userToken");
 
-          const response = await axios.get(
-            `${BASE_URL}/jadwal/getall`,
-            {
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
+          const response = await axios.get(`${BASE_URL}/jadwal/getall`, {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
 
           if (userId) {
             const filtered = response.data.filter(
@@ -103,7 +100,7 @@ export default function JadwalScreen() {
             setJadwal(filtered);
           }
         } catch (err) {
-          console.error("Error fetching jadwals:", err);
+          console.log("Error fetching jadwals:", err);
         }
       };
 
@@ -129,7 +126,7 @@ export default function JadwalScreen() {
           },
         }
       );
-  
+
       setJadwal((prev) =>
         prev.map((jadwal) =>
           jadwal._id === id ? { ...jadwal, status_konsul: newStatus } : jadwal
@@ -137,9 +134,9 @@ export default function JadwalScreen() {
       );
     } catch (err) {
       Alert.alert("Gagal", "Gagal memperbarui status");
-      console.error("Error updating status:", err);
+      console.log("Error updating status:", err);
     }
-  };  
+  };
 
   return (
     <Background>

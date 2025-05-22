@@ -35,16 +35,13 @@ export default function SignIn() {
     }
 
     try {
-      const response = await axios.post(
-        `${BASE_URL}/auth/login_dokter`,
-        {
-          identifier_dokter: identifier,
-          password_dokter: password,
-        }
-      );
+      const response = await axios.post(`${BASE_URL}/auth/login_dokter`, {
+        identifier_dokter: identifier,
+        password_dokter: password,
+      });
       const { token, userId } = response.data;
       await SecureStore.setItemAsync("userToken", token);
-      await SecureStore.setItemAsync("userId", userId);
+      await SecureStore.setItemAsync("userId", userId.toString()); 
       router.replace("/(tabs)/home");
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {

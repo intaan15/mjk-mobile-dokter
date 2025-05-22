@@ -55,28 +55,27 @@ const App = () => {
       alert("Harap pilih tanggal dan jam praktek.");
       return;
     }
-  
+
     const token = await SecureStore.getItemAsync("userToken");
     const dokterId = await SecureStore.getItemAsync("userId");
     const jamMulai = timeSlots[0].replace(".", ":");
     const jamSelesai = timeSlots[timeSlots.length - 1].replace(".", ":");
-    
+
     try {
-      const cekRes = await axios.get(
-        `${BASE_URL}/dokter/jadwal/${dokterId}`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const cekRes = await axios.get(`${BASE_URL}/dokter/jadwal/${dokterId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (cekRes.data && cekRes.data.length > 0) {
-        alert("Jadwal pada tanggal ini sudah ada. Silahkan ubah jadwal anda pada menu ubah jadwal");
+        alert(
+          "Jadwal pada tanggal ini sudah ada. Silahkan ubah jadwal anda pada menu ubah jadwal"
+        );
         return;
       }
-  
+
       const response = await axios.post(
         `${BASE_URL}/dokter/jadwal/add/${dokterId}`,
         {
@@ -91,7 +90,7 @@ const App = () => {
           },
         }
       );
-  
+
       if (response.status === 201) {
         alert("Jadwal berhasil ditambahkan.");
         router.replace("/(tabs)/profil");
@@ -99,7 +98,7 @@ const App = () => {
         alert(`Gagal menambahkan jadwal: ${response.data.message}`);
       }
     } catch (error) {
-      console.error(error);
+      console.log(error);
       alert("Terjadi kesalahan saat menyimpan jadwal.");
     }
   };

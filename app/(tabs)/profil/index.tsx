@@ -73,12 +73,12 @@ function App() {
         setUserData(response.data);
       }
     } catch (error) {
-      console.error("Gagal mengambil data profil:", error);
+      // console.log("Gagal mengambil data profil:", error);
     }
   };
 
   const handleUpdateSuccess = () => {
-    fetchUserData(); 
+    fetchUserData();
     setModalVisible(false);
   };
 
@@ -135,7 +135,7 @@ function App() {
       } else if (msg.includes("Semua field harus diisi")) {
         setModalType("kolompwkosong");
       } else {
-        setModalType("kolompwkosong"); 
+        setModalType("kolompwkosong");
       }
       setModalVisible(true);
     }
@@ -145,8 +145,6 @@ function App() {
     setModalType(type);
     setModalVisible(true);
   };
-
-
 
   return (
     <Background>
@@ -169,8 +167,10 @@ function App() {
           <View className="absolute top-28 left-1/2 -translate-x-1/2">
             {userData.foto_profil_dokter ? (
               <Image
-              source={{ uri: `https://mjk-backend-production.up.railway.app/imagesdokter/${userData.foto_profil_dokter}` }}
-              className="w-32 h-32 rounded-full border-4 border-skyDark"
+                source={{
+                  uri: `https://mjk-backend-production.up.railway.app/imagesdokter/${userData.foto_profil_dokter}`,
+                }}
+                className="w-32 h-32 rounded-full border-4 border-skyDark"
               />
             ) : (
               <View className="w-32 h-32 rounded-full border-4 border-skyDark items-center justify-center bg-gray-200">
@@ -198,16 +198,22 @@ function App() {
             <Text className="font-bold text-lg text-skyDark">Nama</Text>
             <Text className="text-gray-700">{userData.nama_dokter}</Text>
 
-            <Text className="font-bold text-lg text-skyDark mt-2">Nama Pengguna</Text>
+            <Text className="font-bold text-lg text-skyDark mt-2">
+              Nama Pengguna
+            </Text>
             <Text className="text-gray-700">{userData.username_dokter}</Text>
 
             <Text className="font-bold text-lg text-skyDark mt-2">Email</Text>
             <Text className="text-gray-700">{userData.email_dokter}</Text>
 
-            <Text className="font-bold text-lg text-skyDark mt-2">Nomor Telepon</Text>
+            <Text className="font-bold text-lg text-skyDark mt-2">
+              Nomor Telepon
+            </Text>
             <Text className="text-gray-700">{userData.notlp_dokter}</Text>
 
-            <Text className="font-bold text-lg text-skyDark mt-2">Spesialis</Text>
+            <Text className="font-bold text-lg text-skyDark mt-2">
+              Spesialis
+            </Text>
             <Text className="text-gray-700">{userData.spesialis_dokter}</Text>
 
             {/* Ganti Password */}
@@ -270,8 +276,8 @@ function App() {
           modalType={modalType}
           onClose={() => setModalVisible(false)}
           onUpdateSuccess={() => {
-            fetchUserData(); 
-            setModalVisible(false); 
+            fetchUserData();
+            setModalVisible(false);
           }}
         />
       </ModalTemplate>
