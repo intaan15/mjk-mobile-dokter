@@ -873,7 +873,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
       return (
         <View>
           <Text className="text-center text-lg font-bold text-skyDark">
-            Password berhasil diubah
+            Kata Sandi berhasil diubah
           </Text>
           <View className="w-full h-[2px] bg-skyDark mt-5 mb-3" />
           <TouchableOpacity
