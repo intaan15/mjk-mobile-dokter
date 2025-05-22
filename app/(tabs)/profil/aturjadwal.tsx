@@ -50,6 +50,12 @@ const App = () => {
     }, 300);
   };
 
+  const normalizeDate = (date) => {
+    const normalized = new Date(date);
+    normalized.setUTCHours(0, 0, 0, 0);
+    return normalized.toISOString().split("T")[0];
+  };
+
   const handleSubmitAturJadwal = async () => {
     if (!selectedDate || timeSlots.length === 0) {
       alert("Harap pilih tanggal dan jam praktek.");
@@ -69,9 +75,16 @@ const App = () => {
         },
       });
 
-      if (cekRes.data && cekRes.data.length > 0) {
+      const selectedDateStr = normalizeDate(selectedDate);
+
+      const isSameDateExist = cekRes.data.some((jadwal) => {
+        const jadwalDateStr = normalizeDate(jadwal.tanggal);
+        return jadwalDateStr === selectedDateStr;
+      });
+
+      if (isSameDateExist) {
         alert(
-          "Jadwal pada tanggal ini sudah ada. Silahkan ubah jadwal anda pada menu ubah jadwal"
+          "Jadwal pada tanggal ini sudah ada. Silahkan kiw kiw ubah jadwal anda pada menu ubah jadwal"
         );
         return;
       }
