@@ -12,6 +12,7 @@ import { useRouter } from "expo-router";
 import axios from "axios";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { BASE_URL } from "@env";
+import { Picker } from "@react-native-picker/picker";
 
 interface ModalContentProps {
   modalType: string;
@@ -49,7 +50,6 @@ const ModalContent: React.FC<ModalContentProps> = ({
   const [endTime, setEndTime] = useState<Date | null>(null);
   const [isPickerVisible, setPickerVisibility] = useState(false);
   const [isPickingStartTime, setIsPickingStartTime] = useState(true);
-
   const [nama, setNama] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -74,12 +74,6 @@ const ModalContent: React.FC<ModalContentProps> = ({
         const dokterId = await SecureStore.getItemAsync("userId");
         const cleanedId = dokterId?.replace(/"/g, "");
         const token = await SecureStore.getItemAsync("userToken");
-        console.log("Dokter ID:", cleanedId);
-        console.log("token:", token);
-        // if (!cleanedId || !token) {
-        //   alert("Token atau user ID tidak ditemukan.");
-        //   return;
-        // }
         const response = await axios.get(
           `${BASE_URL}/dokter/getbyid/${cleanedId}`,
           {
@@ -89,11 +83,9 @@ const ModalContent: React.FC<ModalContentProps> = ({
             },
           }
         );
-        console.log("Response data:", response.data);
         setUserData(response.data);
       } catch (error: any) {
         console.log("Gagal mengambil data profil dari modal:", error);
-        // alert(error.response?.data?.message || "Gagal mengambil data user");
       }
     };
 

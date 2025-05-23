@@ -5,8 +5,11 @@ import {
   Dimensions,
   ScrollView,
   TouchableOpacity,
+  Animated,
+  Easing,
+  StyleSheet,
 } from "react-native";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "expo-router";
 import Background from "../../components/background";
 import { images } from "@/constants/images";
@@ -126,10 +129,14 @@ export default function HomeScreen() {
           },
         }
       );
-
+      if (response.data.role !== "dokter") {
+        await SecureStore.deleteItemAsync("userToken");
+        await SecureStore.deleteItemAsync("userId");
+        router.replace("/screens/signin");
+        return;
+      }
       setUserData(response.data);
-    } 
-    catch (error: any) {
+    } catch (error: any) {
       // router.push("/screens/signin")
     }
   };
@@ -139,6 +146,75 @@ export default function HomeScreen() {
       fetchUserData();
     }, [])
   );
+  const MarqueeText = ({ text, style }: { text: string; style?: any }) => {
+  const screenWidth = Dimensions.get("window").width;
+  const containerWidth = screenWidth * 0.7;
+
+  const translateX = useRef(new Animated.Value(0)).current;
+  const [textWidth, setTextWidth] = useState(0);
+  const animationRef = useRef<Animated.CompositeAnimation | null>(null);
+
+  useEffect(() => {
+    if (textWidth > containerWidth) {
+      const duration = (textWidth + containerWidth) * 30;
+
+      animationRef.current = Animated.loop(
+        Animated.sequence([
+          Animated.timing(translateX, {
+            toValue: -textWidth,
+            duration,
+            useNativeDriver: true,
+            easing: Easing.linear,
+          }),
+          Animated.timing(translateX, {
+            toValue: containerWidth,
+            duration: 0,
+            useNativeDriver: true,
+          }),
+        ])
+      );
+
+      translateX.setValue(containerWidth);
+      animationRef.current.start();
+    } else {
+      // Reset posisi ke awal jika tidak jalan
+      translateX.setValue(0);
+    }
+
+    return () => {
+      animationRef.current?.stop();
+    };
+  }, [textWidth, containerWidth]);
+
+  return (
+    <View style={[styles.container, { width: containerWidth }]}>
+      <Animated.View
+        style={{
+          transform: [{ translateX }],
+          flexDirection: "row",
+        }}
+      >
+        <Text
+          style={[style, { flexShrink: 0 }]}
+          onLayout={(e) => setTextWidth(e.nativeEvent.layout.width)}
+          numberOfLines={1}
+          ellipsizeMode="clip"
+        >
+          {text + "     "}
+        </Text>
+        {textWidth > containerWidth && (
+          <Text
+            style={[style, { flexShrink: 0 }]}
+            numberOfLines={1}
+            ellipsizeMode="clip"
+          >
+            {text + "     "}
+          </Text>
+        )}
+      </Animated.View>
+    </View>
+  );
+};
 
   return (
     <Background>
@@ -146,9 +222,11 @@ export default function HomeScreen() {
         {/* Header */}
         <View className="relative pt-12 flex flex-col gap-4 px-6">
           <View className="flex items-center justify-between flex-row">
-            <Text className="text-skyDark text-2xl font-bold">
-              Hi, {userData ? userData.nama_dokter : "Loading..."}
-            </Text>
+            <Text className="text-skyDark text-2xl font-bold">Hi,</Text>
+            <MarqueeText
+              text={userData?.nama_dokter || "Loading..."}
+              style={{ fontSize: 20, color: "#025F96", fontWeight: "bold" }}
+            />
             <Image
               className="h-10 w-12"
               source={images.logo}
@@ -213,3 +291,13 @@ export default function HomeScreen() {
     </Background>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    overflow: "hidden",
+    flexDirection: "row",
+  },
+  text: {
+    color: "#025F96",
+  },
+});

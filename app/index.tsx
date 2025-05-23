@@ -12,20 +12,42 @@ export default function Index() {
   
   useEffect(() => {
     const handleStartup = async () => {
-      // await SecureStore.deleteItemAsync("userToken");
-      // await SecureStore.deleteItemAsync("userId");
       const token = await SecureStore.getItemAsync("userToken");
       const userId = await SecureStore.getItemAsync("userId");
-
-      console.log("Retrieved token:", token);
-      console.log("Retrieved userId:", userId);
-
-
+  
       if (token && userId) {
-        setTimeout(() => {
-          setIsLoading(false);
-          router.replace("/(tabs)/home");
-        }, 2000);
+        try {
+          const response = await axios.get(`${BASE_URL}/dokter/getbyid/${userId}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+  
+          const user = response.data;
+  
+          if (user.role === "dokter") {
+            console.log("User valid:", user.nama_dokter);
+            setTimeout(() => {
+              setIsLoading(false);
+              router.replace("/(tabs)/home");
+            }, 2000);
+          } else {
+            // Role bukan dokter, logout paksa
+            await SecureStore.deleteItemAsync("userToken");
+            await SecureStore.deleteItemAsync("userId");
+            setTimeout(() => {
+              setIsLoading(false);
+              router.replace("/screens/signin");
+            }, 2000);
+          }
+        } catch (error) {
+          await SecureStore.deleteItemAsync("userToken");
+          await SecureStore.deleteItemAsync("userId");
+          setTimeout(() => {
+            setIsLoading(false);
+            router.replace("/screens/signin");
+          }, 2000);
+        }
       } else {
         await SecureStore.deleteItemAsync("userToken");
         await SecureStore.deleteItemAsync("userId");
@@ -35,9 +57,10 @@ export default function Index() {
         }, 2000);
       }
     };
-
+  
     handleStartup();
   }, []);
+  
 
   return <>{isLoading ? <SplashScreen /> : null}</>;
 }

@@ -203,7 +203,11 @@ export default function JadwalScreen() {
                       </View>
                     )}
                     <View className="ml-4 flex-1">
-                      <Text className="font-bold text-lg text-skyDark pb-1">
+                      <Text
+                        className="truncate font-bold text-lg text-skyDark pb-1"
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                      >
                         {jadwal?.masyarakat_id?.nama_masyarakat ?? "Pasien"}
                       </Text>
                       <View className="w-full h-[2px] bg-skyDark " />
