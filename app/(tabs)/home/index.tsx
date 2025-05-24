@@ -27,99 +27,40 @@ interface User {
   nama_dokter: string;
 }
 
-const chats = [
-  {
-    id: 1,
-    user: "Zuditanit",
-    message: "Selamat pagi dokter",
-    date: "17/03/25",
-  },
-  {
-    id: 2,
-    user: "Fahri",
-    message: "Bagaimana hasil tes kemarin?",
-    date: "17/03/25",
-  },
-  {
-    id: 3,
-    user: "Aisyah",
-    message: "Terima kasih dokter atas bantuannya.",
-    date: "17/03/25",
-  },
-  {
-    id: 4,
-    user: "Budi",
-    message: "Saya merasa lebih baik sekarang.",
-    date: "17/03/25",
-  },
-  {
-    id: 5,
-    user: "Budi",
-    message: "Saya merasa lebih baik sekarang.",
-    date: "17/03/25",
-  },
-  {
-    id: 6,
-    user: "Budi",
-    message: "Saya merasa lebih baik sekarang.",
-    date: "17/03/25",
-  },
-  {
-    id: 7,
-    user: "Budi",
-    message: "Saya merasa lebih baik sekarang.",
-    date: "17/03/25",
-  },
-  {
-    id: 8,
-    user: "Budi",
-    message: "Saya merasa lebih baik sekarang.",
-    date: "17/03/25",
-  },
-  {
-    id: 9,
-    user: "Budi",
-    message: "Saya merasa lebih baik sekarang.",
-    date: "17/03/25",
-  },
-  {
-    id: 10,
-    user: "Budi",
-    message: "Saya merasa lebih baik sekarang.",
-    date: "17/03/25",
-  },
-  {
-    id: 11,
-    user: "Budi",
-    message: "Saya merasa lebih baik sekarang.",
-    date: "23/04/25",
-  },
-  {
-    id: 12,
-    user: "Budi",
-    message: "Saya merasa lebih baik sekarang.",
-    date: "22/04/25",
-  },
-  {
-    id: 13,
-    user: "Budi",
-    message: "Saya merasa lebih baik sekarang.",
-    date: "21/04/25",
-  },
-];
 
 export default function HomeScreen() {
   const [userData, setUserData] = useState<User | null>(null);
+  const [dokterId, setDokterId] = useState<string | null>(null);
   const router = useRouter();
   const [selectedTab, setSelectedTab] = useState("Berlangsung");
   const [selectedDate, setSelectedDate] = useState(moment().format("DD/MM/YY"));
-  const filteredChats = chats.filter((chat) => chat.date === selectedDate);
+  const [chatList, setChatList] = useState<any[]>([]);
+  
+  const filteredChats = chatList.filter(
+    (chat) => moment(chat.lastMessageDate).format("DD/MM/YY") === selectedDate
+  );
+  const fetchChatList = async (userId: string, token: string) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/chat/chatlist/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setChatList(response.data); // Asumsi response berisi array user { _id, nama_dokter/nama_pasien, foto }
+    } catch (error) {
+      console.log("Gagal ambil chat list", error);
+    }
+  };
+  
 
   const fetchUserData = async () => {
     try {
-      const dokterId = await SecureStore.getItemAsync("userId");
+      const storedId = await SecureStore.getItemAsync("userId");
       const token = await SecureStore.getItemAsync("userToken");
-      const cleanedId = dokterId?.replace(/"/g, "");
+      const cleanedId = storedId?.replace(/"/g, "");
+
+      if (!cleanedId || !token) return;
+
       const response = await axios.get(
         `${BASE_URL}/dokter/getbyid/${cleanedId}`,
         {
@@ -129,17 +70,22 @@ export default function HomeScreen() {
           },
         }
       );
+
       if (response.data.role !== "dokter") {
         await SecureStore.deleteItemAsync("userToken");
         await SecureStore.deleteItemAsync("userId");
         router.replace("/screens/signin");
         return;
       }
+
       setUserData(response.data);
-    } catch (error: any) {
-      // router.push("/screens/signin")
+      setDokterId(cleanedId); // <- simpan ke state agar bisa dipakai nanti
+      fetchChatList(cleanedId, token); // <- Panggil ambil chatlist
+    } catch (error) {
+      console.log("Gagal ambil data user", error);
     }
   };
+  
 
   useFocusEffect(
     useCallback(() => {
@@ -264,22 +210,28 @@ export default function HomeScreen() {
           >
             {filteredChats.map((chat) => (
               <TouchableOpacity
-                key={chat.id}
+                key={chat._id}
                 className="flex flex-col"
                 onPress={() => router.push("/chat/[id]")}
               >
                 <View className="flex flex-row items-center">
                   <Image
-                    source={images.foto}
+                    source={images.foto} // <- atau: { uri: chat.foto || fallbackImage }
                     className="h-16 w-16 rounded-full border border-gray-300"
                     resizeMode="cover"
                   />
                   <View className="ml-4 flex-1">
                     <View className="flex flex-row justify-between">
-                      <Text className="font-semibold text-lg">{chat.user}</Text>
-                      <Text className="text-gray-500 text-sm">{chat.date}</Text>
+                      <Text className="font-semibold text-lg">
+                        {chat.username_masyarakat || chat.nama_dokter}
+                      </Text>
+                      <Text className="text-gray-500 text-sm">
+                        {moment(chat.lastMessageDate).format("DD/MM/YY")}
+                      </Text>
                     </View>
-                    <Text className="text-gray-700 mt-1">{chat.message}</Text>
+                    <Text className="text-gray-700 mt-1">
+                      {chat.lastMessage || "Belum ada pesan"}
+                    </Text>
                   </View>
                 </View>
                 <View className="w-full h-[2px] bg-skyDark my-2" />

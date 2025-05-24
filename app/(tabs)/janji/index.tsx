@@ -114,29 +114,53 @@ export default function JadwalScreen() {
   ) => {
     try {
       const token = await SecureStore.getItemAsync("userToken");
-      await axios.patch(
-        `${BASE_URL}/jadwal/update/status/${id}`,
-        {
-          status_konsul: newStatus,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      console.log("Token:", token);
 
+      if (newStatus === "diterima") {
+        // 🔁 Gunakan endpoint terima + auto-chat
+        const res = await axios.post(
+          `${BASE_URL}/jadwal/${id}/terima`,
+          {}, // Body kosong
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        console.log("Jadwal diterima dan chat terkirim:", res.data);
+      } else {
+        // ❌ Tolak: tetap pakai PATCH biasa
+        await axios.patch(
+          `${BASE_URL}/jadwal/update/status/${id}`,
+          { status_konsul: newStatus },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+      }
+
+      // Update state lokal
       setJadwal((prev) =>
         prev.map((jadwal) =>
           jadwal._id === id ? { ...jadwal, status_konsul: newStatus } : jadwal
         )
       );
-    } catch (err) {
-      Alert.alert("Gagal", "Gagal memperbarui status");
-      console.log("Error updating status:", err);
+    } catch (err: any) {
+      console.log(
+        "Error saat update status:",
+        err.response?.data || err.message
+      );
+      Alert.alert(
+        "Error",
+        err.response?.data?.message || "Gagal memperbarui status"
+      );
     }
   };
+  
+  
 
   return (
     <Background>

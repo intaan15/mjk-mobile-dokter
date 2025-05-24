@@ -17,6 +17,8 @@ import { io } from "socket.io-client";
 import * as SecureStore from "expo-secure-store";
 import axios from "axios";
 import { BASE_URL } from "@env";
+import { useLocalSearchParams } from "expo-router";
+
 
 const socket = io("https://mjk-backend-production.up.railway.app", {
   transports: ["websocket"], // <--- penting supaya pakai websocket langsung
@@ -28,6 +30,10 @@ export default function ChatScreen() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [previewImage, setPreviewImage] = useState(null);
+  const [userId, setUserId] = useState("");
+  const { id: receiverId } = useLocalSearchParams();
+
+
 
   // Ambil data user dari backend
   useEffect(() => {
@@ -60,14 +66,19 @@ export default function ChatScreen() {
           console.log("Nama user tidak ditemukan dalam response.");
           // router.push("/screens/signin");
         }
+        setUserId(cleanedId);
+
       } catch (error) {
         console.log("Gagal fetch username:", error);
         // router.push("/screens/signin");
       }
+      
     };
 
     fetchUsername();
-  }, []);
+    
+  }, []
+);
 
   useEffect(() => {
     console.log("Current username:", username);
@@ -125,13 +136,13 @@ export default function ChatScreen() {
         });
       }
     } catch (error) {
-      console.error("Gagal mengirim gambar:", error);
+      console.log("Gagal mengirim gambar:", error);
     }
   };
 
   // renderItem dipisah sebagai fungsi
   const renderItem = ({ item }) => {
-    const isSender = item.sender === username;
+    const isSender = item.dari === userId || item.sender === username;
 
     return (
       <View
@@ -140,7 +151,7 @@ export default function ChatScreen() {
         }`}
       >
         <Text className={`font-bold ${isSender ? "text-white" : "text-black"}`}>
-          {item.sender}
+          {isSender ? "Saya" : item.sender || item.role}
         </Text>
 
         {item.type === "image" && item.image ? (
@@ -159,6 +170,34 @@ export default function ChatScreen() {
       </View>
     );
   };
+  
+
+  useEffect(() => {
+    const fetchChatHistory = async () => {
+      try {
+        const token = await SecureStore.getItemAsync("userToken");
+        const userId = await SecureStore.getItemAsync("userId");
+        const cleanedId = userId?.replace(/"/g, "");
+
+        if (!cleanedId || !receiverId) return;
+
+        const res = await axios.get(
+          `${BASE_URL}/chat/history/${cleanedId}/${receiverId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        setMessages(res.data);
+      } catch (err) {
+        console.log("Gagal ambil riwayat chat:", err);
+      }
+    };
+
+    fetchChatHistory();
+  }, [receiverId]);
 
   return (
     <Background>
