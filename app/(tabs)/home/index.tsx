@@ -35,20 +35,33 @@ export default function HomeScreen() {
   const [selectedTab, setSelectedTab] = useState("Berlangsung");
   const [selectedDate, setSelectedDate] = useState(moment().format("DD/MM/YY"));
   const [chatList, setChatList] = useState<any[]>([]);
-  
+  const fallbackImageUrl ="/assets/images/foto.jpeg"; // Atau URL default lainnya
+
   const filteredChats = chatList.filter(
     (chat) => moment(chat.lastMessageDate).format("DD/MM/YY") === selectedDate
   );
   const fetchChatList = async (userId: string, token: string) => {
     try {
-      const response = await axios.get(`${BASE_URL}/chat/chatlist/${userId}`, {
+      const response = await axios.get(`${BASE_URL}/chatlist/${userId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      setChatList(response.data); // Asumsi response berisi array user { _id, nama_dokter/nama_pasien, foto }
+      console.log("Chat list response:", response.data);
+      const enrichedChatList = response.data.map((chat: any) => {
+        return {
+          ...chat,
+          nama_masyarakat: chat.participant?.nama || "Pasien",
+          foto_masyarakat: chat.participant?.foto_profil || fallbackImageUrl,
+          id_masyarakat: chat.participant?._id || "",
+        };
+      });
+      
+      
+
+      setChatList(enrichedChatList);
     } catch (error) {
-      console.log("Gagal ambil chat list", error);
+      console.log("Gagal ambil chat list fe", error);
     }
   };
   
@@ -85,7 +98,6 @@ export default function HomeScreen() {
       console.log("Gagal ambil data user", error);
     }
   };
-  
 
   useFocusEffect(
     useCallback(() => {
@@ -93,74 +105,74 @@ export default function HomeScreen() {
     }, [])
   );
   const MarqueeText = ({ text, style }: { text: string; style?: any }) => {
-  const screenWidth = Dimensions.get("window").width;
-  const containerWidth = screenWidth * 0.7;
+    const screenWidth = Dimensions.get("window").width;
+    const containerWidth = screenWidth * 0.7;
 
-  const translateX = useRef(new Animated.Value(0)).current;
-  const [textWidth, setTextWidth] = useState(0);
-  const animationRef = useRef<Animated.CompositeAnimation | null>(null);
+    const translateX = useRef(new Animated.Value(0)).current;
+    const [textWidth, setTextWidth] = useState(0);
+    const animationRef = useRef<Animated.CompositeAnimation | null>(null);
 
-  useEffect(() => {
-    if (textWidth > containerWidth) {
-      const duration = (textWidth + containerWidth) * 30;
+    useEffect(() => {
+      if (textWidth > containerWidth) {
+        const duration = (textWidth + containerWidth) * 30;
 
-      animationRef.current = Animated.loop(
-        Animated.sequence([
-          Animated.timing(translateX, {
-            toValue: -textWidth,
-            duration,
-            useNativeDriver: true,
-            easing: Easing.linear,
-          }),
-          Animated.timing(translateX, {
-            toValue: containerWidth,
-            duration: 0,
-            useNativeDriver: true,
-          }),
-        ])
-      );
+        animationRef.current = Animated.loop(
+          Animated.sequence([
+            Animated.timing(translateX, {
+              toValue: -textWidth,
+              duration,
+              useNativeDriver: true,
+              easing: Easing.linear,
+            }),
+            Animated.timing(translateX, {
+              toValue: containerWidth,
+              duration: 0,
+              useNativeDriver: true,
+            }),
+          ])
+        );
 
-      translateX.setValue(containerWidth);
-      animationRef.current.start();
-    } else {
-      // Reset posisi ke awal jika tidak jalan
-      translateX.setValue(0);
-    }
+        translateX.setValue(containerWidth);
+        animationRef.current.start();
+      } else {
+        // Reset posisi ke awal jika tidak jalan
+        translateX.setValue(0);
+      }
 
-    return () => {
-      animationRef.current?.stop();
-    };
-  }, [textWidth, containerWidth]);
+      return () => {
+        animationRef.current?.stop();
+      };
+    }, [textWidth, containerWidth]);
 
-  return (
-    <View style={[styles.container, { width: containerWidth }]}>
-      <Animated.View
-        style={{
-          transform: [{ translateX }],
-          flexDirection: "row",
-        }}
-      >
-        <Text
-          style={[style, { flexShrink: 0 }]}
-          onLayout={(e) => setTextWidth(e.nativeEvent.layout.width)}
-          numberOfLines={1}
-          ellipsizeMode="clip"
+    return (
+      <View style={[styles.container, { width: containerWidth }]}>
+        <Animated.View
+          style={{
+            transform: [{ translateX }],
+            flexDirection: "row",
+          }}
         >
-          {text + "     "}
-        </Text>
-        {textWidth > containerWidth && (
           <Text
             style={[style, { flexShrink: 0 }]}
+            onLayout={(e) => setTextWidth(e.nativeEvent.layout.width)}
             numberOfLines={1}
             ellipsizeMode="clip"
           >
             {text + "     "}
           </Text>
-        )}
-      </Animated.View>
-    </View>
-  );
-};
+          {textWidth > containerWidth && (
+            <Text
+              style={[style, { flexShrink: 0 }]}
+              numberOfLines={1}
+              ellipsizeMode="clip"
+            >
+              {text + "     "}
+            </Text>
+          )}
+        </Animated.View>
+      </View>
+    );
+  };
 
   return (
     <Background>
@@ -212,26 +224,38 @@ export default function HomeScreen() {
               <TouchableOpacity
                 key={chat._id}
                 className="flex flex-col"
-                onPress={() => router.push("/chat/[id]")}
+                onPress={() => router.push(`/chat/${chat._id}`)}
               >
                 <View className="flex flex-row items-center">
                   <Image
-                    source={images.foto} // <- atau: { uri: chat.foto || fallbackImage }
+                    source={{ uri: chat.foto_masyarakat || fallbackImageUrl }}
                     className="h-16 w-16 rounded-full border border-gray-300"
                     resizeMode="cover"
                   />
+
                   <View className="ml-4 flex-1">
                     <View className="flex flex-row justify-between">
                       <Text className="font-semibold text-lg">
-                        {chat.username_masyarakat || chat.nama_dokter}
+                        {chat.nama_masyarakat || "Masyarakat"}
                       </Text>
                       <Text className="text-gray-500 text-sm">
                         {moment(chat.lastMessageDate).format("DD/MM/YY")}
                       </Text>
                     </View>
-                    <Text className="text-gray-700 mt-1">
-                      {chat.lastMessage || "Belum ada pesan"}
-                    </Text>
+                    <View className="flex flex-row justify-between">
+                      <Text className="text-gray-700 mt-1">
+                        {chat.lastMessage || "Belum ada pesan"}
+                      </Text>
+                      {dokterId &&
+                        chat.unreadCount &&
+                        chat.unreadCount[dokterId] > 0 && (
+                          <View className="bg-red-500 rounded-full px-2 py-1 ml-2">
+                            <Text className="text-white text-xs">
+                              {chat.unreadCount[dokterId]}
+                            </Text>
+                          </View>
+                        )}
+                    </View>
                   </View>
                 </View>
                 <View className="w-full h-[2px] bg-skyDark my-2" />
