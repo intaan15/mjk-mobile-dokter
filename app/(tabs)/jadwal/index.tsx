@@ -58,10 +58,20 @@ const ScheduleScreen = () => {
               },
             }
           );
+
+          // console.log("Res data jadwal:", res.data);
+
           setJadwal(res.data);
+
           const datesWithSchedule = res.data
-            .filter((j) => j.jam && j.jam.length > 0)
-            .map((j) => new Date(j.tanggal).toISOString().split("T")[0]);
+            .filter((j: Jadwal) => j.jam && j.jam.length > 0)
+            .map((j: Jadwal) => {
+              const parsed = new Date(j.tanggal);
+              // console.log("Parsed tanggal:", j.tanggal, "=>", parsed);
+              return parsed.toISOString().split("T")[0];
+            });
+
+          // console.log("Available dates:", datesWithSchedule);
           setAvailableDates(datesWithSchedule);
         } catch (err) {
           console.log("Error fetching jadwal:", err);
@@ -74,11 +84,16 @@ const ScheduleScreen = () => {
   useEffect(() => {
     const selected = selectedDate.toISOString().split("T")[0];
     const item = jadwal.find((j) => j.tanggal.split("T")[0] === selected);
-    // setAvailableTimes(item?.jam?.filter((j) => j.available) || []);
+
+    // console.log("Selected date:", selected);
+    // console.log("Matching jadwal:", item);
+    // console.log("Jam tersedia:", item?.jam);
+
     setAvailableTimes(item?.jam || []);
   }, [selectedDate, jadwal]);
 
   const handleDateChange = (date: Date) => {
+    console.log("Selected date changed:", date);
     setSelectedDate(date);
   };
 
@@ -88,18 +103,20 @@ const ScheduleScreen = () => {
 
       {/* Header */}
       <View className="flex flex-row justify-between items-center mb-4 w-full px-5 py-3 pt-10">
-          <View className="flex flex-row items-center">
-            <TouchableOpacity onPress={() => router.replace("./homescreen")}>
-              <MaterialIcons name="arrow-back-ios" size={24} color="#025F96" />
-            </TouchableOpacity>
-            <Text className="text-skyDark font-bold text-xl ml-2">Jadwal Dokter</Text>
-          </View>
-          <Image
-            className="h-10 w-12"
-            source={images.logo}
-            resizeMode="contain"
-          />
+        <View className="flex flex-row items-center">
+          <TouchableOpacity onPress={() => router.replace("./homescreen")}>
+            <MaterialIcons name="arrow-back-ios" size={24} color="#025F96" />
+          </TouchableOpacity>
+          <Text className="text-skyDark font-bold text-xl ml-2">
+            Jadwal Dokter
+          </Text>
         </View>
+        <Image
+          className="h-10 w-12"
+          source={images.logo}
+          resizeMode="contain"
+        />
+      </View>
 
       {/* Main Content */}
       <ScrollView
@@ -147,6 +164,12 @@ const ScheduleScreen = () => {
                             ? "#025F96"
                             : "#025F96"
                           : "#D1D5DB",
+                      }}
+                      onPress={() => {
+                        if (slot.available) {
+                          setSelectedTime(slot.time);
+                          console.log("Waktu dipilih:", slot.time);
+                        }
                       }}
                     >
                       <Text

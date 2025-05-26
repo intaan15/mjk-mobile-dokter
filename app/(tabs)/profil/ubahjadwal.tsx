@@ -64,21 +64,32 @@ const App = () => {
   useEffect(() => {
     const fetchJadwal = async () => {
       try {
+        console.log("=== FETCH JADWAL DIMULAI ===");
+
+        console.log("BASE_URL:", BASE_URL);
+
         const id = await SecureStore.getItemAsync("userId");
         const token = await SecureStore.getItemAsync("userToken");
-        if (!id) {
-          console.log("User ID tidak ditemukan di SecureStore.");
+
+        console.log("User ID:", id);
+        console.log("User Token:", token);
+
+        if (!id || !token) {
+          console.log("ID atau token tidak ditemukan.");
           return;
         }
-        const res = await axios.get(
-          `${BASE_URL}/dokter/jadwal/${id}`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+
+        const url = `${BASE_URL}/dokter/jadwal/${id}`;
+        console.log("URL yang diakses:", url);
+
+        const res = await axios.get(url, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        console.log("Data jadwal berhasil diambil:", res.data);
 
         setJadwal(res.data);
 
@@ -87,10 +98,27 @@ const App = () => {
           .map((j) => new Date(j.tanggal).toISOString().split("T")[0]);
 
         setAvailableDates(datesWithSchedule);
+
+        console.log("Tanggal dengan jadwal:", datesWithSchedule);
       } catch (err) {
-        console.log("Error fetching jadwal:", err);
+        console.log("❌ Error saat fetch jadwal:", err);
+
+        if (axios.isAxiosError(err)) {
+          console.log(
+            "Axios Error - Response Status:",
+            err.response?.status
+          );
+          console.log("Axios Error - Response Data:", err.response?.data);
+          console.log(
+            "Axios Error - Response Headers:",
+            err.response?.headers
+          );
+        } else {
+          console.log("Non-Axios error:", err);
+        }
       }
     };
+    
 
     fetchJadwal();
   }, []);

@@ -116,33 +116,20 @@ export default function JadwalScreen() {
       const token = await SecureStore.getItemAsync("userToken");
       console.log("Token:", token);
 
-      if (newStatus === "diterima") {
-        // 🔁 Gunakan endpoint terima + auto-chat
-        const res = await axios.post(
-          `${BASE_URL}/jadwal/${id}/terima`,
-          {}, // Body kosong
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+      // Ganti status jadwal langsung pakai PATCH
+      const res = await axios.patch(
+        `${BASE_URL}/jadwal/update/status/${id}`,
+        { status_konsul: newStatus },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-        console.log("Jadwal diterima dan chat terkirim:", res.data);
-      } else {
-        // ❌ Tolak: tetap pakai PATCH biasa
-        await axios.patch(
-          `${BASE_URL}/jadwal/update/status/${id}`,
-          { status_konsul: newStatus },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-      }
+      console.log("Status jadwal berhasil diperbarui:", res.data);
 
-      // Update state lokal
+      // Update state lokal agar UI langsung merefleksikan perubahan
       setJadwal((prev) =>
         prev.map((jadwal) =>
           jadwal._id === id ? { ...jadwal, status_konsul: newStatus } : jadwal
@@ -159,6 +146,7 @@ export default function JadwalScreen() {
       );
     }
   };
+  
   
   
 
