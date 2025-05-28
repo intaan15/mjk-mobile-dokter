@@ -31,11 +31,14 @@ export default function ChatScreen() {
   const [messages, setMessages] = useState([]);
   const [previewImage, setPreviewImage] = useState(null);
   const [userId, setUserId] = useState("");
-  const { id: receiverId } = useLocalSearchParams();
+  const { receiverId } = useLocalSearchParams();
+  // const { id } = useLocalSearchParams();
+  // const receiverId = id?.toString(); // pastikan string
 
   // ✅ Ambil data user dari backend
+  // Ambil userId dan username sekali di awal
   useEffect(() => {
-    const fetchUsername = async () => {
+    const fetchUser = async () => {
       try {
         const rawUserId = await SecureStore.getItemAsync("userId");
         const token = await SecureStore.getItemAsync("userToken");
@@ -47,34 +50,50 @@ export default function ChatScreen() {
         }
 
         const cleanedUserId = rawUserId.replace(/"/g, "");
-        console.log("[DEBUG] Fetched userId:", cleanedUserId);
+        setUserId(cleanedUserId);
 
         const response = await axios.get(
           `${BASE_URL}/dokter/getbyid/${cleanedUserId}`,
           {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           }
         );
 
-        const user = response.data;
-        if (user && user.nama_dokter) {
-          console.log("[DEBUG] Fetched username:", user.nama_dokter);
-          setUsername(user.nama_dokter);
-        } else {
-          console.warn("Nama user tidak ditemukan dalam response.");
+        if (response.data?.nama_dokter) {
+          setUsername(response.data.nama_dokter);
         }
-
-        setUserId(cleanedUserId);
       } catch (error) {
-        console.error("Gagal fetch username:", error);
+        console.log("Gagal fetch user data:", error);
       }
     };
 
-    fetchUsername();
+    fetchUser();
   }, []);
+
+  // Fetch chat history setelah userId dan receiverId siap
+  useEffect(() => {
+    const fetchChatHistory = async () => {
+      try {
+        if (!userId || !receiverId) {
+          console.warn("UserId atau receiverId kosong, skip fetch.");
+          return;
+        }
+
+        const token = await SecureStore.getItemAsync("userToken");
+        const res = await axios.get(
+          `${BASE_URL}/chat/history/${userId}/${receiverId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setMessages(res.data);
+      } catch (error) {
+        console.log("Gagal ambil riwayat chat:", error);
+      }
+    };
+
+    fetchChatHistory();
+  }, [userId, receiverId]);
 
   useEffect(() => {
     console.log("[DEBUG] Current username:", username);
@@ -111,41 +130,6 @@ export default function ChatScreen() {
       console.warn("Gagal kirim pesan: Ada data kosong.");
     }
   };
-
-  // ✅ Ambil riwayat chat dari backend
-  useEffect(() => {
-    const fetchChatHistory = async () => {
-      try {
-        const token = await SecureStore.getItemAsync("userToken");
-        const rawUserId = await SecureStore.getItemAsync("userId");
-        const cleanedUserId = rawUserId?.replace(/"/g, "");
-
-        console.log("[DEBUG] cleanedUserId:", cleanedUserId);
-        console.log("[DEBUG] receiverId:", receiverId);
-
-        if (!cleanedUserId || !receiverId) {
-          console.warn("Tidak ada userId atau receiverId untuk fetch chat.");
-          return;
-        }
-
-        const res = await axios.get(
-          `${BASE_URL}/chat/history/${cleanedUserId}/${receiverId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        console.log("[DEBUG] Chat history fetched:", res.data);
-        setMessages(res.data);
-      } catch (err) {
-        console.log("Gagal ambil riwayat chat:", err);
-      }
-    };
-
-    fetchChatHistory();
-  }, [receiverId]);
 
   console.log("[DEBUG] Messages state after fetch:", messages);
   console.log("[DEBUG] User ID:", userId);
@@ -217,7 +201,7 @@ export default function ChatScreen() {
         console.warn("Pengambilan gambar dibatalkan atau tidak valid.");
       }
     } catch (error) {
-      console.error("Gagal mengirim gambar:", error);
+      console.log("Gagal mengirim gambar:", error);
     }
   };
 
