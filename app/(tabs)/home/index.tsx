@@ -47,7 +47,9 @@ export default function HomeScreen() {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log("Chat list response:", response.data);
+
+      // console.log("RAW chatlist data:", response.data); // ⬅️ Tambahkan ini
+
       const enrichedChatList = response.data.map((chat: any) => {
         return {
           ...chat,
@@ -56,14 +58,13 @@ export default function HomeScreen() {
           id_masyarakat: chat.participant?._id || "",
         };
       });
-      
-      
 
       setChatList(enrichedChatList);
     } catch (error) {
       console.log("Gagal ambil chat list fe", error);
     }
   };
+  
   
 
   const fetchUserData = async () => {
@@ -224,7 +225,22 @@ export default function HomeScreen() {
               <TouchableOpacity
                 key={chat._id}
                 className="flex flex-col"
-                onPress={() => router.push(`/chat/${chat._id}`)}
+                onPress={() => {
+                  const currentUserId = dokterId;
+                  const otherParticipant = chat.participant;
+
+                  if (currentUserId && otherParticipant?._id) {
+                    router.push({
+                      pathname: "/chat/[id]",
+                      params: {
+                        senderId: currentUserId,
+                        receiverId: otherParticipant._id,
+                      },
+                    });
+                  } else {
+                    console.warn("Data participant tidak lengkap:", chat);
+                  }
+                }}
               >
                 <View className="flex flex-row items-center">
                   <Image

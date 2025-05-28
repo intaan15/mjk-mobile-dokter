@@ -33,24 +33,24 @@ export default function ChatScreen() {
   const [userId, setUserId] = useState("");
   const { id: receiverId } = useLocalSearchParams();
 
-
-
-  // Ambil data user dari backend
+  // ✅ Ambil data user dari backend
   useEffect(() => {
     const fetchUsername = async () => {
       try {
-        const userId = await SecureStore.getItemAsync("userId");
+        const rawUserId = await SecureStore.getItemAsync("userId");
         const token = await SecureStore.getItemAsync("userToken");
 
-        if (!userId || !token) {
-          console.log("Token atau ID tidak ditemukan.");
+        if (!rawUserId || !token) {
+          console.warn("Token atau ID tidak ditemukan.");
           router.push("/screens/signin");
           return;
         }
 
-        const cleanedId = userId.replace(/"/g, "");
+        const cleanedUserId = rawUserId.replace(/"/g, "");
+        console.log("[DEBUG] Fetched userId:", cleanedUserId);
+
         const response = await axios.get(
-          `${BASE_URL}/dokter/getbyid/${cleanedId}`,
+          `${BASE_URL}/dokter/getbyid/${cleanedUserId}`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -61,33 +61,29 @@ export default function ChatScreen() {
 
         const user = response.data;
         if (user && user.nama_dokter) {
+          console.log("[DEBUG] Fetched username:", user.nama_dokter);
           setUsername(user.nama_dokter);
         } else {
-          console.log("Nama user tidak ditemukan dalam response.");
-          // router.push("/screens/signin");
+          console.warn("Nama user tidak ditemukan dalam response.");
         }
-        setUserId(cleanedId);
 
+        setUserId(cleanedUserId);
       } catch (error) {
-        console.log("Gagal fetch username:", error);
-        // router.push("/screens/signin");
+        console.error("Gagal fetch username:", error);
       }
-      
     };
 
     fetchUsername();
-    
-  }, []
-);
+  }, []);
 
   useEffect(() => {
-    console.log("Current username:", username);
+    console.log("[DEBUG] Current username:", username);
   }, [username]);
 
-  // Terima pesan dari socket
+  // ✅ Terima pesan dari socket
   useEffect(() => {
     socket.on("chat message", (msg) => {
-      console.log("Received message from socket:", msg);
+      console.log("[DEBUG] Received message via socket:", msg);
       setMessages((prev) => [...prev, msg]);
     });
 
@@ -96,53 +92,68 @@ export default function ChatScreen() {
     };
   }, []);
 
-  // Kirim pesan teks
-  const sendMessage = () => {
-    if (message.trim() && username) {
+  // ✅ Kirim pesan teks
+  const sendMessage = async () => {
+    if (message.trim() && username && userId && receiverId) {
       const msgData = {
         text: message,
         sender: username,
+        senderId: userId,
+        receiverId: receiverId,
         type: "text",
+        waktu: new Date().toISOString(),
       };
+
+      console.log("[DEBUG] Sending text message:", msgData);
       socket.emit("chat message", msgData);
       setMessage("");
+    } else {
+      console.warn("Gagal kirim pesan: Ada data kosong.");
     }
   };
 
-  // Kirim gambar dari galeri/kamera
-  const sendImage = async (fromCamera = false) => {
-    try {
-      let result;
-      if (fromCamera) {
-        result = await ImagePicker.launchCameraAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
-          quality: 0.7,
-          base64: true,
-        });
-      } else {
-        result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
-          quality: 0.7,
-          base64: true,
-        });
-      }
+  // ✅ Ambil riwayat chat dari backend
+  useEffect(() => {
+    const fetchChatHistory = async () => {
+      try {
+        const token = await SecureStore.getItemAsync("userToken");
+        const rawUserId = await SecureStore.getItemAsync("userId");
+        const cleanedUserId = rawUserId?.replace(/"/g, "");
 
-      if (!result.canceled && result.assets?.length > 0) {
-        const base64Image = `data:image/jpeg;base64,${result.assets[0].base64}`;
-        socket.emit("chat message", {
-          sender: username,
-          image: base64Image,
-          type: "image",
-        });
-      }
-    } catch (error) {
-      console.log("Gagal mengirim gambar:", error);
-    }
-  };
+        console.log("[DEBUG] cleanedUserId:", cleanedUserId);
+        console.log("[DEBUG] receiverId:", receiverId);
 
-  // renderItem dipisah sebagai fungsi
+        if (!cleanedUserId || !receiverId) {
+          console.warn("Tidak ada userId atau receiverId untuk fetch chat.");
+          return;
+        }
+
+        const res = await axios.get(
+          `${BASE_URL}/chat/history/${cleanedUserId}/${receiverId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        console.log("[DEBUG] Chat history fetched:", res.data);
+        setMessages(res.data);
+      } catch (err) {
+        console.log("Gagal ambil riwayat chat:", err);
+      }
+    };
+
+    fetchChatHistory();
+  }, [receiverId]);
+
+  console.log("[DEBUG] Messages state after fetch:", messages);
+  console.log("[DEBUG] User ID:", userId);
+  console.log("[DEBUG] Receiver ID:", receiverId);
+
+  // ✅ Render pesan (teks / gambar)
   const renderItem = ({ item }) => {
-    const isSender = item.dari === userId || item.sender === username;
+    const isSender = item.senderId === userId;
 
     return (
       <View
@@ -170,34 +181,45 @@ export default function ChatScreen() {
       </View>
     );
   };
-  
 
-  useEffect(() => {
-    const fetchChatHistory = async () => {
-      try {
-        const token = await SecureStore.getItemAsync("userToken");
-        const userId = await SecureStore.getItemAsync("userId");
-        const cleanedId = userId?.replace(/"/g, "");
-
-        if (!cleanedId || !receiverId) return;
-
-        const res = await axios.get(
-          `${BASE_URL}/chat/history/${cleanedId}/${receiverId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        setMessages(res.data);
-      } catch (err) {
-        console.log("Gagal ambil riwayat chat:", err);
+  // ✅ Kirim gambar dari galeri/kamera
+  const sendImage = async (fromCamera = false) => {
+    try {
+      let result;
+      if (fromCamera) {
+        result = await ImagePicker.launchCameraAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          quality: 0.7,
+          base64: true,
+        });
+      } else {
+        result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          quality: 0.7,
+          base64: true,
+        });
       }
-    };
 
-    fetchChatHistory();
-  }, [receiverId]);
+      if (!result.canceled && result.assets?.length > 0) {
+        const base64Image = `data:image/jpeg;base64,${result.assets[0].base64}`;
+        const imgMsg = {
+          sender: username,
+          senderId: userId,
+          receiverId: receiverId,
+          image: base64Image,
+          type: "image",
+          waktu: new Date().toISOString(),
+        };
+
+        console.log("[DEBUG] Sending image message:", imgMsg);
+        socket.emit("chat message", imgMsg);
+      } else {
+        console.warn("Pengambilan gambar dibatalkan atau tidak valid.");
+      }
+    } catch (error) {
+      console.error("Gagal mengirim gambar:", error);
+    }
+  };
 
   return (
     <Background>
