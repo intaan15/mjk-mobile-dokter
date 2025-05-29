@@ -125,7 +125,7 @@ export default function ChatScreen() {
     const fetchChatHistory = async () => {
       try {
         if (!userId || !receiverId) {
-          console.warn("UserId atau receiverId kosong, skip fetch.");
+          // console.warn("UserId atau receiverId kosong, skip fetch.");
           return;
         }
 
@@ -192,6 +192,15 @@ export default function ChatScreen() {
       console.warn("Gagal kirim pesan: Ada data kosong.");
     }
   };
+
+  // useEffect(() => {
+  //   if (messages.length > 0) {
+  //     setTimeout(() => {
+  //       flatListRef.current?.scrollToEnd({ animated: false });
+  //     }, 0); // kasih delay supaya render dulu
+  //   }
+  // }, [messages]);
+  
 
 
   // console.log("[DEBUG] Messages state after fetch:", messages);
@@ -299,17 +308,15 @@ export default function ChatScreen() {
             <View style={{ flex: 1 }}>
               <FlatList
                 ref={flatListRef}
-                data={messages}
+                data={[...messages].reverse()}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={renderItem}
                 contentContainerStyle={{
                   padding: 16,
                   flexGrow: 1,
                 }}
-                onContentSizeChange={() =>
-                  flatListRef.current?.scrollToEnd({ animated: true })
-                }
                 keyboardShouldPersistTaps="handled"
+                inverted={true} // Membalik urutan pesan
               />
 
               {/* Chat Input - Pastikan ini tetap di bawah */}
