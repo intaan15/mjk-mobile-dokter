@@ -37,6 +37,9 @@ export default function ChatScreen() {
   const [previewImage, setPreviewImage] = useState(null);
   const [userId, setUserId] = useState("");
   const [receiverName, setReceiverName] = useState("");
+  const [userRole, setUserRole] = useState("");
+
+
 
   const { receiverId } = useLocalSearchParams();
   // const { id } = useLocalSearchParams();
@@ -44,7 +47,7 @@ export default function ChatScreen() {
 
   // ✅ Ambil data user dari backend
   // Ambil userId dan username sekali di awal
-  useEffect(() => {
+useEffect(() => {
     const fetchUser = async () => {
       try {
         const rawUserId = await SecureStore.getItemAsync("userId");
@@ -60,14 +63,23 @@ export default function ChatScreen() {
         setUserId(cleanedUserId);
 
         const response = await axios.get(
-          `${BASE_URL}/masyarakat/getbyid/${cleanedUserId}`,
+          `${BASE_URL}/dokter/getbyid/${cleanedUserId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
 
-        if (response.data?.nama_masyarakat) {
-          setUsername(response.data.nama_masyarakat);
+        if (response.data?.nama_dokter) {
+          setUsername(response.data.nama_dokter);
+        } else {
+          console.warn("Property nama_dokter tidak ada di response");
+        }
+
+        if (response.data?.role) {
+          setUserRole(response.data.role);
+          console.log("[DEBUG] Set user role:", response.data.role);
+        } else {
+          console.warn("Property role tidak ada di response");
         }
       } catch (error) {
         console.log("Gagal fetch user data:", error);
@@ -146,6 +158,13 @@ export default function ChatScreen() {
 
   // ✅ Kirim pesan teks
   const sendMessage = async () => {
+    console.log("[DEBUG] Tombol Kirim ditekan");
+    // console.log("username:", username);
+    // console.log("userId:", userId);
+    console.log("receiverId:", receiverId);
+    console.log("userRole:", userRole);
+    console.log("message:", message);
+
     if (message.trim() && username && userId && receiverId) {
       const msgData = {
         text: message,
@@ -153,10 +172,13 @@ export default function ChatScreen() {
         senderId: userId,
         receiverId: receiverId,
         type: "text",
+        role: userRole,
         waktu: new Date().toISOString(),
       };
 
       console.log("[DEBUG] Sending text message:", msgData);
+      console.log("[DEBUG] Socket connected:", socket.connected);
+
       socket.emit("chat message", msgData);
       setMessage("");
     } else {

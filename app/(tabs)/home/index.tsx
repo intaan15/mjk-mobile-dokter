@@ -20,6 +20,8 @@ import * as SecureStore from "expo-secure-store";
 import axios from "axios";
 import { useFocusEffect } from "@react-navigation/native";
 import { BASE_URL } from "@env";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+
 
 const { width } = Dimensions.get("window");
 
@@ -176,43 +178,45 @@ export default function HomeScreen() {
   };
 
   return (
+
     <Background>
       <View className="flex-1">
         {/* Header */}
-        <View className="relative pt-12 flex flex-col gap-4 px-6">
-          <View className="flex items-center justify-between flex-row">
+        <View className="flex flex-row justify-between items-center mb-4 w-full px-5 pt-8">
+          <View className="flex flex-row items-center">
             <Text className="text-skyDark text-2xl font-bold">Hi,</Text>
             <MarqueeText
               text={userData?.nama_dokter || "Loading..."}
               style={{ fontSize: 20, color: "#025F96", fontWeight: "bold" }}
             />
-            <Image
-              className="h-10 w-12"
-              source={images.logo}
-              resizeMode="contain"
-            />
           </View>
-          <View className="flex flex-col w-full gap-1">
-            <DatePickerComponent
-              label="Tanggal Terpilih"
-              onDateChange={(date) => {
-                const formattedDate = moment(date).format("DD/MM/YY");
-                setSelectedDate(formattedDate);
-              }}
-            />
-            <View className="w-full h-[2px] bg-skyDark" />
-          </View>
+          <Image
+            className="h-10 w-12"
+            source={images.logo}
+            resizeMode="contain"
+          />
+        </View>
 
-          <View className="flex flex-row rounded-xl border-2 border-skyDark overflow-hidden">
-            {["Berlangsung", "Selesai"].map((tab) => (
-              <TabButton
-                key={tab}
-                label={tab}
-                isActive={selectedTab === tab}
-                onPress={() => setSelectedTab(tab)}
-              />
-            ))}
-          </View>
+        <View className="flex flex-col w-full gap-1 px-5 mb-4">
+          <DatePickerComponent
+            label="Tanggal Terpilih"
+            onDateChange={(date) => {
+              const formattedDate = moment(date).format("DD/MM/YY");
+              setSelectedDate(formattedDate);
+            }}
+          />
+          <View className="w-full h-[2px] bg-skyDark" />
+        </View>
+
+        <View className="flex flex-row mx-6 rounded-xl border-2 border-skyDark overflow-hidden">
+          {["Berlangsung", "Selesai"].map((tab) => (
+            <TabButton
+              key={tab}
+              label={tab}
+              isActive={selectedTab === tab}
+              onPress={() => setSelectedTab(tab)}
+            />
+          ))}
         </View>
 
         {/* Chat List */}
@@ -262,15 +266,17 @@ export default function HomeScreen() {
                       <Text className="text-gray-700 mt-1">
                         {chat.lastMessage || "Belum ada pesan"}
                       </Text>
-                      {dokterId &&
-                        chat.unreadCount &&
-                        chat.unreadCount[dokterId] > 0 && (
-                          <View className="bg-red-500 rounded-full px-2 py-1 ml-2">
-                            <Text className="text-white text-xs">
-                              {chat.unreadCount[dokterId]}
-                            </Text>
-                          </View>
-                        )}
+                      <Text>
+                        {dokterId &&
+                          chat.unreadCount &&
+                          chat.unreadCount[dokterId] > 0 && (
+                            <View className="bg-red-500 rounded-full px-2 py-1 ml-2">
+                              <Text className="text-white text-xs">
+                                {chat.unreadCount[dokterId]}
+                              </Text>
+                            </View>
+                          )}
+                      </Text>
                     </View>
                   </View>
                 </View>
