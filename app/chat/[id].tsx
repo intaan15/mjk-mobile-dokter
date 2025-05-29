@@ -39,15 +39,13 @@ export default function ChatScreen() {
   const [receiverName, setReceiverName] = useState("");
   const [userRole, setUserRole] = useState("");
 
-
-
   const { receiverId } = useLocalSearchParams();
   // const { id } = useLocalSearchParams();
   // const receiverId = id?.toString(); // pastikan string
 
   // ✅ Ambil data user dari backend
   // Ambil userId dan username sekali di awal
-useEffect(() => {
+  useEffect(() => {
     const fetchUser = async () => {
       try {
         const rawUserId = await SecureStore.getItemAsync("userId");
@@ -103,7 +101,10 @@ useEffect(() => {
 
         if (res.data?.nama_masyarakat) {
           setReceiverName(res.data.nama_masyarakat);
-          console.log("[DEBUG] receiverName fetched:", res.data.nama_masyarakat);
+          console.log(
+            "[DEBUG] receiverName fetched:",
+            res.data.nama_masyarakat
+          );
         } else {
           console.log("[DEBUG] receiverName not found in response:", res.data);
         }
@@ -114,6 +115,13 @@ useEffect(() => {
 
     fetchReceiverName();
   }, [receiverId]);
+
+  useEffect(() => {
+    if (userId) {
+      console.log("[DEBUG] Emitting joinRoom with:", userId);
+      socket.emit("joinRoom", userId);
+    }
+  }, [userId]);
 
   // Fetch chat history setelah userId dan receiverId siap
   useEffect(() => {
@@ -146,13 +154,15 @@ useEffect(() => {
 
   // ✅ Terima pesan dari socket
   useEffect(() => {
-    socket.on("chat message", (msg) => {
+    const handleIncomingMessage = (msg) => {
       console.log("[DEBUG] Received message via socket:", msg);
       setMessages((prev) => [...prev, msg]);
-    });
+    };
+
+    socket.on("chat message", handleIncomingMessage);
 
     return () => {
-      socket.off("chat message");
+      socket.off("chat message", handleIncomingMessage);
     };
   }, []);
 
@@ -239,7 +249,7 @@ useEffect(() => {
           isSender ? "bg-skyDark self-end" : "bg-[#C3E9FF] self-start"
         }`}
       >
-{/* 
+        {/* 
         <Text className={`font-bold ${isSender ? "text-white" : "text-black"}`}>
           {isSender ? "Saya" : item.sender || item.role}
         </Text> */}
