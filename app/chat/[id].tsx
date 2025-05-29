@@ -31,6 +31,8 @@ export default function ChatScreen() {
   const [messages, setMessages] = useState([]);
   const [previewImage, setPreviewImage] = useState(null);
   const [userId, setUserId] = useState("");
+  const [receiverName, setReceiverName] = useState("");
+
   const { receiverId } = useLocalSearchParams();
   // const { id } = useLocalSearchParams();
   // const receiverId = id?.toString(); // pastikan string
@@ -53,14 +55,14 @@ export default function ChatScreen() {
         setUserId(cleanedUserId);
 
         const response = await axios.get(
-          `${BASE_URL}/dokter/getbyid/${cleanedUserId}`,
+          `${BASE_URL}/masyarakat/getbyid/${cleanedUserId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
 
-        if (response.data?.nama_dokter) {
-          setUsername(response.data.nama_dokter);
+        if (response.data?.nama_masyarakat) {
+          setUsername(response.data.nama_masyarakat);
         }
       } catch (error) {
         console.log("Gagal fetch user data:", error);
@@ -69,6 +71,32 @@ export default function ChatScreen() {
 
     fetchUser();
   }, []);
+
+  useEffect(() => {
+    const fetchReceiverName = async () => {
+      if (!receiverId) return;
+      try {
+        const token = await SecureStore.getItemAsync("userToken");
+        const res = await axios.get(
+          `${BASE_URL}/masyarakat/getbyid/${receiverId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        if (res.data?.nama_masyarakat) {
+          setReceiverName(res.data.nama_masyarakat);
+          console.log("[DEBUG] receiverName fetched:", res.data.nama_masyarakat);
+        } else {
+          console.log("[DEBUG] receiverName not found in response:", res.data);
+        }
+      } catch (error) {
+        console.log("Gagal fetch nama receiver:", error);
+      }
+    };
+
+    fetchReceiverName();
+  }, [receiverId]);
 
   // Fetch chat history setelah userId dan receiverId siap
   useEffect(() => {
@@ -131,7 +159,7 @@ export default function ChatScreen() {
     }
   };
 
-  console.log("[DEBUG] Messages state after fetch:", messages);
+  // console.log("[DEBUG] Messages state after fetch:", messages);
   console.log("[DEBUG] User ID:", userId);
   console.log("[DEBUG] Receiver ID:", receiverId);
 
@@ -139,15 +167,55 @@ export default function ChatScreen() {
   const renderItem = ({ item }) => {
     const isSender = item.senderId === userId;
 
+    // ✅ Kirim gambar dari galeri/kamera
+    const sendImage = async (fromCamera = false) => {
+      try {
+        let result;
+        if (fromCamera) {
+          result = await ImagePicker.launchCameraAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            quality: 0.7,
+            base64: true,
+          });
+        } else {
+          result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            quality: 0.7,
+            base64: true,
+          });
+        }
+
+        if (!result.canceled && result.assets?.length > 0) {
+          const base64Image = `data:image/jpeg;base64,${result.assets[0].base64}`;
+          const imgMsg = {
+            sender: username,
+            senderId: userId,
+            receiverId: receiverId,
+            image: base64Image,
+            type: "image",
+            waktu: new Date().toISOString(),
+          };
+
+          console.log("[DEBUG] Sending image message:", imgMsg);
+          socket.emit("chat message", imgMsg);
+        } else {
+          console.warn("Pengambilan gambar dibatalkan atau tidak valid.");
+        }
+      } catch (error) {
+        console.log("Gagal mengirim gambar:", error);
+      }
+    };
+
     return (
       <View
         className={`rounded-[3rem] p-4 px-4 my-1 max-w-[80%] ${
           isSender ? "bg-skyDark self-end" : "bg-[#C3E9FF] self-start"
         }`}
       >
+{/* 
         <Text className={`font-bold ${isSender ? "text-white" : "text-black"}`}>
           {isSender ? "Saya" : item.sender || item.role}
-        </Text>
+        </Text> */}
 
         {item.type === "image" && item.image ? (
           <TouchableOpacity onPress={() => setPreviewImage(item.image)}>
@@ -166,45 +234,6 @@ export default function ChatScreen() {
     );
   };
 
-  // ✅ Kirim gambar dari galeri/kamera
-  const sendImage = async (fromCamera = false) => {
-    try {
-      let result;
-      if (fromCamera) {
-        result = await ImagePicker.launchCameraAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
-          quality: 0.7,
-          base64: true,
-        });
-      } else {
-        result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
-          quality: 0.7,
-          base64: true,
-        });
-      }
-
-      if (!result.canceled && result.assets?.length > 0) {
-        const base64Image = `data:image/jpeg;base64,${result.assets[0].base64}`;
-        const imgMsg = {
-          sender: username,
-          senderId: userId,
-          receiverId: receiverId,
-          image: base64Image,
-          type: "image",
-          waktu: new Date().toISOString(),
-        };
-
-        console.log("[DEBUG] Sending image message:", imgMsg);
-        socket.emit("chat message", imgMsg);
-      } else {
-        console.warn("Pengambilan gambar dibatalkan atau tidak valid.");
-      }
-    } catch (error) {
-      console.log("Gagal mengirim gambar:", error);
-    }
-  };
-
   return (
     <Background>
       <View className="flex-1">
@@ -215,7 +244,7 @@ export default function ChatScreen() {
               <MaterialIcons name="arrow-back-ios" size={24} color="#025F96" />
             </TouchableOpacity>
             <Text className="text-skyDark font-bold text-xl ml-2">
-              Zuditanit
+              {receiverName ? receiverName : "Loading..."}
             </Text>
           </View>
           <Image
