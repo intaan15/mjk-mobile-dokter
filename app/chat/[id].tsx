@@ -11,7 +11,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "expo-router";
 import Background from "../components/background";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -26,7 +26,7 @@ import { useLocalSearchParams } from "expo-router";
 
 
 const socket = io("https://mjk-backend-production.up.railway.app", {
-  transports: ["websocket"], // <--- penting supaya pakai websocket langsung
+  transports: ["websocket"], // 
 });
 
 export default function ChatScreen() {
@@ -38,13 +38,10 @@ export default function ChatScreen() {
   const [userId, setUserId] = useState("");
   const [receiverName, setReceiverName] = useState("");
   const [userRole, setUserRole] = useState("");
+  const flatListRef = useRef<FlatList>(null);
+
 
   const { receiverId } = useLocalSearchParams();
-  // const { id } = useLocalSearchParams();
-  // const receiverId = id?.toString(); // pastikan string
-
-  // ✅ Ambil data user dari backend
-  // Ambil userId dan username sekali di awal
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -75,7 +72,7 @@ export default function ChatScreen() {
 
         if (response.data?.role) {
           setUserRole(response.data.role);
-          console.log("[DEBUG] Set user role:", response.data.role);
+          // console.log("[DEBUG] Set user role:", response.data.role);
         } else {
           console.warn("Property role tidak ada di response");
         }
@@ -101,10 +98,10 @@ export default function ChatScreen() {
 
         if (res.data?.nama_masyarakat) {
           setReceiverName(res.data.nama_masyarakat);
-          console.log(
-            "[DEBUG] receiverName fetched:",
-            res.data.nama_masyarakat
-          );
+          // console.log(
+          //   "[DEBUG] receiverName fetched:",
+          //   res.data.nama_masyarakat
+          // );
         } else {
           console.log("[DEBUG] receiverName not found in response:", res.data);
         }
@@ -118,7 +115,7 @@ export default function ChatScreen() {
 
   useEffect(() => {
     if (userId) {
-      console.log("[DEBUG] Emitting joinRoom with:", userId);
+      // console.log("[DEBUG] Emitting joinRoom with:", userId);
       socket.emit("joinRoom", userId);
     }
   }, [userId]);
@@ -149,13 +146,13 @@ export default function ChatScreen() {
   }, [userId, receiverId]);
 
   useEffect(() => {
-    console.log("[DEBUG] Current username:", username);
+    // console.log("[DEBUG] Current username:", username);
   }, [username]);
 
   // ✅ Terima pesan dari socket
   useEffect(() => {
     const handleIncomingMessage = (msg) => {
-      console.log("[DEBUG] Received message via socket:", msg);
+      // console.log("[DEBUG] Received message via socket:", msg);
       setMessages((prev) => [...prev, msg]);
     };
 
@@ -168,12 +165,12 @@ export default function ChatScreen() {
 
   // ✅ Kirim pesan teks
   const sendMessage = async () => {
-    console.log("[DEBUG] Tombol Kirim ditekan");
+    // console.log("[DEBUG] Tombol Kirim ditekan");
     // console.log("username:", username);
     // console.log("userId:", userId);
-    console.log("receiverId:", receiverId);
-    console.log("userRole:", userRole);
-    console.log("message:", message);
+    // console.log("receiverId:", receiverId);
+    // console.log("userRole:", userRole);
+    // console.log("message:", message);
 
     if (message.trim() && username && userId && receiverId) {
       const msgData = {
@@ -186,8 +183,8 @@ export default function ChatScreen() {
         waktu: new Date().toISOString(),
       };
 
-      console.log("[DEBUG] Sending text message:", msgData);
-      console.log("[DEBUG] Socket connected:", socket.connected);
+      // console.log("[DEBUG] Sending text message:", msgData);
+      // console.log("[DEBUG] Socket connected:", socket.connected);
 
       socket.emit("chat message", msgData);
       setMessage("");
@@ -196,9 +193,10 @@ export default function ChatScreen() {
     }
   };
 
+
   // console.log("[DEBUG] Messages state after fetch:", messages);
-  console.log("[DEBUG] User ID:", userId);
-  console.log("[DEBUG] Receiver ID:", receiverId);
+  // console.log("[DEBUG] User ID:", userId);
+  // console.log("[DEBUG] Receiver ID:", receiverId);
 
   // ✅ Render pesan (teks / gambar)
   const renderItem = ({ item }) => {
@@ -300,6 +298,7 @@ export default function ChatScreen() {
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View style={{ flex: 1 }}>
               <FlatList
+                ref={flatListRef}
                 data={messages}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={renderItem}
@@ -307,6 +306,9 @@ export default function ChatScreen() {
                   padding: 16,
                   flexGrow: 1,
                 }}
+                onContentSizeChange={() =>
+                  flatListRef.current?.scrollToEnd({ animated: true })
+                }
                 keyboardShouldPersistTaps="handled"
               />
 
