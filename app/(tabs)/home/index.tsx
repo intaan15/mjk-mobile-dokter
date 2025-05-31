@@ -35,13 +35,36 @@ export default function HomeScreen() {
   const [dokterId, setDokterId] = useState<string | null>(null);
   const router = useRouter();
   const [selectedTab, setSelectedTab] = useState("Berlangsung");
-  const [selectedDate, setSelectedDate] = useState(moment().format("DD/MM/YY"));
   const [chatList, setChatList] = useState<any[]>([]);
+  
   const fallbackImageUrl ="/assets/images/foto.jpeg"; // Atau URL default lainnya
+  // const [selectedDate, setSelectedDate] = useState(moment().format("DD/MM/YY"));
+  // const filteredChats = chatList.filter(
+  //   (chat) => moment(chat.lastMessageDate).format("DD/MM/YY") === selectedDate
+  // );
+  // const filteredChats = chatList.filter((chat) => chat.status === selectedTab);
+  const [filteredChats, setFilteredChats] = useState<any[]>([]);
 
-  const filteredChats = chatList.filter(
-    (chat) => moment(chat.lastMessageDate).format("DD/MM/YY") === selectedDate
-  );
+
+  console.log("Filtered chats:", filteredChats);
+  console.log("Chat list:", chatList);
+  
+  const filterChatsByTab = (tab: string, chats: any[]) => {
+    const now = moment();
+
+    return chats.filter((chat) => {
+      const lastDate = moment(chat.lastMessageDate);
+
+      if (tab === "Berlangsung") {
+        return now.diff(lastDate, "days") <= 1;
+      } else {
+        return now.diff(lastDate, "days") > 1;
+      }
+    });
+  };
+  
+
+
   const fetchChatList = async (userId: string, token: string) => {
     try {
       const response = await axios.get(`${BASE_URL}/chatlist/${userId}`, {
@@ -65,6 +88,7 @@ export default function HomeScreen() {
     } catch (error) {
       console.log("Gagal ambil chat list fe", error);
     }
+    
   };
   
   
@@ -149,7 +173,7 @@ export default function HomeScreen() {
 
     return (
       <View style={[styles.container, { width: containerWidth }]}>
-        <Animated.View
+        <Animated.View 
           style={{
             transform: [{ translateX }],
             flexDirection: "row",
@@ -178,7 +202,6 @@ export default function HomeScreen() {
   };
 
   return (
-
     <Background>
       <View className="flex-1">
         {/* Header */}
@@ -197,24 +220,18 @@ export default function HomeScreen() {
           />
         </View>
 
-        <View className="flex flex-col w-full gap-1 px-5 mb-4">
-          <DatePickerComponent
-            label="Tanggal Terpilih"
-            onDateChange={(date) => {
-              const formattedDate = moment(date).format("DD/MM/YY");
-              setSelectedDate(formattedDate);
-            }}
-          />
-          <View className="w-full h-[2px] bg-skyDark" />
-        </View>
-
-        <View className="flex flex-row mx-6 rounded-xl border-2 border-skyDark overflow-hidden">
+        {/* Menu Tab */}
+        <View className="flex flex-row mx-6 rounded-xl border-2 border-skyDark overflow-hidden mb-5">
           {["Berlangsung", "Selesai"].map((tab) => (
             <TabButton
               key={tab}
               label={tab}
               isActive={selectedTab === tab}
-              onPress={() => setSelectedTab(tab)}
+              onPress={() => {
+                setSelectedTab(tab);
+                const updatedFiltered = filterChatsByTab(tab, chatList);
+                setFilteredChats(updatedFiltered);
+              }}
             />
           ))}
         </View>
@@ -225,6 +242,7 @@ export default function HomeScreen() {
             className="px-6 py-4"
             contentContainerStyle={{ paddingBottom: 80 }}
           >
+            {/* {filteredChats.map((chat) => ( */}
             {filteredChats.map((chat) => (
               <TouchableOpacity
                 key={chat._id}
@@ -254,29 +272,38 @@ export default function HomeScreen() {
                   />
 
                   <View className="ml-4 flex-1">
-                    <View className="flex flex-row justify-between">
-                      <Text className="font-semibold text-lg">
+                    <View className="flex flex-row justify-between items-center">
+                      <Text
+                        className="font-semibold text-lg max-w-[70%]"
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                      >
                         {chat.nama_masyarakat || "Masyarakat"}
                       </Text>
                       <Text className="text-gray-500 text-sm">
                         {moment(chat.lastMessageDate).format("DD/MM/YY")}
                       </Text>
                     </View>
-                    <View className="flex flex-row justify-between">
-                      <Text className="text-gray-700 mt-1">
+
+                    <View className="flex flex-row justify-between items-center mt-1">
+                      <Text
+                        className="text-gray-700 flex-1"
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                      >
                         {chat.lastMessage || "Belum ada pesan"}
                       </Text>
-                      <Text>
-                        {dokterId &&
-                          chat.unreadCount &&
-                          chat.unreadCount[dokterId] > 0 && (
-                            <View className="bg-red-500 rounded-full px-2 py-1 ml-2">
-                              <Text className="text-white text-xs">
-                                {chat.unreadCount[dokterId]}
-                              </Text>
-                            </View>
-                          )}
-                      </Text>
+                      {/* <Text>
+                      {dokterId &&
+                        chat.unreadCount &&
+                        chat.unreadCount[dokterId] > 0 && (
+                          <View className="bg-red-500 rounded-full px-2 py-1 ml-2">
+                            <Text className="text-white text-xs">
+                              {chat.unreadCount[dokterId]}
+                            </Text>
+                          </View>
+                        )}
+                      </Text> */}
                     </View>
                   </View>
                 </View>

@@ -187,7 +187,7 @@ export default function JadwalScreen() {
             contentContainerStyle={{ paddingTop: 1, paddingBottom: 100 }}
           >
             {jadwals
-              .sort((a, b) => new Date(b.tgl_konsul).getTime() - new Date(a.tgl_konsul).getTime()) 
+              .sort((a, b) => new Date(b.tgl_konsul).getTime() - new Date(a.tgl_konsul).getTime())  
               .filter((jadwal) => jadwal.status_konsul === selectedTab)
               .map((jadwal) => (
                 <View
