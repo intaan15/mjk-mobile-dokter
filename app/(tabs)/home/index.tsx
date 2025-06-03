@@ -22,13 +22,11 @@ import { useFocusEffect } from "@react-navigation/native";
 import { BASE_URL } from "@env";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
-
 const { width } = Dimensions.get("window");
 
 interface User {
   nama_dokter: string;
 }
-
 
 export default function HomeScreen() {
   const [userData, setUserData] = useState<User | null>(null);
@@ -36,8 +34,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const [selectedTab, setSelectedTab] = useState("Berlangsung");
   const [chatList, setChatList] = useState<any[]>([]);
-  
-  const fallbackImageUrl ="/assets/images/foto.jpeg"; // Atau URL default lainnya
+  const fallbackImageUrl = "/assets/images/foto.jpeg"; // Atau URL default lainnya
   // const [selectedDate, setSelectedDate] = useState(moment().format("DD/MM/YY"));
   // const filteredChats = chatList.filter(
   //   (chat) => moment(chat.lastMessageDate).format("DD/MM/YY") === selectedDate
@@ -45,53 +42,52 @@ export default function HomeScreen() {
   // const filteredChats = chatList.filter((chat) => chat.status === selectedTab);
   const [filteredChats, setFilteredChats] = useState<any[]>([]);
 
+  // console.log("Filtered chats:", filteredChats);
+  // console.log("Chat list:", chatList);
 
-  console.log("Filtered chats:", filteredChats);
-  console.log("Chat list:", chatList);
-  
-  const filterChatsByTab = (tab: string, chats: any[]) => {
-    const now = moment();
-
-    return chats.filter((chat) => {
-      const lastDate = moment(chat.lastMessageDate);
-
-      if (tab === "Berlangsung") {
-        return now.diff(lastDate, "days") <= 1;
-      } else {
-        return now.diff(lastDate, "days") > 1;
-      }
-    });
-  };
-  
-
+  useEffect(() => {
+    if (chatList.length > 0) {
+      const updated = filterChatsByTab(selectedTab, chatList);
+      setFilteredChats(updated);
+    }
+  }, [chatList, selectedTab]);
 
   const fetchChatList = async (userId: string, token: string) => {
     try {
       const response = await axios.get(`${BASE_URL}/chatlist/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
-      // console.log("RAW chatlist data:", response.data); // ⬅️ Tambahkan ini
-
-      const enrichedChatList = response.data.map((chat: any) => {
-        return {
-          ...chat,
-          nama_masyarakat: chat.participant?.nama || "Pasien",
-          foto_masyarakat: chat.participant?.foto_profil || fallbackImageUrl,
-          id_masyarakat: chat.participant?._id || "",
-        };
-      });
+      const enrichedChatList = response.data.map((chat: any) => ({
+        ...chat,
+        nama_masyarakat: chat.participant?.nama || "Pasien",
+        foto_masyarakat: chat.participant?.foto_profil || fallbackImageUrl,
+        id_masyarakat: chat.participant?._id || "",
+        lastMessageDate: chat.lastMessageDate || new Date().toISOString(), // default value
+      }));
 
       setChatList(enrichedChatList);
     } catch (error) {
-      console.log("Gagal ambil chat list fe", error);
+      console.log("Gagal ambil chat list", error);
     }
-    
   };
-  
-  
+
+  // Perbaiki fungsi filter
+  const filterChatsByTab = (tab: string, chats: any[]) => {
+    if (!chats || !Array.isArray(chats)) return [];
+
+    const now = moment();
+    return chats.filter((chat) => {
+      try {
+        const lastDate = moment(chat.lastMessageDate);
+        const diffDays = now.diff(lastDate, "days");
+        return tab === "Berlangsung" ? diffDays <= 1 : diffDays > 1;
+      } catch (e) {
+        console.warn("Error processing chat date:", chat.lastMessageDate);
+        return false;
+      }
+    });
+  };
 
   const fetchUserData = async () => {
     try {
@@ -173,7 +169,7 @@ export default function HomeScreen() {
 
     return (
       <View style={[styles.container, { width: containerWidth }]}>
-        <Animated.View 
+        <Animated.View
           style={{
             transform: [{ translateX }],
             flexDirection: "row",
