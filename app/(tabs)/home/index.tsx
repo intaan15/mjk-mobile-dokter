@@ -21,6 +21,7 @@ import axios from "axios";
 import { useFocusEffect } from "@react-navigation/native";
 import { BASE_URL } from "@env";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { Ionicons } from "@expo/vector-icons";
 
 const { width } = Dimensions.get("window");
 
@@ -45,12 +46,13 @@ export default function HomeScreen() {
   // console.log("Filtered chats:", filteredChats);
   // console.log("Chat list:", chatList);
 
-  useEffect(() => {
+  useFocusEffect(
+    useCallback(() => {
     if (chatList.length > 0) {
       const updated = filterChatsByTab(selectedTab, chatList);
       setFilteredChats(updated);
     }
-  }, [chatList, selectedTab]);
+  }, [chatList, selectedTab]));
 
   const fetchChatList = async (userId: string, token: string) => {
     try {
@@ -58,14 +60,16 @@ export default function HomeScreen() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      const enrichedChatList = response.data.map((chat: any) => ({
-        ...chat,
-        nama_masyarakat: chat.participant?.nama || "Pasien",
-        foto_masyarakat: chat.participant?.foto_profil || fallbackImageUrl,
-        id_masyarakat: chat.participant?._id || "",
-        lastMessageDate: chat.lastMessageDate || new Date().toISOString(), // default value
-      }));
-
+      const enrichedChatList = response.data.map((chat: any) => {
+        return {
+          ...chat,
+          nama_masyarakat: chat.participant?.nama || "Pasien",
+          foto_masyarakat: chat.participant?.foto_profil || null, // Set null jika tidak ada
+          id_masyarakat: chat.participant?._id || "",
+          lastMessageDate: chat.lastMessageDate || new Date().toISOString(),
+        };
+      });
+  
       setChatList(enrichedChatList);
     } catch (error) {
       console.log("Gagal ambil chat list", error);
@@ -217,7 +221,7 @@ export default function HomeScreen() {
         </View>
 
         {/* Menu Tab */}
-        <View className="flex flex-row mx-6 rounded-xl border-2 border-skyDark overflow-hidden mb-5">
+        <View className="flex flex-row mx-6 rounded-xl border-2 border-skyDark overflow-hidden">
           {["Berlangsung", "Selesai"].map((tab) => (
             <TabButton
               key={tab}
@@ -261,16 +265,29 @@ export default function HomeScreen() {
                 }}
               >
                 <View className="flex flex-row items-center">
-                  <Image
+                  {/* <Image
                     source={{ uri: chat.foto_masyarakat || fallbackImageUrl }}
                     className="h-16 w-16 rounded-full border border-gray-300"
                     resizeMode="cover"
-                  />
+                  /> */}
+                  <View className="h-16 w-16 rounded-full border border-gray-300 bg-gray-100 justify-center items-center">
+                    {chat.foto_masyarakat ? (
+                      <Image
+                        source={{ uri: chat.foto_masyarakat }}
+                        className="h-full w-full rounded-full"
+                        resizeMode="cover"
+                      />
+                    ) : (
+                      <View className="h-16 w-16 rounded-full border border-gray-300 items-center justify-center bg-gray-200">
+                        <Ionicons name="person" size={32} color="#0C4A6E"/>
+                      </View>
+                    )}
+                  </View>
 
                   <View className="ml-4 flex-1">
                     <View className="flex flex-row justify-between items-center">
                       <Text
-                        className="font-semibold text-lg max-w-[70%]"
+                        className="font-semibold text-lg max-w-[80%] text-skyDark"
                         numberOfLines={1}
                         ellipsizeMode="tail"
                       >
