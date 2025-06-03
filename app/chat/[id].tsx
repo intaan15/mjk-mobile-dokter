@@ -23,10 +23,8 @@ import axios from "axios";
 import { BASE_URL } from "@env";
 import { useLocalSearchParams } from "expo-router";
 
-
-
 const socket = io("https://mjk-backend-production.up.railway.app", {
-  transports: ["websocket"], // 
+  transports: ["websocket"], //
 });
 
 export default function ChatScreen() {
@@ -39,7 +37,6 @@ export default function ChatScreen() {
   const [receiverName, setReceiverName] = useState("");
   const [userRole, setUserRole] = useState("");
   const flatListRef = useRef<FlatList>(null);
-
 
   const { receiverId } = useLocalSearchParams();
   useEffect(() => {
@@ -216,8 +213,6 @@ export default function ChatScreen() {
   //     }, 0); // kasih delay supaya render dulu
   //   }
   // }, [messages]);
-  
-
 
   // console.log("[DEBUG] Messages state after fetch:", messages);
   // console.log("[DEBUG] User ID:", userId);
@@ -299,11 +294,15 @@ export default function ChatScreen() {
       <View style={{ flex: 1 }}>
         {/* Header */}
         <View className="flex-row justify-between items-center w-full px-5 bg-skyLight py-5 pt-10">
-          <View className="flex-row items-center">
+          <View className="flex-row items-center w-10/12">
             <TouchableOpacity onPress={() => router.back()}>
               <MaterialIcons name="arrow-back-ios" size={24} color="#025F96" />
             </TouchableOpacity>
-            <Text className="text-skyDark font-bold text-xl ml-2">
+            <Text
+              className="w-11/12 truncate text-skyDark font-bold text-xl ml-2"
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
               {receiverName ? receiverName : "Loading..."}
             </Text>
           </View>

@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "expo-router";
@@ -78,6 +79,7 @@ export default function JadwalScreen() {
   const router = useRouter();
   const [selectedTab, setSelectedTab] = useState("menunggu");
   const [jadwals, setJadwal] = useState<Jadwal[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useFocusEffect(
     useCallback(() => {
@@ -101,6 +103,8 @@ export default function JadwalScreen() {
           }
         } catch (err) {
           console.log("Error fetching jadwals:", err);
+        } finally {
+          setLoading(false);
         }
       };
 
@@ -146,9 +150,6 @@ export default function JadwalScreen() {
       );
     }
   };
-  
-  
-  
 
   return (
     <Background>
@@ -182,93 +183,106 @@ export default function JadwalScreen() {
 
         {/* Jadwal List */}
         <View className="flex-1">
-          <ScrollView
-            className="px-6 py-4"
-            contentContainerStyle={{ paddingTop: 1, paddingBottom: 100 }}
-          >
-            {jadwals
-              .sort((a, b) => new Date(b.tgl_konsul).getTime() - new Date(a.tgl_konsul).getTime())  
-              .filter((jadwal) => jadwal.status_konsul === selectedTab)
-              .map((jadwal) => (
-                <View
-                  key={jadwal._id}
-                  className="flex flex-col mb-4 bg-white p-2 rounded-xl shadow-black"
-                  style={{
-                    shadowOffset: { width: 0, height: 1 },
-                    shadowOpacity: 0.2,
-                    shadowRadius: 12,
-                    elevation: 15,
-                  }}
-                >
-                  <View className="flex flex-row items-center px-3 pt-2">
-                    {jadwal.masyarakat_id?.foto_profil_masyarakat &&
-                    jadwal.masyarakat_id?.nama_masyarakat ? (
-                      <Image
-                        source={{
-                          uri: `https://mjk-backend-production.up.railway.app/uploads/${jadwal.masyarakat_id.foto_profil_masyarakat}`,
-                        }}
-                        className="h-20 w-20 rounded-full border border-gray-300"
-                        resizeMode="cover"
-                      />
-                    ) : (
-                      <View className="h-20 w-20 rounded-full border border-gray-300 items-center justify-center bg-gray-200">
-                        <Ionicons name="person" size={40} color="#0C4A6E" />
+          {loading ? (
+            <View className="flex h-3/4 justify-center items-center">
+              <ActivityIndicator size="large" color="#025F96" />
+              <Text className="mt-2 text-skyDark font-semibold">
+                Memuat janji . . .
+              </Text>
+            </View>
+          ) : (
+            <ScrollView
+              className="px-6 py-4"
+              contentContainerStyle={{ paddingTop: 1, paddingBottom: 100 }}
+            >
+              {jadwals
+                .sort(
+                  (a, b) =>
+                    new Date(b.tgl_konsul).getTime() -
+                    new Date(a.tgl_konsul).getTime()
+                )
+                .filter((jadwal) => jadwal.status_konsul === selectedTab)
+                .map((jadwal) => (
+                  <View
+                    key={jadwal._id}
+                    className="flex flex-col mb-4 bg-white p-2 rounded-xl shadow-black"
+                    style={{
+                      shadowOffset: { width: 0, height: 1 },
+                      shadowOpacity: 0.2,
+                      shadowRadius: 12,
+                      elevation: 15,
+                    }}
+                  >
+                    <View className="flex flex-row items-center px-3 pt-2">
+                      {jadwal.masyarakat_id?.foto_profil_masyarakat &&
+                      jadwal.masyarakat_id?.nama_masyarakat ? (
+                        <Image
+                          source={{
+                            uri: `https://mjk-backend-production.up.railway.app/uploads/${jadwal.masyarakat_id.foto_profil_masyarakat}`,
+                          }}
+                          className="h-20 w-20 rounded-full border border-gray-300"
+                          resizeMode="cover"
+                        />
+                      ) : (
+                        <View className="h-20 w-20 rounded-full border border-gray-300 items-center justify-center bg-gray-200">
+                          <Ionicons name="person" size={40} color="#0C4A6E" />
+                        </View>
+                      )}
+                      <View className="ml-4 flex-1">
+                        <Text
+                          className="truncate font-bold text-lg text-skyDark pb-1"
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                        >
+                          {jadwal?.masyarakat_id?.nama_masyarakat ?? "Pasien"}
+                        </Text>
+                        <View className="w-full h-[2px] bg-skyDark " />
+                        <Text className="font-semibold text-base text-skyDark">
+                          {formatTanggalIndo(jadwal.tgl_konsul)}
+                        </Text>
+                        <Text className="font-semibold text-base text-skyDark">
+                          Pukul {jadwal.jam_konsul}
+                        </Text>
+                      </View>
+                    </View>
+                    <Text className="text-skyDark py-4 px-4 text-justify">
+                      {jadwal.keluhan_pasien}
+                    </Text>
+
+                    {selectedTab === "menunggu" && (
+                      <View className="flex flex-row justify-between px-10 mt-2 mb-4 items-center">
+                        <TouchableOpacity
+                          className="bg-red-700 w-2/5 rounded-lg px-4 py-2 flex flex-row items-center justify-center gap-2"
+                          onPress={() =>
+                            updateJadwalStatus(jadwal._id, "ditolak")
+                          }
+                        >
+                          <AntDesign
+                            name="closecircleo"
+                            size={20}
+                            color="white"
+                          />
+                          <Text className="text-white font-bold">Tolak</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          className="bg-green-600 w-2/5 rounded-lg px-4 py-2 flex flex-row items-center justify-center gap-2"
+                          onPress={() =>
+                            updateJadwalStatus(jadwal._id, "diterima")
+                          }
+                        >
+                          <AntDesign
+                            name="checkcircleo"
+                            size={20}
+                            color="white"
+                          />
+                          <Text className="text-white font-bold">Terima</Text>
+                        </TouchableOpacity>
                       </View>
                     )}
-                    <View className="ml-4 flex-1">
-                      <Text
-                        className="truncate font-bold text-lg text-skyDark pb-1"
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                      >
-                        {jadwal?.masyarakat_id?.nama_masyarakat ?? "Pasien"}
-                      </Text>
-                      <View className="w-full h-[2px] bg-skyDark " />
-                      <Text className="font-semibold text-base text-skyDark">
-                        {formatTanggalIndo(jadwal.tgl_konsul)}
-                      </Text>
-                      <Text className="font-semibold text-base text-skyDark">
-                        Pukul {jadwal.jam_konsul}
-                      </Text>
-                    </View>
                   </View>
-                  <Text className="text-skyDark py-4 px-4 text-justify">
-                    {jadwal.keluhan_pasien}
-                  </Text>
-
-                  {selectedTab === "menunggu" && (
-                    <View className="flex flex-row justify-between px-10 mt-2 mb-4 items-center">
-                      <TouchableOpacity
-                        className="bg-red-700 w-2/5 rounded-lg px-4 py-2 flex flex-row items-center justify-center gap-2"
-                        onPress={() =>
-                          updateJadwalStatus(jadwal._id, "ditolak")
-                        }
-                      >
-                        <AntDesign
-                          name="closecircleo"
-                          size={20}
-                          color="white"
-                        />
-                        <Text className="text-white font-bold">Tolak</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        className="bg-green-600 w-2/5 rounded-lg px-4 py-2 flex flex-row items-center justify-center gap-2"
-                        onPress={() =>
-                          updateJadwalStatus(jadwal._id, "diterima")
-                        }
-                      >
-                        <AntDesign
-                          name="checkcircleo"
-                          size={20}
-                          color="white"
-                        />
-                        <Text className="text-white font-bold">Terima</Text>
-                      </TouchableOpacity>
-                    </View>
-                  )}
-                </View>
-              ))}
-          </ScrollView>
+                ))}
+            </ScrollView>
+          )}
         </View>
       </View>
     </Background>

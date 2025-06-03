@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   StatusBar,
+  ActivityIndicator
 } from "react-native";
 import DatePickerComponent from "@/components/picker/datepicker";
 import Background from "@/components/background";
@@ -34,6 +35,7 @@ const ScheduleScreen = () => {
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [availableDates, setAvailableDates] = useState<string[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true)
   const router = useRouter();
 
   useFocusEffect(
@@ -75,6 +77,8 @@ const ScheduleScreen = () => {
           setAvailableDates(datesWithSchedule);
         } catch (err) {
           console.log("Error fetching jadwal:", err);
+        } finally {
+          setLoading(false);
         }
       };
       fetchJadwal();
@@ -119,6 +123,14 @@ const ScheduleScreen = () => {
       </View>
 
       {/* Main Content */}
+      {loading ? (
+          <View className="flex h-3/4 justify-center items-center">
+            <ActivityIndicator size="large" color="#025F96" />
+            <Text className="mt-2 text-skyDark font-semibold">
+              Memuat jadwal . . .
+            </Text>
+          </View>
+        ) : (
       <ScrollView
         className="px-6 py-4 mt-[-30px]"
         contentContainerStyle={{ paddingBottom: 100 }}
@@ -197,6 +209,7 @@ const ScheduleScreen = () => {
           )}
         </View>
       </ScrollView>
+        )}
     </Background>
   );
 };

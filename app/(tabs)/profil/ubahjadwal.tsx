@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   StatusBar,
+  ActivityIndicator,
 } from "react-native";
 import DatePickerComponent from "@/components/picker/datepicker";
 import Background from "@/components/background";
@@ -43,6 +44,7 @@ const App = () => {
   const [jadwal, setJadwal] = useState<Jadwal[]>([]);
   const [availableTimes, setAvailableTimes] = useState<AvailableTime[]>([]);
   const [availableDates, setAvailableDates] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
   const { openGallery, openCamera } = ImagePickerComponent({
     onImageSelected: setImage,
   });
@@ -55,71 +57,55 @@ const App = () => {
   const router = useRouter();
 
   const handleTimeSlotsChange = (slots) => {
+    if (slots.length >= 2) {
+      const startTime = parseFloat(slots[0].replace(".", ""));
+      const endTime = parseFloat(slots[slots.length - 1].replace(".", ""));
+
+      if (startTime > endTime) {
+        alert("Jam akhir tidak boleh lebih awal dari jam mulai");
+        return; 
+      }
+    }
     setTimeSlots(slots);
     setModalVisible(false);
-    setTimeout(() => {
-      setModalVisible(false);
-    }, 300);
   };
+
   useEffect(() => {
     const fetchJadwal = async () => {
       try {
-        console.log("=== FETCH JADWAL DIMULAI ===");
-
-        console.log("BASE_URL:", BASE_URL);
-
         const id = await SecureStore.getItemAsync("userId");
         const token = await SecureStore.getItemAsync("userToken");
-
-        console.log("User ID:", id);
-        console.log("User Token:", token);
-
         if (!id || !token) {
           console.log("ID atau token tidak ditemukan.");
           return;
         }
 
-        const url = `${BASE_URL}/dokter/jadwal/${id}`;
-        console.log("URL yang diakses:", url);
-
-        const res = await axios.get(url, {
+        const res = await axios.get(`${BASE_URL}/dokter/jadwal/${id}`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
         });
-
-        console.log("Data jadwal berhasil diambil:", res.data);
-
         setJadwal(res.data);
-
         const datesWithSchedule = res.data
           .filter((j) => j.jam && j.jam.length > 0)
           .map((j) => new Date(j.tanggal).toISOString().split("T")[0]);
 
         setAvailableDates(datesWithSchedule);
-
-        console.log("Tanggal dengan jadwal:", datesWithSchedule);
       } catch (err) {
         console.log("❌ Error saat fetch jadwal:", err);
 
         if (axios.isAxiosError(err)) {
-          console.log(
-            "Axios Error - Response Status:",
-            err.response?.status
-          );
+          console.log("Axios Error - Response Status:", err.response?.status);
           console.log("Axios Error - Response Data:", err.response?.data);
-          console.log(
-            "Axios Error - Response Headers:",
-            err.response?.headers
-          );
+          console.log("Axios Error - Response Headers:", err.response?.headers);
         } else {
           console.log("Non-Axios error:", err);
         }
+      } finally {
+        setLoading(false);
       }
     };
-    
-
     fetchJadwal();
   }, []);
 
@@ -142,6 +128,18 @@ const App = () => {
     if (!selectedDate || timeSlots.length === 0) {
       alert("Harap pilih tanggal dan jam praktek.");
       return;
+    }
+
+    if (timeSlots.length >= 2) {
+      const startTime = parseFloat(timeSlots[0].replace(".", ""));
+      const endTime = parseFloat(
+        timeSlots[timeSlots.length - 1].replace(".", "")
+      );
+
+      if (startTime > endTime) {
+        alert("Jam akhir tidak boleh lebih awal dari jam mulai");
+        return;
+      }
     }
 
     try {
@@ -177,11 +175,10 @@ const App = () => {
         router.replace("/(tabs)/profil");
       }
     } catch (error: any) {
-        if (error.response.status === 404) {
-          alert("YEAYYY JADWAL TIDAK ADA SILAHKAN ATUR DULU");
-          router.push("/(tabs)/profil/aturjadwal");
-        }
-      
+      if (error.response?.status === 404) {
+        alert("YEAYYY JADWAL TIDAK ADA SILAHKAN ATUR DULU");
+        router.push("/(tabs)/profil/aturjadwal");
+      }
     }
   };
 
@@ -245,7 +242,15 @@ const App = () => {
                 })}{" "}
                 :
               </Text>
-              {availableTimes.length > 0 ? (
+
+              {loading ? (
+                <View className="flex justify-center items-center py-4">
+                  <ActivityIndicator size="small" color="#025F96" />
+                  <Text className="mt-2 text-skyDark text-sm">
+                    Memuat jadwal...
+                  </Text>
+                </View>
+              ) : availableTimes.length > 0 ? (
                 <View className="flex flex-wrap flex-row gap-2 justify-center">
                   {availableTimes.map((slot, index) => (
                     <TouchableOpacity
