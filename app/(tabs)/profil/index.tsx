@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   StatusBar,
-  Alert,
+  ActivityIndicator,
 } from "react-native";
 import Background from "../../components/background";
 import React, { useState, useEffect, useCallback } from "react";
@@ -85,9 +85,10 @@ function App() {
   if (!userData) {
     return (
       <Background>
-        <View className="flex-1 justify-center items-center">
-          <Text className="text-skyDark text-xl font-bold">
-            Memuat profil...
+        <View className="flex h-full justify-center items-center">
+          <ActivityIndicator size="large" color="#025F96" />
+          <Text className="mt-2 text-skyDark font-semibold">
+            Memuat profil . . .
           </Text>
         </View>
       </Background>

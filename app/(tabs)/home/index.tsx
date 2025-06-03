@@ -8,6 +8,7 @@ import {
   Animated,
   Easing,
   StyleSheet,
+  ActivityIndicator,
 } from "react-native";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "expo-router";
@@ -35,7 +36,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const [selectedTab, setSelectedTab] = useState("Berlangsung");
   const [chatList, setChatList] = useState<any[]>([]);
-  const fallbackImageUrl = "/assets/images/foto.jpeg"; // Atau URL default lainnya
+  const [loading, setLoading] = useState(true);
   // const [selectedDate, setSelectedDate] = useState(moment().format("DD/MM/YY"));
   // const filteredChats = chatList.filter(
   //   (chat) => moment(chat.lastMessageDate).format("DD/MM/YY") === selectedDate
@@ -48,11 +49,12 @@ export default function HomeScreen() {
 
   useFocusEffect(
     useCallback(() => {
-    if (chatList.length > 0) {
-      const updated = filterChatsByTab(selectedTab, chatList);
-      setFilteredChats(updated);
-    }
-  }, [chatList, selectedTab]));
+      if (chatList.length > 0) {
+        const updated = filterChatsByTab(selectedTab, chatList);
+        setFilteredChats(updated);
+      }
+    }, [chatList, selectedTab])
+  );
 
   const fetchChatList = async (userId: string, token: string) => {
     try {
@@ -69,10 +71,12 @@ export default function HomeScreen() {
           lastMessageDate: chat.lastMessageDate || new Date().toISOString(),
         };
       });
-  
+
       setChatList(enrichedChatList);
     } catch (error) {
       console.log("Gagal ambil chat list", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -238,75 +242,83 @@ export default function HomeScreen() {
 
         {/* Chat List */}
         <View className="flex-1">
-          <ScrollView
-            className="px-6 py-4"
-            contentContainerStyle={{ paddingBottom: 80 }}
-          >
-            {/* {filteredChats.map((chat) => ( */}
-            {filteredChats.map((chat) => (
-              <TouchableOpacity
-                key={chat._id}
-                className="flex flex-col"
-                onPress={() => {
-                  const currentUserId = dokterId;
-                  const otherParticipant = chat.participant;
+          {loading ? (
+            <View className="flex h-3/4 justify-center items-center">
+              <ActivityIndicator size="large" color="#025F96" />
+              <Text className="mt-2 text-skyDark font-semibold">
+                Memuat chat . . .
+              </Text>
+            </View>
+          ) : (
+            <ScrollView
+              className="px-6 py-4"
+              contentContainerStyle={{ paddingBottom: 80 }}
+            >
+              {/* {filteredChats.map((chat) => ( */}
+              {filteredChats.map((chat) => (
+                <TouchableOpacity
+                  key={chat._id}
+                  className="flex flex-col"
+                  onPress={() => {
+                    const currentUserId = dokterId;
+                    const otherParticipant = chat.participant;
 
-                  if (currentUserId && otherParticipant?._id) {
-                    router.push({
-                      pathname: "/chat/[id]",
-                      params: {
-                        senderId: currentUserId,
-                        receiverId: otherParticipant._id,
-                      },
-                    });
-                  } else {
-                    console.warn("Data participant tidak lengkap:", chat);
-                  }
-                }}
-              >
-                <View className="flex flex-row items-center">
-                  {/* <Image
+                    if (currentUserId && otherParticipant?._id) {
+                      router.push({
+                        pathname: "/chat/[id]",
+                        params: {
+                          senderId: currentUserId,
+                          receiverId: otherParticipant._id,
+                        },
+                      });
+                    } else {
+                      console.warn("Data participant tidak lengkap:", chat);
+                    }
+                  }}
+                >
+                  <View className="flex flex-row items-center">
+                    {/* <Image
                     source={{ uri: chat.foto_masyarakat || fallbackImageUrl }}
                     className="h-16 w-16 rounded-full border border-gray-300"
                     resizeMode="cover"
                   /> */}
-                  <View className="h-16 w-16 rounded-full border border-gray-300 bg-gray-100 justify-center items-center">
-                    {chat.foto_masyarakat ? (
-                      <Image
-                        source={{ uri: chat.foto_masyarakat }}
-                        className="h-full w-full rounded-full"
-                        resizeMode="cover"
-                      />
-                    ) : (
-                      <View className="h-16 w-16 rounded-full border border-gray-300 items-center justify-center bg-gray-200">
-                        <Ionicons name="person" size={32} color="#0C4A6E"/>
-                      </View>
-                    )}
-                  </View>
-
-                  <View className="ml-4 flex-1">
-                    <View className="flex flex-row justify-between items-center">
-                      <Text
-                        className="font-semibold text-lg max-w-[80%] text-skyDark"
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                      >
-                        {chat.nama_masyarakat || "Masyarakat"}
-                      </Text>
-                      <Text className="text-gray-500 text-sm">
-                        {moment(chat.lastMessageDate).format("DD/MM/YY")}
-                      </Text>
+                    <View className="h-16 w-16 rounded-full border border-gray-300 bg-gray-100 justify-center items-center">
+                      {chat.foto_masyarakat ? (
+                        <Image
+                          source={{ uri: chat.foto_masyarakat }}
+                          className="h-full w-full rounded-full"
+                          resizeMode="cover"
+                        />
+                      ) : (
+                        <View className="h-16 w-16 rounded-full border border-gray-300 items-center justify-center bg-gray-200">
+                          <Ionicons name="person" size={32} color="#0C4A6E" />
+                        </View>
+                      )}
                     </View>
 
-                    <View className="flex flex-row justify-between items-center mt-1">
-                      <Text
-                        className="text-gray-700 flex-1"
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                      >
-                        {chat.lastMessage || "Belum ada pesan"}
-                      </Text>
-                      {/* <Text>
+                    <View className="ml-4 flex-1">
+                      <View className="flex flex-row justify-between items-center">
+                        <Text
+                          className="font-semibold text-lg max-w-[80%] text-skyDark"
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                        >
+                          {chat.nama_masyarakat || "Masyarakat"}
+                        </Text>
+                        <Text className="text-gray-500 text-sm">
+                          {moment(chat.lastMessageDate).format("DD/MM/YY")}
+                        </Text>
+                      </View>
+
+                      <View className="flex flex-row justify-between items-center mt-1">
+                        <Text
+                          className="text-gray-700 flex-1"
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                        >
+                          {chat.lastMessage || "Belum ada pesan"}
+                        </Text>
+                        {/* <Text>
                       {dokterId &&
                         chat.unreadCount &&
                         chat.unreadCount[dokterId] > 0 && (
@@ -317,13 +329,14 @@ export default function HomeScreen() {
                           </View>
                         )}
                       </Text> */}
+                      </View>
                     </View>
                   </View>
-                </View>
-                <View className="w-full h-[2px] bg-skyDark my-2" />
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
+                  <View className="w-full h-[2px] bg-skyDark my-2" />
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          )}
         </View>
       </View>
     </Background>
