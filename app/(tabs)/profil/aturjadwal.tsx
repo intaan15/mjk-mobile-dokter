@@ -43,11 +43,18 @@ const App = () => {
   const router = useRouter();
 
   const handleTimeSlotsChange = (slots) => {
+    if (slots.length >= 2) {
+      const startTime = parseFloat(slots[0].replace(".", ""));
+      const endTime = parseFloat(slots[slots.length - 1].replace(".", ""));
+
+      if (startTime > endTime) {
+        alert("Jam akhir tidak boleh lebih awal dari jam mulai");
+        return;
+      }
+    }
+
     setTimeSlots(slots);
     setModalVisible(false);
-    setTimeout(() => {
-      setModalVisible(false);
-    }, 300);
   };
 
   const normalizeDate = (date) => {
@@ -60,6 +67,18 @@ const App = () => {
     if (!selectedDate || timeSlots.length === 0) {
       alert("Harap pilih tanggal dan jam praktek.");
       return;
+    }
+
+    if (timeSlots.length >= 2) {
+      const startTime = parseFloat(timeSlots[0].replace(".", ""));
+      const endTime = parseFloat(
+        timeSlots[timeSlots.length - 1].replace(".", "")
+      );
+
+      if (startTime > endTime) {
+        alert("Jam akhir tidak boleh lebih awal dari jam mulai");
+        return;
+      }
     }
 
     const token = await SecureStore.getItemAsync("userToken");
@@ -83,9 +102,7 @@ const App = () => {
       });
 
       if (isSameDateExist) {
-        alert(
-          "Jadwal pada tanggal ini sudah ada. Silahkan kiw kiw ubah jadwal anda pada menu ubah jadwal"
-        );
+        alert("Jadwal pada tanggal ini sudah ada. Silahkan ubah jadwal anda pada menu ubah jadwal");
         return;
       }
 

@@ -57,12 +57,19 @@ const App = () => {
   const router = useRouter();
 
   const handleTimeSlotsChange = (slots) => {
+    if (slots.length >= 2) {
+      const startTime = parseFloat(slots[0].replace(".", ""));
+      const endTime = parseFloat(slots[slots.length - 1].replace(".", ""));
+
+      if (startTime > endTime) {
+        alert("Jam akhir tidak boleh lebih awal dari jam mulai");
+        return; 
+      }
+    }
     setTimeSlots(slots);
     setModalVisible(false);
-    setTimeout(() => {
-      setModalVisible(false);
-    }, 300);
   };
+
   useEffect(() => {
     const fetchJadwal = async () => {
       try {
@@ -123,6 +130,18 @@ const App = () => {
       return;
     }
 
+    if (timeSlots.length >= 2) {
+      const startTime = parseFloat(timeSlots[0].replace(".", ""));
+      const endTime = parseFloat(
+        timeSlots[timeSlots.length - 1].replace(".", "")
+      );
+
+      if (startTime > endTime) {
+        alert("Jam akhir tidak boleh lebih awal dari jam mulai");
+        return;
+      }
+    }
+
     try {
       const token = await SecureStore.getItemAsync("userToken");
       const dokterId = await SecureStore.getItemAsync("userId");
@@ -156,7 +175,7 @@ const App = () => {
         router.replace("/(tabs)/profil");
       }
     } catch (error: any) {
-      if (error.response.status === 404) {
+      if (error.response?.status === 404) {
         alert("YEAYYY JADWAL TIDAK ADA SILAHKAN ATUR DULU");
         router.push("/(tabs)/profil/aturjadwal");
       }
