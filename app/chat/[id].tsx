@@ -120,6 +120,22 @@ export default function ChatScreen() {
     }
   }, [userId]);
 
+
+// DISBALE CHAT 
+  useEffect(() => {
+    const handleErrorMessage = (error) => {
+      // Tampilkan alert atau toast di sini
+      alert(error.message); // atau pakai ToastAndroid, Snackbar, dll
+    };
+
+    socket.on("errorMessage", handleErrorMessage);
+
+    return () => {
+      socket.off("errorMessage", handleErrorMessage);
+    };
+  }, []);
+  
+
   // Fetch chat history setelah userId dan receiverId siap
   useEffect(() => {
     const fetchChatHistory = async () => {
