@@ -42,19 +42,20 @@ export default function HomeScreen() {
   //   (chat) => moment(chat.lastMessageDate).format("DD/MM/YY") === selectedDate
   // );
   // const filteredChats = chatList.filter((chat) => chat.status === selectedTab);
-  const [filteredChats, setFilteredChats] = useState<any[]>([]);
+  // const [filteredChats, setFilteredChats] = useState<any[]>([]);
 
   // console.log("Filtered chats:", filteredChats);
   // console.log("Chat list:", chatList);
+  
 
-  useFocusEffect(
-    useCallback(() => {
-      if (chatList.length > 0) {
-        const updated = filterChatsByTab(selectedTab, chatList);
-        setFilteredChats(updated);
-      }
-    }, [chatList, selectedTab])
-  );
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     if (chatList.length > 0) {
+  //       const updated = filterChatsByTab(selectedTab, chatList);
+  //       setFilteredChats(updated);
+  //     }
+  //   }, [chatList, selectedTab])
+  // );
 
   const fetchChatList = async (userId: string, token: string) => {
     try {
@@ -62,6 +63,8 @@ export default function HomeScreen() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
+      console.log("RAW chatlist data:", response.data);
+      
       const enrichedChatList = response.data.map((chat: any) => {
         return {
           ...chat,
@@ -225,7 +228,7 @@ export default function HomeScreen() {
         </View>
 
         {/* Menu Tab */}
-        <View className="flex flex-row mx-6 rounded-xl border-2 border-skyDark overflow-hidden">
+        {/* <View className="flex flex-row mx-6 rounded-xl border-2 border-skyDark overflow-hidden">
           {["Berlangsung", "Selesai"].map((tab) => (
             <TabButton
               key={tab}
@@ -238,7 +241,7 @@ export default function HomeScreen() {
               }}
             />
           ))}
-        </View>
+        </View> */}
 
         {/* Chat List */}
         <View className="flex-1">
@@ -255,7 +258,7 @@ export default function HomeScreen() {
               contentContainerStyle={{ paddingBottom: 80 }}
             >
               {/* {filteredChats.map((chat) => ( */}
-              {filteredChats.map((chat) => (
+              {chatList.map((chat) => (
                 <TouchableOpacity
                   key={chat._id}
                   className="flex flex-col"
@@ -276,6 +279,20 @@ export default function HomeScreen() {
                     }
                   }}
                 >
+                  <View className="flex flex-row justify-between">
+                    <Text className="p-2 rounded-xl font-bold self-end">
+                      Konsultasi Dengan
+                    </Text>
+                    <Text
+                      className={`p-2 rounded-xl self-end ${
+                        chat.status === "selesai"
+                          ? "bg-lime-200"
+                          : "bg-yellow-200"
+                      }`}
+                    >
+                      {chat.status === "selesai" ? "Selesai" : "Berlangsung"}
+                    </Text>
+                  </View>
                   <View className="flex flex-row items-center">
                     {/* <Image
                     source={{ uri: chat.foto_masyarakat || fallbackImageUrl }}
