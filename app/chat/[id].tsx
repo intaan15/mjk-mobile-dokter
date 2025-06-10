@@ -20,10 +20,10 @@ import * as ImagePicker from "expo-image-picker";
 import { io } from "socket.io-client";
 import * as SecureStore from "expo-secure-store";
 import axios from "axios";
-import { BASE_URL } from "@env";
+import { BASE_URL, BASE_URL2 } from "@env";
 import { useLocalSearchParams } from "expo-router";
 
-const socket = io("https://mjk-backend-production.up.railway.app", {
+const socket = io(`${BASE_URL2}`, {
   transports: ["websocket"], //
 });
 
@@ -117,8 +117,7 @@ export default function ChatScreen() {
     }
   }, [userId]);
 
-
-// DISBALE CHAT 
+  // DISBALE CHAT
   useEffect(() => {
     const handleErrorMessage = (error) => {
       // Tampilkan alert atau toast di sini
@@ -131,7 +130,6 @@ export default function ChatScreen() {
       socket.off("errorMessage", handleErrorMessage);
     };
   }, []);
-  
 
   // Fetch chat history setelah userId dan receiverId siap
   useEffect(() => {
@@ -285,6 +283,12 @@ export default function ChatScreen() {
             {item.text}
           </Text>
         )}
+        <Text className="text-xs text-gray-400 mt-1">
+          {new Date(item.waktu).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </Text>
       </View>
     );
   };
