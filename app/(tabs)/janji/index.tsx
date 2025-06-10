@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
+  RefreshControl, // Import RefreshControl
 } from "react-native";
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "expo-router";
@@ -80,34 +81,43 @@ export default function JadwalScreen() {
   const [selectedTab, setSelectedTab] = useState("menunggu");
   const [jadwals, setJadwal] = useState<Jadwal[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false); // State untuk refresh
+
+  // Fungsi fetch jadwal yang bisa dipanggil ulang
+  const fetchJadwal = async () => {
+    try {
+      const userId = await SecureStore.getItemAsync("userId");
+      const token = await SecureStore.getItemAsync("userToken");
+
+      const response = await axios.get(`${BASE_URL}/jadwal/getall`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (userId) {
+        const filtered = response.data.filter(
+          (jadwal: Jadwal) => jadwal.dokter_id?._id === userId
+        );
+        setJadwal(filtered);
+      }
+    } catch (err) {
+      console.log("Error fetching jadwals:", err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false); // Set refreshing ke false setelah selesai
+    }
+  };
+
+  // Fungsi untuk handle pull to refresh
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchJadwal();
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
-      const fetchJadwal = async () => {
-        try {
-          const userId = await SecureStore.getItemAsync("userId");
-          const token = await SecureStore.getItemAsync("userToken");
-
-          const response = await axios.get(`${BASE_URL}/jadwal/getall`, {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          });
-
-          if (userId) {
-            const filtered = response.data.filter(
-              (jadwal: Jadwal) => jadwal.dokter_id?._id === userId
-            );
-            setJadwal(filtered);
-          }
-        } catch (err) {
-          console.log("Error fetching jadwals:", err);
-        } finally {
-          setLoading(false);
-        }
-      };
-
       fetchJadwal();
     }, [])
   );
@@ -194,6 +204,16 @@ export default function JadwalScreen() {
             <ScrollView
               className="px-6 py-4"
               contentContainerStyle={{ paddingTop: 1, paddingBottom: 100 }}
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
+                  colors={["#025F96"]} // Warna spinner untuk Android
+                  tintColor="#025F96" // Warna spinner untuk iOS
+                  title="Memuat ulang..." // Text untuk iOS
+                  titleColor="#025F96" // Warna text untuk iOS
+                />
+              }
             >
               {jadwals
                 .sort(

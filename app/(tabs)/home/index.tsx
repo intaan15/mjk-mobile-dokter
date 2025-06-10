@@ -9,6 +9,7 @@ import {
   Easing,
   StyleSheet,
   ActivityIndicator,
+  RefreshControl, // Import RefreshControl
 } from "react-native";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "expo-router";
@@ -37,25 +38,7 @@ export default function HomeScreen() {
   const [selectedTab, setSelectedTab] = useState("Berlangsung");
   const [chatList, setChatList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  // const [selectedDate, setSelectedDate] = useState(moment().format("DD/MM/YY"));
-  // const filteredChats = chatList.filter(
-  //   (chat) => moment(chat.lastMessageDate).format("DD/MM/YY") === selectedDate
-  // );
-  // const filteredChats = chatList.filter((chat) => chat.status === selectedTab);
-  // const [filteredChats, setFilteredChats] = useState<any[]>([]);
-
-  // console.log("Filtered chats:", filteredChats);
-  // console.log("Chat list:", chatList);
-  
-
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     if (chatList.length > 0) {
-  //       const updated = filterChatsByTab(selectedTab, chatList);
-  //       setFilteredChats(updated);
-  //     }
-  //   }, [chatList, selectedTab])
-  // );
+  const [refreshing, setRefreshing] = useState(false); // State untuk refresh
 
   const fetchChatList = async (userId: string, token: string) => {
     try {
@@ -64,12 +47,12 @@ export default function HomeScreen() {
       });
 
       console.log("RAW chatlist data:", response.data);
-      
+
       const enrichedChatList = response.data.map((chat: any) => {
         return {
           ...chat,
           nama_masyarakat: chat.participant?.nama || "Pasien",
-          foto_masyarakat: chat.participant?.foto_profil || null, // Set null jika tidak ada
+          foto_masyarakat: chat.participant?.foto_profil || null,
           id_masyarakat: chat.participant?._id || "",
           lastMessageDate: chat.lastMessageDate || new Date().toISOString(),
         };
@@ -80,10 +63,10 @@ export default function HomeScreen() {
       console.log("Gagal ambil chat list", error);
     } finally {
       setLoading(false);
+      setRefreshing(false); // Set refreshing ke false setelah selesai
     }
   };
 
-  // Perbaiki fungsi filter
   const filterChatsByTab = (tab: string, chats: any[]) => {
     if (!chats || !Array.isArray(chats)) return [];
 
@@ -126,18 +109,26 @@ export default function HomeScreen() {
       }
 
       setUserData(response.data);
-      setDokterId(cleanedId); // <- simpan ke state agar bisa dipakai nanti
-      fetchChatList(cleanedId, token); // <- Panggil ambil chatlist
+      setDokterId(cleanedId);
+      fetchChatList(cleanedId, token);
     } catch (error) {
       console.log("Gagal ambil data user", error);
+      setRefreshing(false); // Set refreshing ke false jika error
     }
   };
+
+  // Fungsi untuk handle pull to refresh
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchUserData();
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
       fetchUserData();
     }, [])
   );
+
   const MarqueeText = ({ text, style }: { text: string; style?: any }) => {
     const screenWidth = Dimensions.get("window").width;
     const containerWidth = screenWidth * 0.7;
@@ -169,7 +160,6 @@ export default function HomeScreen() {
         translateX.setValue(containerWidth);
         animationRef.current.start();
       } else {
-        // Reset posisi ke awal jika tidak jalan
         translateX.setValue(0);
       }
 
@@ -227,22 +217,6 @@ export default function HomeScreen() {
           />
         </View>
 
-        {/* Menu Tab */}
-        {/* <View className="flex flex-row mx-6 rounded-xl border-2 border-skyDark overflow-hidden">
-          {["Berlangsung", "Selesai"].map((tab) => (
-            <TabButton
-              key={tab}
-              label={tab}
-              isActive={selectedTab === tab}
-              onPress={() => {
-                setSelectedTab(tab);
-                const updatedFiltered = filterChatsByTab(tab, chatList);
-                setFilteredChats(updatedFiltered);
-              }}
-            />
-          ))}
-        </View> */}
-
         {/* Chat List */}
         <View className="flex-1">
           {loading ? (
@@ -256,8 +230,17 @@ export default function HomeScreen() {
             <ScrollView
               className="px-6 py-4"
               contentContainerStyle={{ paddingBottom: 80 }}
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
+                  colors={["#025F96"]} // Warna spinner untuk Android
+                  tintColor="#025F96" // Warna spinner untuk iOS
+                  title="Memuat ulang..." // Text untuk iOS
+                  titleColor="#025F96" // Warna text untuk iOS
+                />
+              }
             >
-              {/* {filteredChats.map((chat) => ( */}
               {chatList.map((chat) => (
                 <TouchableOpacity
                   key={chat._id}
@@ -290,15 +273,10 @@ export default function HomeScreen() {
                           : "bg-yellow-200"
                       }`}
                     >
-                      {chat.status === "selesai" ? "Selesai" : "Berlangsung"}
+                      {chat.status === "selesai" ? "selesai" : "berlangsung"}
                     </Text>
                   </View>
                   <View className="flex flex-row items-center">
-                    {/* <Image
-                    source={{ uri: chat.foto_masyarakat || fallbackImageUrl }}
-                    className="h-16 w-16 rounded-full border border-gray-300"
-                    resizeMode="cover"
-                  /> */}
                     <View className="h-16 w-16 rounded-full border border-gray-300 bg-gray-100 justify-center items-center">
                       {chat.foto_masyarakat ? (
                         <Image
@@ -335,17 +313,6 @@ export default function HomeScreen() {
                         >
                           {chat.lastMessage || "Belum ada pesan"}
                         </Text>
-                        {/* <Text>
-                      {dokterId &&
-                        chat.unreadCount &&
-                        chat.unreadCount[dokterId] > 0 && (
-                          <View className="bg-red-500 rounded-full px-2 py-1 ml-2">
-                            <Text className="text-white text-xs">
-                              {chat.unreadCount[dokterId]}
-                            </Text>
-                          </View>
-                        )}
-                      </Text> */}
                       </View>
                     </View>
                   </View>
