@@ -178,57 +178,6 @@ const ModalContent: React.FC<ModalContentProps> = ({
     router.replace("/screens/signin");
   };
 
-  // upload image
-  const uploadImageToServer = async () => {
-    if (!profileImage?.uri) {
-      alert("Silakan pilih gambar terlebih dahulu.");
-      return;
-    }
-
-    const uri = profileImage.uri;
-    const fileName = uri.split("/").pop();
-    const fileType = fileName?.split(".").pop();
-    const userId = await SecureStore.getItemAsync("userId");
-    const cleanedUserId = userId?.replace(/"/g, "");
-
-    if (!cleanedUserId) {
-      alert("User ID tidak ditemukan.");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("image", {
-      uri,
-      name: fileName,
-      type: `image/${fileType}`,
-    } as any);
-    formData.append("id", cleanedUserId);
-
-    try {
-      const response = await axios.post(
-        // "http://192.168.18.109:3330/api/dokter/upload",
-        "http://10.52.170.231:3330/api/dokter/upload",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      console.log("Upload berhasil:", response.data);
-      alert("Foto berhasil diunggah!");
-    } catch (error: any) {
-      console.log("Upload gagal:", error.message);
-      alert("Gagal upload gambar");
-    }
-  };
-
-  const handleUpload = async () => {
-    await uploadImageToServer();
-    onClose?.();
-  };
-
   const handleDeleteAccount = async () => {
     try {
       const userId = await SecureStore.getItemAsync("userId");
@@ -393,8 +342,95 @@ const ModalContent: React.FC<ModalContentProps> = ({
     }
   };
 
+  // upload image
+  const uploadImageToServer = async () => {
+    if (!profileImage?.uri) {
+      alert("Silakan pilih gambar terlebih dahulu.");
+      return;
+    }
+
+    const uri = profileImage.uri;
+    const fileName = uri.split("/").pop();
+    const fileType = fileName?.split(".").pop();
+
+    try {
+      // Ambil data user
+      const userId = await SecureStore.getItemAsync("userId");
+      const token = await SecureStore.getItemAsync("userToken");
+      const cleanedUserId = userId?.replace(/"/g, "");
+      const cleanedToken = token?.replace(/"/g, "");
+
+      // Validasi data yang diperlukan
+      if (!cleanedUserId) {
+        alert("User ID tidak ditemukan. Silakan login ulang.");
+        return;
+      }
+
+      if (!cleanedToken) {
+        alert("Token tidak ditemukan. Silakan login ulang.");
+        return;
+      }
+
+      console.log("UserId:", cleanedUserId);
+      console.log("Token ada:", cleanedToken); // Log keberadaan token tanpa expose value
+
+      const formData = new FormData();
+      formData.append("image", {
+        uri,
+        name: fileName,
+        type: `images/${fileType}`,
+      } as any);
+      formData.append("id", cleanedUserId);
+
+      const response = await axios.post(
+        // "http://10.52.170.158:3330/api/dokter/upload",
+        `${BASE_URL}/dokter/upload`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${cleanedToken}`,
+          },
+        }
+      );
+
+      console.log("Upload berhasil:", response.data);
+      alert("Foto berhasil diunggah!");
+      onUpdateSuccess?.();
+    } catch (error: any) {
+      console.log("Upload errorrrr:", error.response?.data || error.message);
+
+      if (error.response?.status === 401) {
+        // Token expired atau tidak valid
+        alert("Sesi Anda telah berakhir. Silakan login ulang.");
+
+        // Hapus token yang expired
+        await SecureStore.deleteItemAsync("token");
+        await SecureStore.deleteItemAsync("userId");
+
+        // Redirect ke login (sesuaikan dengan navigation structure Anda)
+        // navigation.navigate('Login');
+      } else if (error.response?.status === 413) {
+        alert(
+          "Ukuran file terlalu besar. Silakan pilih gambar yang lebih kecil."
+        );
+      } else {
+        const errorMessage =
+          error.response?.data?.message ||
+          error.message ||
+          "Gagal upload gambar";
+        alert(`Upload gagal: ${errorMessage}`);
+      }
+    }
+  };
+
+  const handleUpload = async () => {
+    await uploadImageToServer();
+    onClose?.();
+  };
+
   switch (modalType) {
-    case "pilihgambar":
+    case "gantifotoprofil":
       return (
         <View className="bg-white p-6 rounded-2xl w-full items-center">
           <Text className="text-xl font-semibold mb-4 text-center text-skyDark">

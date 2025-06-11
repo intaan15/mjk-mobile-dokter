@@ -22,14 +22,6 @@ import ImagePickerComponent, {
 import ModalTemplate from "./modals/ModalTemplate";
 import ModalContent from "./modals/ModalContent";
 
-const DataDummy = {
-  id: 1,
-  nama: "Dr Izzu Adit Intan Nita",
-  username: "Zuditanit",
-  email: "zuditanit@gmail.com",
-  no_tlp: "08123712953234",
-  spesialis: "Jantung",
-};
 
 export default function Settings() {
   const router = useRouter();
@@ -41,11 +33,11 @@ export default function Settings() {
     setModalVisible(true);
   };
 
-  const toggleModal = () => {
-    setModalVisible(!isModalVisible);
-  };
+  // const toggleModal = () => {
+  //   setModalVisible(!isModalVisible);
+  // };
   const imageContext = useImage();
-  const profileImage = imageContext?.profileImage;
+  // const profileImage = imageContext?.profileImage;
   const setImage = imageContext?.setImage;
 
   const { openGallery, openCamera } = ImagePickerComponent({
@@ -75,7 +67,7 @@ export default function Settings() {
     >
       <TouchableOpacity
         className="flex flex-row items-center gap-2"
-        onPress={() => openModal("pilihgambar")}
+        onPress={() => openModal("gantifotoprofil")}
       >
         <MaterialCommunityIcons
           name="image-edit-outline"
