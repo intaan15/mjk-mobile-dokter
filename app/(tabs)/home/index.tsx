@@ -46,7 +46,7 @@ export default function HomeScreen() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      console.log("RAW chatlist data:", response.data);
+      // console.log("RAW chatlist data:", response.data);
 
       const enrichedChatList = response.data.map((chat: any) => {
         return {

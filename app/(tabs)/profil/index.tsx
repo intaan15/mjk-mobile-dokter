@@ -7,6 +7,7 @@ import {
   ScrollView,
   StatusBar,
   ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import Background from "../../components/background";
 import React, { useState, useEffect, useCallback } from "react";
@@ -34,6 +35,21 @@ interface User {
   foto_profil_dokter: string | null;
 }
 
+// Fungsi helper untuk membuat URL gambar lengkap
+const getImageUrl = (imagePath: string | null | undefined): string | null => {
+  if (!imagePath) return null;
+
+  if (imagePath.startsWith("http")) {
+    return imagePath;
+  }
+  const baseUrlWithoutApi = BASE_URL.replace("/api", "");
+
+  const cleanPath = imagePath.startsWith("/")
+    ? imagePath.substring(1)
+    : imagePath;
+  return `${baseUrlWithoutApi}/${cleanPath}`;
+};
+
 export default function ProfileScreen() {
   return (
     <ImageProvider>
@@ -49,16 +65,27 @@ function App() {
   const [konfirmasiPassword, setKonfirmasiPassword] = useState("");
   const [modalType, setModalType] = useState("");
   const [isModalVisible, setModalVisible] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  
 
   useFocusEffect(
     useCallback(() => {
       fetchUserData();
     }, [])
   );
+
+  const onRefresh = useCallback(async () => {
+      setRefreshing(true);
+      await fetchUserData();
+      setRefreshing(false);
+    }, []);
+
   const fetchUserData = async () => {
     try {
       const userId = await SecureStore.getItemAsync("userId");
       const token = await SecureStore.getItemAsync("userToken");
+      console.log("UserId:", userId);
+      console.log("Token ada:", token);
       const cleanedUserId = userId?.replace(/"/g, "");
       if (cleanedUserId) {
         const response = await axios.get(
@@ -73,7 +100,7 @@ function App() {
         setUserData(response.data);
       }
     } catch (error) {
-      // console.log("Gagal mengambil data profil:", error);
+      console.log("Gagal mengambil data profil:", error);
     }
   };
 
@@ -150,8 +177,18 @@ function App() {
   return (
     <Background>
       <View className="flex-1">
-        {/* <Navbar /> */}
-        <ScrollView>
+        <ScrollView
+        refreshControl={
+                    <RefreshControl
+                      refreshing={refreshing}
+                      onRefresh={onRefresh}
+                      colors={["#025F96"]} // Android
+                      tintColor="#025F96" // iOS
+                      title="Memuat ulang jadwal..."
+                      titleColor="#025F96"
+                    />
+                  }>
+          
           {/* Header */}
           <View className="relative pt-12 bg-skyLight rounded-b-[50px] py-28">
             <View className="absolute inset-0 flex items-center justify-between flex-row px-12">
@@ -169,9 +206,25 @@ function App() {
             {userData.foto_profil_dokter ? (
               <Image
                 source={{
-                  uri: `https://mjk-backend-production.up.railway.app/imagesdokter/${userData.foto_profil_dokter}`,
+                  uri: getImageUrl(userData.foto_profil_dokter),
                 }}
                 className="w-32 h-32 rounded-full border-4 border-skyDark"
+                onError={(error) => {
+                  console.log(
+                    "Error loading profile image:",
+                    error.nativeEvent.error
+                  );
+                  console.log(
+                    "Image URL:",
+                    getImageUrl(userData.foto_profil_dokter)
+                  );
+                }}
+                onLoad={() => {
+                  console.log(
+                    "Image loaded successfully:",
+                    getImageUrl(userData.foto_profil_dokter)
+                  );
+                }}
               />
             ) : (
               <View className="w-32 h-32 rounded-full border-4 border-skyDark items-center justify-center bg-gray-200">
