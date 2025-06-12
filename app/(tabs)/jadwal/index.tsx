@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useCallback } from "react";
 import {
   View,
   Text,
@@ -14,101 +14,29 @@ import Background from "@/components/background";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useRouter } from "expo-router";
 import { images } from "../../constants/images";
-import axios from "axios";
-import * as SecureStore from "expo-secure-store";
 import { useFocusEffect } from "@react-navigation/native";
-import { BASE_URL } from "@env";
+import { useScheduleViewModel } from "../../components/viewmodels/useJadwal";
 
-type Jadwal = {
-  tanggal: string;
-  jam: { time: string; available: boolean }[];
-};
-
-type AvailableTime = {
-  time: string;
-  available: boolean;
-};
-
-const ScheduleScreen = () => {
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [jadwal, setJadwal] = useState<Jadwal[]>([]);
-  const [availableTimes, setAvailableTimes] = useState<AvailableTime[]>([]);
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const [availableDates, setAvailableDates] = useState<string[]>([]);
-  const [userId, setUserId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+const ScheduleView = () => {
   const router = useRouter();
-
-  const fetchJadwal = async () => {
-    try {
-      const token = await SecureStore.getItemAsync("userToken");
-      const storedUserId = await SecureStore.getItemAsync("userId");
-
-      if (!token || !storedUserId) {
-        console.log("Token atau userId tidak ditemukan");
-        return;
-      }
-
-      setUserId(storedUserId);
-      const res = await axios.get(`${BASE_URL}/dokter/jadwal/${storedUserId}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      // console.log("Res data jadwal:", res.data);
-
-      setJadwal(res.data);
-
-      const datesWithSchedule = res.data
-        .filter((j: Jadwal) => j.jam && j.jam.length > 0)
-        .map((j: Jadwal) => {
-          const parsed = new Date(j.tanggal);
-          // console.log("Parsed tanggal:", j.tanggal, "=>", parsed);
-          return parsed.toISOString().split("T")[0];
-        });
-
-      // console.log("Available dates:", datesWithSchedule);
-      setAvailableDates(datesWithSchedule);
-    } catch (err) {
-      console.log("Error fetching jadwal:", err);
-    }
-  };
+  const {
+    selectedDate,
+    availableTimes,
+    selectedTime,
+    availableDates,
+    loading,
+    refreshing,
+    loadData,
+    onRefresh,
+    handleDateChange,
+    handleTimeSelect,
+  } = useScheduleViewModel();
 
   useFocusEffect(
     useCallback(() => {
-      const loadData = async () => {
-        setLoading(true);
-        await fetchJadwal();
-        setLoading(false);
-      };
       loadData();
     }, [])
   );
-
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    await fetchJadwal();
-    setRefreshing(false);
-  }, []);
-
-  useEffect(() => {
-    const selected = selectedDate.toISOString().split("T")[0];
-    const item = jadwal.find((j) => j.tanggal.split("T")[0] === selected);
-
-    // console.log("Selected date:", selected);
-    // console.log("Matching jadwal:", item);
-    // console.log("Jam tersedia:", item?.jam);
-
-    setAvailableTimes(item?.jam || []);
-  }, [selectedDate, jadwal]);
-
-  const handleDateChange = (date: Date) => {
-    console.log("Selected date changed:", date);
-    setSelectedDate(date);
-  };
 
   return (
     <Background>
@@ -196,12 +124,7 @@ const ScheduleScreen = () => {
                               : "#025F96"
                             : "#D1D5DB",
                         }}
-                        onPress={() => {
-                          if (slot.available) {
-                            setSelectedTime(slot.time);
-                            console.log("Waktu dipilih:", slot.time);
-                          }
-                        }}
+                        onPress={() => handleTimeSelect(slot.time, slot.available)}
                       >
                         <Text
                           className="text-lg text-skyDark text-center"
@@ -233,4 +156,4 @@ const ScheduleScreen = () => {
   );
 };
 
-export default ScheduleScreen;
+export default ScheduleView;
