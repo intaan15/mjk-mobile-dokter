@@ -76,6 +76,20 @@ const formatTanggalIndo = (isoDate: string) => {
   return `${hari}, ${tanggalNum} ${bulan} ${tahun}`;
 };
 
+const getImageUrl = (imagePath: string | null | undefined): string | null => {
+  if (!imagePath) return null;
+
+  if (imagePath.startsWith("http")) {
+    return imagePath;
+  }
+  const baseUrlWithoutApi = BASE_URL.replace("/api", "");
+
+  const cleanPath = imagePath.startsWith("/")
+    ? imagePath.substring(1)
+    : imagePath;
+  return `${baseUrlWithoutApi}/${cleanPath}`;
+};
+
 export default function JadwalScreen() {
   const router = useRouter();
   const [selectedTab, setSelectedTab] = useState("menunggu");
@@ -96,17 +110,44 @@ export default function JadwalScreen() {
         },
       });
 
+      // 🔍 DEBUG: Log raw response
+      console.log(
+        "📊 Raw API Response:",
+        JSON.stringify(response.data, null, 2)
+      );
+
+      // 🔍 DEBUG: Check each jadwal data
+      response.data.forEach((jadwal, index) => {
+        console.log(`📋 Jadwal ${index}:`, {
+          id: jadwal._id,
+          masyarakat_id: jadwal.masyarakat_id,
+          foto_profil: jadwal.masyarakat_id?.foto_profil_masyarakat,
+          nama: jadwal.masyarakat_id?.nama_masyarakat,
+        });
+      });
+
       if (userId) {
         const filtered = response.data.filter(
-          (jadwal: Jadwal) => jadwal.dokter_id?._id === userId
+          (jadwal) => jadwal.dokter_id?._id === userId
         );
+
+        // 🔍 DEBUG: Log filtered data
+        console.log("🎯 Filtered Jadwals:", filtered.length);
+        filtered.forEach((jadwal, index) => {
+          console.log(`✅ Filtered ${index}:`, {
+            id: jadwal._id,
+            foto_profil: jadwal.masyarakat_id?.foto_profil_masyarakat,
+          });
+        });
+
         setJadwal(filtered);
       }
     } catch (err) {
-      console.log("Error fetching jadwals:", err);
+      console.log("❌ Error fetching jadwals:", err);
+      console.log("❌ Error details:", err.response?.data);
     } finally {
       setLoading(false);
-      setRefreshing(false); // Set refreshing ke false setelah selesai
+      setRefreshing(false);
     }
   };
 
@@ -234,20 +275,45 @@ export default function JadwalScreen() {
                     }}
                   >
                     <View className="flex flex-row items-center px-3 pt-2">
-                      {jadwal.masyarakat_id?.foto_profil_masyarakat &&
-                      jadwal.masyarakat_id?.nama_masyarakat ? (
-                        <Image
-                          source={{
-                            uri: `https://mjk-backend-production.up.railway.app/uploads/${jadwal.masyarakat_id.foto_profil_masyarakat}`,
-                          }}
-                          className="h-20 w-20 rounded-full border border-gray-300"
-                          resizeMode="cover"
-                        />
-                      ) : (
-                        <View className="h-20 w-20 rounded-full border border-gray-300 items-center justify-center bg-gray-200">
-                          <Ionicons name="person" size={40} color="#0C4A6E" />
-                        </View>
-                      )}
+                      {(() => {
+                        const fotoUrl = getImageUrl(
+                          jadwal.masyarakat_id?.foto_profil_masyarakat
+                        );
+                        console.log(
+                          "Processing foto for:",
+                          jadwal.masyarakat_id?.nama_masyarakat
+                        );
+                        console.log(
+                          "Original foto path:",
+                          jadwal.masyarakat_id?.foto_profil_masyarakat
+                        );
+                        console.log("Processed foto URL:", fotoUrl);
+
+                        return fotoUrl ? (
+                          <Image
+                            source={{ uri: fotoUrl }}
+                            className="h-20 w-20 rounded-full border border-gray-300"
+                            resizeMode="cover"
+                            onError={(error) => {
+                              console.log(
+                                "❌ Error loading image:",
+                                error.nativeEvent.error
+                              );
+                              console.log("❌ Failed URL:", fotoUrl);
+                            }}
+                            onLoad={() => {
+                              console.log(
+                                "✅ Image loaded successfully:",
+                                fotoUrl
+                              );
+                            }}
+                          />
+                        ) : (
+                          <View className="h-20 w-20 rounded-full border border-gray-300 items-center justify-center bg-gray-200">
+                            <Ionicons name="person" size={40} color="#0C4A6E" />
+                          </View>
+                        );
+                      })()}
                       <View className="ml-4 flex-1">
                         <Text
                           className="truncate font-bold text-lg text-skyDark pb-1"
