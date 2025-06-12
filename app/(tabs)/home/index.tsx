@@ -31,6 +31,20 @@ interface User {
   nama_dokter: string;
 }
 
+const getImageUrl = (imagePath: string | null | undefined): string | null => {
+  if (!imagePath) return null;
+
+  if (imagePath.startsWith("http")) {
+    return imagePath;
+  }
+  const baseUrlWithoutApi = BASE_URL.replace("/api", "");
+
+  const cleanPath = imagePath.startsWith("/")
+    ? imagePath.substring(1)
+    : imagePath;
+  return `${baseUrlWithoutApi}/${cleanPath}`;
+};
+
 export default function HomeScreen() {
   const [userData, setUserData] = useState<User | null>(null);
   const [dokterId, setDokterId] = useState<string | null>(null);
@@ -46,24 +60,35 @@ export default function HomeScreen() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      // console.log("RAW chatlist data:", response.data);
+      console.log("RAW chatlist data:", response.data);
 
+      // PERBAIKAN: Gunakan getImageUrl yang sudah ada
       const enrichedChatList = response.data.map((chat: any) => {
+        console.log("Original foto_profil:", chat.participant?.foto_profil); // Debug log
+
         return {
           ...chat,
           nama_masyarakat: chat.participant?.nama || "Pasien",
-          foto_masyarakat: chat.participant?.foto_profil || null,
+          foto_profil_masyarakat: getImageUrl(chat.participant?.foto_profil), // Gunakan getImageUrl
           id_masyarakat: chat.participant?._id || "",
           lastMessageDate: chat.lastMessageDate || new Date().toISOString(),
         };
       });
+
+      console.log(
+        "Processed chatlist:",
+        enrichedChatList.map((chat) => ({
+          nama: chat.nama_masyarakat,
+          foto_url: chat.foto_profil_masyarakat,
+        }))
+      ); // Debug log
 
       setChatList(enrichedChatList);
     } catch (error) {
       console.log("Gagal ambil chat list", error);
     } finally {
       setLoading(false);
-      setRefreshing(false); // Set refreshing ke false setelah selesai
+      setRefreshing(false);
     }
   };
 
@@ -278,9 +303,11 @@ export default function HomeScreen() {
                   </View>
                   <View className="flex flex-row items-center">
                     <View className="h-16 w-16 rounded-full border border-gray-300 bg-gray-100 justify-center items-center">
-                      {chat.foto_masyarakat ? (
+                      {chat.foto_profil_masyarakat ? (
                         <Image
-                          source={{ uri: chat.foto_masyarakat }}
+                          source={{
+                            uri: getImageUrl(chat.foto_profil_masyarakat), // Pakai getImageUrl seperti di profil
+                          }}
                           className="h-full w-full rounded-full"
                           resizeMode="cover"
                         />
