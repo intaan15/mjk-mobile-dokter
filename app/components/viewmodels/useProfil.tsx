@@ -163,6 +163,40 @@ export const useScheduleViewModel = () => {
   
   const router = useRouter();
 
+  // Helper function to check if a date is today or in the future
+  const isDateValidForScheduling = useCallback((date: Date): boolean => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const checkDate = new Date(date);
+    checkDate.setHours(0, 0, 0, 0);
+    
+    return checkDate >= today;
+  }, []);
+
+  // Helper function to check if time slots are valid for today
+  const areTimeSlotsValidForToday = useCallback((date: Date, slots: string[]): boolean => {
+    const today = new Date();
+    const selectedDate = new Date(date);
+    
+    // If not today, no need to check time
+    if (selectedDate.toDateString() !== today.toDateString()) {
+      return true;
+    }
+    
+    // If today, check if the earliest time slot is after current time
+    if (slots.length === 0) return false;
+    
+    const currentHour = today.getHours();
+    const currentMinute = today.getMinutes();
+    const currentTimeInMinutes = currentHour * 60 + currentMinute;
+    
+    const earliestSlot = slots[0];
+    const [slotHour, slotMinute] = earliestSlot.split('.').map(Number);
+    const slotTimeInMinutes = slotHour * 60 + (slotMinute || 0);
+    
+    return slotTimeInMinutes > currentTimeInMinutes;
+  }, []);
+
   const openModal = useCallback((type: string) => {
     setModalType(type);
     setModalVisible(true);
@@ -173,8 +207,14 @@ export const useScheduleViewModel = () => {
   }, []);
 
   const handleDateChange = useCallback((date: Date) => {
+    if (!isDateValidForScheduling(date)) {
+      alert("Tidak dapat mengatur jadwal untuk tanggal yang sudah berlalu");
+      return;
+    }
     setSelectedDate(date);
-  }, []);
+    // Reset time slots when date changes
+    setTimeSlots([]);
+  }, [isDateValidForScheduling]);
 
   const validateTimeSlots = useCallback((slots: string[]): boolean => {
     if (slots.length >= 2) {
@@ -194,9 +234,14 @@ export const useScheduleViewModel = () => {
       return;
     }
 
+    if (!areTimeSlotsValidForToday(selectedDate, slots)) {
+      alert("Tidak dapat mengatur jadwal untuk waktu yang sudah berlalu hari ini");
+      return;
+    }
+
     setTimeSlots(slots);
     setModalVisible(false);
-  }, [validateTimeSlots]);
+  }, [validateTimeSlots, areTimeSlotsValidForToday, selectedDate]);
 
   const normalizeDate = useCallback((date: Date): string => {
     const normalized = new Date(date);
@@ -235,8 +280,18 @@ export const useScheduleViewModel = () => {
       return;
     }
 
+    if (!isDateValidForScheduling(selectedDate)) {
+      alert("Tidak dapat mengatur jadwal untuk tanggal yang sudah berlalu");
+      return;
+    }
+
     if (!validateTimeSlots(timeSlots)) {
       alert("Jam akhir tidak boleh lebih awal dari jam mulai");
+      return;
+    }
+
+    if (!areTimeSlotsValidForToday(selectedDate, timeSlots)) {
+      alert("Tidak dapat mengatur jadwal untuk waktu yang sudah berlalu hari ini");
       return;
     }
 
@@ -286,7 +341,7 @@ export const useScheduleViewModel = () => {
       console.log("Error submitting schedule:", error);
       alert("Terjadi kesalahan saat menyimpan jadwal.");
     }
-  }, [selectedDate, timeSlots, validateTimeSlots, normalizeDate, checkExistingSchedule, router]);
+  }, [selectedDate, timeSlots, isDateValidForScheduling, validateTimeSlots, areTimeSlotsValidForToday, normalizeDate, checkExistingSchedule, router]);
 
   const handleBackNavigation = useCallback(() => {
     router.replace("/(tabs)/profil");
@@ -306,8 +361,13 @@ export const useScheduleViewModel = () => {
     handleTimeSlotsChange,
     submitSchedule,
     handleBackNavigation,
+    
+    // Helper functions
+    isDateValidForScheduling,
+    areTimeSlotsValidForToday,
   };
 };
+
 type Jadwal = {
   tanggal: string;
   jam: { time: string; available: boolean }[];
@@ -331,6 +391,40 @@ export const useUbahJadwalViewModel = () => {
 
   const router = useRouter();
 
+  // Helper function to check if a date is today or in the future
+  const isDateValidForScheduling = useCallback((date: Date): boolean => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const checkDate = new Date(date);
+    checkDate.setHours(0, 0, 0, 0);
+    
+    return checkDate >= today;
+  }, []);
+
+  // Helper function to check if time slots are valid for today
+  const areTimeSlotsValidForToday = useCallback((date: Date, slots: string[]): boolean => {
+    const today = new Date();
+    const selectedDate = new Date(date);
+    
+    // If not today, no need to check time
+    if (selectedDate.toDateString() !== today.toDateString()) {
+      return true;
+    }
+    
+    // If today, check if the earliest time slot is after current time
+    if (slots.length === 0) return false;
+    
+    const currentHour = today.getHours();
+    const currentMinute = today.getMinutes();
+    const currentTimeInMinutes = currentHour * 60 + currentMinute;
+    
+    const earliestSlot = slots[0];
+    const [slotHour, slotMinute] = earliestSlot.split('.').map(Number);
+    const slotTimeInMinutes = slotHour * 60 + (slotMinute || 0);
+    
+    return slotTimeInMinutes > currentTimeInMinutes;
+  }, []);
+
   // Fetch jadwal from API
   const fetchJadwal = async () => {
     try {
@@ -349,6 +443,8 @@ export const useUbahJadwalViewModel = () => {
       });
       
       setJadwal(res.data);
+      
+      // Show ALL existing schedules (past, present, and future) for display purposes
       const datesWithSchedule = res.data
         .filter((j) => j.jam && j.jam.length > 0)
         .map((j) => new Date(j.tanggal).toISOString().split("T")[0]);
@@ -386,6 +482,12 @@ export const useUbahJadwalViewModel = () => {
     }
   };
 
+  // Handle date selection with validation only for editing
+  const handleDateSelection = useCallback((date: Date) => {
+    setSelectedDate(date);
+    setTimeSlots([]);
+  }, []);
+
   // Validate time slots
   const validateTimeSlots = (slots: string[]): boolean => {
     if (slots.length >= 2) {
@@ -400,23 +502,48 @@ export const useUbahJadwalViewModel = () => {
     return true;
   };
 
-  // Handle time slots change
+  // Handle time slots change with validation
   const handleTimeSlotsChange = (slots: string[]) => {
     if (!validateTimeSlots(slots)) {
       return;
     }
+    
+    // Only validate for editing if the date is today or in the future
+    if (isDateValidForScheduling(selectedDate)) {
+      if (!areTimeSlotsValidForToday(selectedDate, slots)) {
+        alert("Tidak dapat mengatur jadwal untuk waktu yang sudah berlalu hari ini");
+        return;
+      }
+    }
+    
     setTimeSlots(slots);
     setModalVisible(false);
   };
 
-  // Submit schedule
+  // Check if the selected date can be edited
+  const canEditSelectedDate = useCallback((): boolean => {
+    return isDateValidForScheduling(selectedDate);
+  }, [selectedDate, isDateValidForScheduling]);
+
+  // Submit schedule with validation
   const handleSubmitSchedule = async () => {
     if (!selectedDate || timeSlots.length === 0) {
       alert("Harap pilih tanggal dan jam praktek.");
       return;
     }
 
+    // Validate that the date can be edited
+    if (!canEditSelectedDate()) {
+      alert("Tidak dapat mengubah jadwal untuk tanggal yang sudah berlalu");
+      return;
+    }
+
     if (!validateTimeSlots(timeSlots)) {
+      return;
+    }
+
+    if (!areTimeSlotsValidForToday(selectedDate, timeSlots)) {
+      alert("Tidak dapat mengatur jadwal untuk waktu yang sudah berlalu hari ini");
       return;
     }
 
@@ -460,8 +587,14 @@ export const useUbahJadwalViewModel = () => {
     }
   };
 
-  // Modal handlers
+  // Modal handlers with validation for editing actions
   const openModal = (type: string) => {
+    // Check if trying to edit a past date
+    if ((type === "pilihjam" || type === "konfirm") && !canEditSelectedDate()) {
+      alert("Tidak dapat mengubah jadwal untuk tanggal yang sudah berlalu");
+      return;
+    }
+    
     setModalType(type);
     setModalVisible(true);
   };
@@ -485,6 +618,16 @@ export const useUbahJadwalViewModel = () => {
     });
   };
 
+  // Check if selected date is in the past (for UI indicators)
+  const isSelectedDateInPast = useCallback((): boolean => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const checkDate = new Date(selectedDate);
+    checkDate.setHours(0, 0, 0, 0);
+    
+    return checkDate < today;
+  }, [selectedDate]);
+
   // Effects
   useEffect(() => {
     fetchJadwal();
@@ -506,12 +649,18 @@ export const useUbahJadwalViewModel = () => {
     loading,
     
     // Actions
-    setSelectedDate,
+    setSelectedDate: handleDateSelection,
     handleTimeSlotsChange,
     handleSubmitSchedule,
     openModal,
     closeModal,
     navigateBack,
     getFormattedSelectedDate,
+    
+    // Helper functions
+    isDateValidForScheduling,
+    areTimeSlotsValidForToday,
+    canEditSelectedDate,
+    isSelectedDateInPast,
   };
 };
