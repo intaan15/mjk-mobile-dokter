@@ -383,7 +383,6 @@ const ModalContent: React.FC<ModalContentProps> = ({
       formData.append("id", cleanedUserId);
 
       const response = await axios.post(
-        // "http://10.52.170.158:3330/api/dokter/upload",
         `${BASE_URL}/dokter/upload`,
         formData,
         {

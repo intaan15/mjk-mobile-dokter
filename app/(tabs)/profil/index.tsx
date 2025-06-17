@@ -9,7 +9,7 @@ import {
   RefreshControl,
 } from "react-native";
 import Background from "../../components/background";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { images } from "@/constants/images";
 import Settings from "@/components/settings";
 import { ImageProvider } from "@/components/picker/imagepicker";
@@ -51,9 +51,12 @@ function ProfileView() {
     getImageUrl,
   } = useProfileViewModel();
 
+  const [imageLoadError, setImageLoadError] = useState(false);
+
   useFocusEffect(
     React.useCallback(() => {
       fetchUserData();
+      setImageLoadError(false);
     }, [fetchUserData])
   );
 
@@ -69,6 +72,16 @@ function ProfileView() {
       </Background>
     );
   }
+
+  // Fungsi untuk menangani error loading image
+  const handleImageError = (error) => {
+    setImageLoadError(true);
+  };
+
+  // Fungsi untuk menangani sukses loading image
+  const handleImageLoad = () => {
+    setImageLoadError(false);
+  };
 
   return (
     <Background>
@@ -99,28 +112,14 @@ function ProfileView() {
 
           {/* Foto Profil */}
           <View className="absolute top-28 left-1/2 -translate-x-1/2">
-            {userData.foto_profil_dokter ? (
+            {userData.foto_profil_dokter && !imageLoadError ? (
               <Image
                 source={{
                   uri: getImageUrl(userData.foto_profil_dokter),
                 }}
                 className="w-32 h-32 rounded-full border-4 border-skyDark"
-                onError={(error) => {
-                  console.log(
-                    "Error loading profile image:",
-                    error.nativeEvent.error
-                  );
-                  console.log(
-                    "Image URL:",
-                    getImageUrl(userData.foto_profil_dokter)
-                  );
-                }}
-                onLoad={() => {
-                  console.log(
-                    "Image loaded successfully:",
-                    getImageUrl(userData.foto_profil_dokter)
-                  );
-                }}
+                onError={handleImageError}
+                onLoad={handleImageLoad}
               />
             ) : (
               <View className="w-32 h-32 rounded-full border-4 border-skyDark items-center justify-center bg-gray-200">
