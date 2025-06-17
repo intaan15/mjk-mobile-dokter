@@ -581,7 +581,7 @@ export const useUbahJadwalViewModel = () => {
       }
     } catch (error: any) {
       if (error.response?.status === 404) {
-        alert("YEAYYY JADWAL TIDAK ADA SILAHKAN ATUR DULU");
+        alert("Jadwal tidak ada, silahkan atur terlebih dahulu");
         router.push("/(tabs)/profil/aturjadwal");
       }
     }

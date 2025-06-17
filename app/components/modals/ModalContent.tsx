@@ -237,13 +237,13 @@ const ModalContent: React.FC<ModalContentProps> = ({
       );
 
       if (response.data.success) {
-        alert("YEAYYY JADWAL DIUBAH DEFOLT");
+        alert("Jadwal berhasil diubah menjadi default (08.00-16.00)");
         onClose?.();
         router.push("/(tabs)/profil");
       }
     } catch (error: any) {
       if (error.response?.status === 404) {
-        alert("YEAYYY JADWAL TIDAK ADA SILAHKAN ATUR DULU");
+        alert("Jadwal tidak ada silahkan atur jadwal terlebih dahulu");
         onClose?.();
         router.push("/(tabs)/profil/aturjadwal");
       } else {
@@ -293,7 +293,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
       );
 
       if (response.status === 201) {
-        alert("YEAYYY JADWAL DIATUR DEFOLT");
+        alert("Jadwal berhasil diatur menjadi default (08.00-16.00)");
         onClose?.();
         router.push("/(tabs)/profil");
       } else {
@@ -330,7 +330,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
       );
 
       if (response.data.success) {
-        alert("YEAYY JADWAL DIHAPUS WAKTUNYA LIBUR");
+        alert("Jadwal berhasil dihapus");
         onClose?.();
         router.replace("/(tabs)/profil");
       }
@@ -382,16 +382,12 @@ const ModalContent: React.FC<ModalContentProps> = ({
       } as any);
       formData.append("id", cleanedUserId);
 
-      const response = await axios.post(
-        `${BASE_URL}/dokter/upload`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${cleanedToken}`,
-          },
-        }
-      );
+      const response = await axios.post(`${BASE_URL}/dokter/upload`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${cleanedToken}`,
+        },
+      });
 
       console.log("Upload berhasil:", response.data);
       alert("Foto berhasil diunggah!");
