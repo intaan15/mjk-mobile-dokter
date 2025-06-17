@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import { BASE_URL } from "@env";
+import { Alert } from "react-native";
 import { useRouter } from "expo-router";
 
 interface User {
@@ -15,6 +16,14 @@ interface User {
   foto_profil_dokter: string | null;
 }
 
+interface PasswordValidation {
+  minLength: boolean;
+  hasLowercase: boolean;
+  hasUppercase: boolean;
+  hasNumber: boolean;
+  hasSymbol: boolean;
+}
+
 export const useProfileViewModel = () => {
   const [userData, setUserData] = useState<User | null>(null);
   const [passwordLama, setPasswordLama] = useState("");
@@ -23,14 +32,47 @@ export const useProfileViewModel = () => {
   const [modalType, setModalType] = useState("");
   const [isModalVisible, setModalVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [passwordValidation, setPasswordValidation] =
+    useState<PasswordValidation>({
+      minLength: false,
+      hasLowercase: false,
+      hasUppercase: false,
+      hasNumber: false,
+      hasSymbol: false,
+    });
+  const [showPasswordValidation, setShowPasswordValidation] = useState(false);
+
+  // Fungsi validasi password
+  const validatePassword = useCallback((password: string) => {
+    const validation: PasswordValidation = {
+      minLength: password.length >= 8,
+      hasLowercase: /[a-z]/.test(password),
+      hasUppercase: /[A-Z]/.test(password),
+      hasNumber: /\d/.test(password),
+      hasSymbol: /[@$!%*?&/#^()[\]{}<>]/.test(password),
+    };
+
+    setPasswordValidation(validation);
+    return Object.values(validation).every(Boolean);
+  }, []);
+
+  // Update password baru dengan validasi
+  const handlePasswordBaruChange = useCallback(
+    (value: string) => {
+      setPasswordBaru(value);
+      validatePassword(value);
+      setShowPasswordValidation(value.length > 0);
+    },
+    [validatePassword]
+  );
 
   const fetchUserData = useCallback(async () => {
     try {
       const userId = await SecureStore.getItemAsync("userId");
       const token = await SecureStore.getItemAsync("userToken");
       console.log("UserId:", userId);
-      console.log("Token ada:", token);
-      
+      console.log("Token ada:", !!token);
+
       const cleanedUserId = userId?.replace(/"/g, "");
       if (cleanedUserId) {
         const response = await axios.get(
@@ -56,6 +98,29 @@ export const useProfileViewModel = () => {
   }, [fetchUserData]);
 
   const handleGantiPassword = useCallback(async () => {
+    // Validasi input kosong
+    if (!passwordLama || !passwordBaru || !konfirmasiPassword) {
+      setModalType("kolompwkosong");
+      setModalVisible(true);
+      return;
+    }
+
+    // Validasi password baru
+    if (!validatePassword(passwordBaru)) {
+      Alert.alert(
+        "Password Tidak Valid",
+        "Password harus minimal 8 karakter, mengandung huruf besar, huruf kecil, angka, dan simbol (@$!%*?&/#^()[]{})"
+      );
+      return;
+    }
+
+    // Validasi konfirmasi password
+    if (passwordBaru !== konfirmasiPassword) {
+      setModalType("pwtidakcocok");
+      setModalVisible(true);
+      return;
+    }
+
     try {
       const token = await SecureStore.getItemAsync("userToken");
 
@@ -74,6 +139,7 @@ export const useProfileViewModel = () => {
         },
         {
           headers: {
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
         }
@@ -84,6 +150,14 @@ export const useProfileViewModel = () => {
       setPasswordLama("");
       setPasswordBaru("");
       setKonfirmasiPassword("");
+      setShowPasswordValidation(false);
+      setPasswordValidation({
+        minLength: false,
+        hasLowercase: false,
+        hasUppercase: false,
+        hasNumber: false,
+        hasSymbol: false,
+      });
     } catch (error: any) {
       const msg =
         error.response?.data?.message ||
@@ -100,7 +174,7 @@ export const useProfileViewModel = () => {
       }
       setModalVisible(true);
     }
-  }, [passwordLama, passwordBaru, konfirmasiPassword]);
+  }, [passwordLama, passwordBaru, konfirmasiPassword, validatePassword]);
 
   const openModal = useCallback((type: string) => {
     setModalType(type);
@@ -117,18 +191,37 @@ export const useProfileViewModel = () => {
   }, [fetchUserData]);
 
   // Fungsi helper untuk membuat URL gambar lengkap
-  const getImageUrl = useCallback((imagePath: string | null | undefined): string | null => {
-    if (!imagePath) return null;
+  const getImageUrl = useCallback(
+    (imagePath: string | null | undefined): string | null => {
+      if (!imagePath) return null;
 
-    if (imagePath.startsWith("http")) {
-      return imagePath;
+      if (imagePath.startsWith("http")) {
+        return imagePath;
+      }
+      const baseUrlWithoutApi = BASE_URL.replace("/api", "");
+
+      const cleanPath = imagePath.startsWith("/")
+        ? imagePath.substring(1)
+        : imagePath;
+      return `${baseUrlWithoutApi}/${cleanPath}`;
+    },
+    []
+  );
+
+  // Fungsi untuk format tanggal
+  const formatTanggal = useCallback((tanggal: string) => {
+    if (!tanggal) return "";
+
+    try {
+      const date = new Date(tanggal);
+      return date.toLocaleDateString("id-ID", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+      });
+    } catch (error) {
+      return tanggal;
     }
-    const baseUrlWithoutApi = BASE_URL.replace("/api", "");
-
-    const cleanPath = imagePath.startsWith("/")
-      ? imagePath.substring(1)
-      : imagePath;
-    return `${baseUrlWithoutApi}/${cleanPath}`;
   }, []);
 
   return {
@@ -140,11 +233,14 @@ export const useProfileViewModel = () => {
     modalType,
     isModalVisible,
     refreshing,
-    
+    passwordValidation,
+    showPasswordValidation,
+
     // Actions
     setPasswordLama,
-    setPasswordBaru,
+    setPasswordBaru: handlePasswordBaruChange,
     setKonfirmasiPassword,
+    setShowPasswordValidation,
     fetchUserData,
     onRefresh,
     handleGantiPassword,
@@ -152,6 +248,8 @@ export const useProfileViewModel = () => {
     closeModal,
     handleUpdateSuccess,
     getImageUrl,
+    validatePassword,
+    formatTanggal,
   };
 };
 
@@ -160,7 +258,7 @@ export const useScheduleViewModel = () => {
   const [timeSlots, setTimeSlots] = useState<string[]>([]);
   const [modalType, setModalType] = useState("info");
   const [isModalVisible, setModalVisible] = useState(false);
-  
+
   const router = useRouter();
 
   // Helper function to check if a date is today or in the future
@@ -169,33 +267,36 @@ export const useScheduleViewModel = () => {
     today.setHours(0, 0, 0, 0);
     const checkDate = new Date(date);
     checkDate.setHours(0, 0, 0, 0);
-    
+
     return checkDate >= today;
   }, []);
 
   // Helper function to check if time slots are valid for today
-  const areTimeSlotsValidForToday = useCallback((date: Date, slots: string[]): boolean => {
-    const today = new Date();
-    const selectedDate = new Date(date);
-    
-    // If not today, no need to check time
-    if (selectedDate.toDateString() !== today.toDateString()) {
-      return true;
-    }
-    
-    // If today, check if the earliest time slot is after current time
-    if (slots.length === 0) return false;
-    
-    const currentHour = today.getHours();
-    const currentMinute = today.getMinutes();
-    const currentTimeInMinutes = currentHour * 60 + currentMinute;
-    
-    const earliestSlot = slots[0];
-    const [slotHour, slotMinute] = earliestSlot.split('.').map(Number);
-    const slotTimeInMinutes = slotHour * 60 + (slotMinute || 0);
-    
-    return slotTimeInMinutes > currentTimeInMinutes;
-  }, []);
+  const areTimeSlotsValidForToday = useCallback(
+    (date: Date, slots: string[]): boolean => {
+      const today = new Date();
+      const selectedDate = new Date(date);
+
+      // If not today, no need to check time
+      if (selectedDate.toDateString() !== today.toDateString()) {
+        return true;
+      }
+
+      // If today, check if the earliest time slot is after current time
+      if (slots.length === 0) return false;
+
+      const currentHour = today.getHours();
+      const currentMinute = today.getMinutes();
+      const currentTimeInMinutes = currentHour * 60 + currentMinute;
+
+      const earliestSlot = slots[0];
+      const [slotHour, slotMinute] = earliestSlot.split(".").map(Number);
+      const slotTimeInMinutes = slotHour * 60 + (slotMinute || 0);
+
+      return slotTimeInMinutes > currentTimeInMinutes;
+    },
+    []
+  );
 
   const openModal = useCallback((type: string) => {
     setModalType(type);
@@ -206,15 +307,18 @@ export const useScheduleViewModel = () => {
     setModalVisible(false);
   }, []);
 
-  const handleDateChange = useCallback((date: Date) => {
-    if (!isDateValidForScheduling(date)) {
-      alert("Tidak dapat mengatur jadwal untuk tanggal yang sudah berlalu");
-      return;
-    }
-    setSelectedDate(date);
-    // Reset time slots when date changes
-    setTimeSlots([]);
-  }, [isDateValidForScheduling]);
+  const handleDateChange = useCallback(
+    (date: Date) => {
+      if (!isDateValidForScheduling(date)) {
+        alert("Tidak dapat mengatur jadwal untuk tanggal yang sudah berlalu");
+        return;
+      }
+      setSelectedDate(date);
+      // Reset time slots when date changes
+      setTimeSlots([]);
+    },
+    [isDateValidForScheduling]
+  );
 
   const validateTimeSlots = useCallback((slots: string[]): boolean => {
     if (slots.length >= 2) {
@@ -228,20 +332,25 @@ export const useScheduleViewModel = () => {
     return true;
   }, []);
 
-  const handleTimeSlotsChange = useCallback((slots: string[]) => {
-    if (!validateTimeSlots(slots)) {
-      alert("Jam akhir tidak boleh lebih awal dari jam mulai");
-      return;
-    }
+  const handleTimeSlotsChange = useCallback(
+    (slots: string[]) => {
+      if (!validateTimeSlots(slots)) {
+        alert("Jam akhir tidak boleh lebih awal dari jam mulai");
+        return;
+      }
 
-    if (!areTimeSlotsValidForToday(selectedDate, slots)) {
-      alert("Tidak dapat mengatur jadwal untuk waktu yang sudah berlalu hari ini");
-      return;
-    }
+      if (!areTimeSlotsValidForToday(selectedDate, slots)) {
+        alert(
+          "Tidak dapat mengatur jadwal untuk waktu yang sudah berlalu hari ini"
+        );
+        return;
+      }
 
-    setTimeSlots(slots);
-    setModalVisible(false);
-  }, [validateTimeSlots, areTimeSlotsValidForToday, selectedDate]);
+      setTimeSlots(slots);
+      setModalVisible(false);
+    },
+    [validateTimeSlots, areTimeSlotsValidForToday, selectedDate]
+  );
 
   const normalizeDate = useCallback((date: Date): string => {
     const normalized = new Date(date);
@@ -249,30 +358,36 @@ export const useScheduleViewModel = () => {
     return normalized.toISOString().split("T")[0];
   }, []);
 
-  const checkExistingSchedule = useCallback(async (
-    token: string, 
-    dokterId: string, 
-    selectedDateStr: string
-  ): Promise<boolean> => {
-    try {
-      const cekRes = await axios.get(`${BASE_URL}/dokter/jadwal/${dokterId}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+  const checkExistingSchedule = useCallback(
+    async (
+      token: string,
+      dokterId: string,
+      selectedDateStr: string
+    ): Promise<boolean> => {
+      try {
+        const cekRes = await axios.get(
+          `${BASE_URL}/dokter/jadwal/${dokterId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-      const isSameDateExist = cekRes.data.some((jadwal: any) => {
-        const jadwalDateStr = normalizeDate(new Date(jadwal.tanggal));
-        return jadwalDateStr === selectedDateStr;
-      });
+        const isSameDateExist = cekRes.data.some((jadwal: any) => {
+          const jadwalDateStr = normalizeDate(new Date(jadwal.tanggal));
+          return jadwalDateStr === selectedDateStr;
+        });
 
-      return isSameDateExist;
-    } catch (error) {
-      console.log("Error checking existing schedule:", error);
-      throw error;
-    }
-  }, [normalizeDate]);
+        return isSameDateExist;
+      } catch (error) {
+        console.log("Error checking existing schedule:", error);
+        throw error;
+      }
+    },
+    [normalizeDate]
+  );
 
   const submitSchedule = useCallback(async (): Promise<void> => {
     if (!selectedDate || timeSlots.length === 0) {
@@ -291,14 +406,16 @@ export const useScheduleViewModel = () => {
     }
 
     if (!areTimeSlotsValidForToday(selectedDate, timeSlots)) {
-      alert("Tidak dapat mengatur jadwal untuk waktu yang sudah berlalu hari ini");
+      alert(
+        "Tidak dapat mengatur jadwal untuk waktu yang sudah berlalu hari ini"
+      );
       return;
     }
 
     try {
       const token = await SecureStore.getItemAsync("userToken");
       const dokterId = await SecureStore.getItemAsync("userId");
-      
+
       if (!token || !dokterId) {
         alert("Token atau ID dokter tidak ditemukan.");
         return;
@@ -309,10 +426,16 @@ export const useScheduleViewModel = () => {
       const selectedDateStr = normalizeDate(selectedDate);
 
       // Check if schedule already exists for the selected date
-      const isScheduleExists = await checkExistingSchedule(token, dokterId, selectedDateStr);
-      
+      const isScheduleExists = await checkExistingSchedule(
+        token,
+        dokterId,
+        selectedDateStr
+      );
+
       if (isScheduleExists) {
-        alert("Jadwal pada tanggal ini sudah ada. Silahkan ubah jadwal anda pada menu ubah jadwal");
+        alert(
+          "Jadwal pada tanggal ini sudah ada. Silahkan ubah jadwal anda pada menu ubah jadwal"
+        );
         return;
       }
 
@@ -341,7 +464,16 @@ export const useScheduleViewModel = () => {
       console.log("Error submitting schedule:", error);
       alert("Terjadi kesalahan saat menyimpan jadwal.");
     }
-  }, [selectedDate, timeSlots, isDateValidForScheduling, validateTimeSlots, areTimeSlotsValidForToday, normalizeDate, checkExistingSchedule, router]);
+  }, [
+    selectedDate,
+    timeSlots,
+    isDateValidForScheduling,
+    validateTimeSlots,
+    areTimeSlotsValidForToday,
+    normalizeDate,
+    checkExistingSchedule,
+    router,
+  ]);
 
   const handleBackNavigation = useCallback(() => {
     router.replace("/(tabs)/profil");
@@ -353,7 +485,7 @@ export const useScheduleViewModel = () => {
     timeSlots,
     modalType,
     isModalVisible,
-    
+
     // Actions
     openModal,
     closeModal,
@@ -361,7 +493,7 @@ export const useScheduleViewModel = () => {
     handleTimeSlotsChange,
     submitSchedule,
     handleBackNavigation,
-    
+
     // Helper functions
     isDateValidForScheduling,
     areTimeSlotsValidForToday,
@@ -397,33 +529,36 @@ export const useUbahJadwalViewModel = () => {
     today.setHours(0, 0, 0, 0);
     const checkDate = new Date(date);
     checkDate.setHours(0, 0, 0, 0);
-    
+
     return checkDate >= today;
   }, []);
 
   // Helper function to check if time slots are valid for today
-  const areTimeSlotsValidForToday = useCallback((date: Date, slots: string[]): boolean => {
-    const today = new Date();
-    const selectedDate = new Date(date);
-    
-    // If not today, no need to check time
-    if (selectedDate.toDateString() !== today.toDateString()) {
-      return true;
-    }
-    
-    // If today, check if the earliest time slot is after current time
-    if (slots.length === 0) return false;
-    
-    const currentHour = today.getHours();
-    const currentMinute = today.getMinutes();
-    const currentTimeInMinutes = currentHour * 60 + currentMinute;
-    
-    const earliestSlot = slots[0];
-    const [slotHour, slotMinute] = earliestSlot.split('.').map(Number);
-    const slotTimeInMinutes = slotHour * 60 + (slotMinute || 0);
-    
-    return slotTimeInMinutes > currentTimeInMinutes;
-  }, []);
+  const areTimeSlotsValidForToday = useCallback(
+    (date: Date, slots: string[]): boolean => {
+      const today = new Date();
+      const selectedDate = new Date(date);
+
+      // If not today, no need to check time
+      if (selectedDate.toDateString() !== today.toDateString()) {
+        return true;
+      }
+
+      // If today, check if the earliest time slot is after current time
+      if (slots.length === 0) return false;
+
+      const currentHour = today.getHours();
+      const currentMinute = today.getMinutes();
+      const currentTimeInMinutes = currentHour * 60 + currentMinute;
+
+      const earliestSlot = slots[0];
+      const [slotHour, slotMinute] = earliestSlot.split(".").map(Number);
+      const slotTimeInMinutes = slotHour * 60 + (slotMinute || 0);
+
+      return slotTimeInMinutes > currentTimeInMinutes;
+    },
+    []
+  );
 
   // Fetch jadwal from API
   const fetchJadwal = async () => {
@@ -441,9 +576,9 @@ export const useUbahJadwalViewModel = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      
+
       setJadwal(res.data);
-      
+
       // Show ALL existing schedules (past, present, and future) for display purposes
       const datesWithSchedule = res.data
         .filter((j) => j.jam && j.jam.length > 0)
@@ -468,7 +603,7 @@ export const useUbahJadwalViewModel = () => {
   // Update available times when date changes
   const updateAvailableTimes = () => {
     if (!selectedDate) return;
-    
+
     const selectedDateStr = selectedDate.toISOString().split("T")[0];
     const jadwalHariIni = jadwal.find((j) => {
       const jadwalDateStr = new Date(j.tanggal).toISOString().split("T")[0];
@@ -507,15 +642,17 @@ export const useUbahJadwalViewModel = () => {
     if (!validateTimeSlots(slots)) {
       return;
     }
-    
+
     // Only validate for editing if the date is today or in the future
     if (isDateValidForScheduling(selectedDate)) {
       if (!areTimeSlotsValidForToday(selectedDate, slots)) {
-        alert("Tidak dapat mengatur jadwal untuk waktu yang sudah berlalu hari ini");
+        alert(
+          "Tidak dapat mengatur jadwal untuk waktu yang sudah berlalu hari ini"
+        );
         return;
       }
     }
-    
+
     setTimeSlots(slots);
     setModalVisible(false);
   };
@@ -543,7 +680,9 @@ export const useUbahJadwalViewModel = () => {
     }
 
     if (!areTimeSlotsValidForToday(selectedDate, timeSlots)) {
-      alert("Tidak dapat mengatur jadwal untuk waktu yang sudah berlalu hari ini");
+      alert(
+        "Tidak dapat mengatur jadwal untuk waktu yang sudah berlalu hari ini"
+      );
       return;
     }
 
@@ -557,9 +696,10 @@ export const useUbahJadwalViewModel = () => {
       }
 
       const jamMulai = timeSlots[0].replace(".", ":") + ":00";
-      const jamSelesai = timeSlots[timeSlots.length - 1].replace(".", ":") + ":00";
+      const jamSelesai =
+        timeSlots[timeSlots.length - 1].replace(".", ":") + ":00";
       const tanggal = new Date(selectedDate).toISOString();
-      
+
       const response = await axios.patch(
         `${BASE_URL}/dokter/${dokterId}/jadwal/update`,
         {
@@ -594,7 +734,7 @@ export const useUbahJadwalViewModel = () => {
       alert("Tidak dapat mengubah jadwal untuk tanggal yang sudah berlalu");
       return;
     }
-    
+
     setModalType(type);
     setModalVisible(true);
   };
@@ -624,7 +764,7 @@ export const useUbahJadwalViewModel = () => {
     today.setHours(0, 0, 0, 0);
     const checkDate = new Date(selectedDate);
     checkDate.setHours(0, 0, 0, 0);
-    
+
     return checkDate < today;
   }, [selectedDate]);
 
@@ -647,7 +787,7 @@ export const useUbahJadwalViewModel = () => {
     availableTimes,
     availableDates,
     loading,
-    
+
     // Actions
     setSelectedDate: handleDateSelection,
     handleTimeSlotsChange,
@@ -656,7 +796,7 @@ export const useUbahJadwalViewModel = () => {
     closeModal,
     navigateBack,
     getFormattedSelectedDate,
-    
+
     // Helper functions
     isDateValidForScheduling,
     areTimeSlotsValidForToday,
