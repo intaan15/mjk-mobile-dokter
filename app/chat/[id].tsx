@@ -23,7 +23,7 @@ import axios from "axios";
 import { BASE_URL, BASE_URL2 } from "@env";
 import { useLocalSearchParams } from "expo-router";
 
-const socket = io("http://10.52.170.171:3330", {
+const socket = io("http://10.52.170.201:3330", {
   transports: ["websocket"], //
 });
 
@@ -299,7 +299,7 @@ export default function ChatScreen() {
                   ? item.image // Base64 image dengan header
                   : item.image.startsWith("http")
                   ? item.image // URL lengkap
-                  : `http://10.52.170.171:3330${item.image}`, // Path relatif
+                  : `http://10.52.170.201:3330${item.image}`, // Path relatif
               }}
               className="w-24 h-32 mt-1 rounded-md"
               resizeMode="cover"
@@ -451,7 +451,7 @@ export default function ChatScreen() {
                       ? previewImage
                       : previewImage.startsWith("http")
                       ? previewImage
-                      : `http://10.52.170.171:3330${previewImage}`,
+                      : `http://10.52.170.201:3330${previewImage}`,
                   }}
                   style={{
                     width: "90%",
@@ -477,7 +477,7 @@ export default function ChatScreen() {
                         ? "Base64 Image"
                         : previewImage.startsWith("http")
                         ? previewImage
-                        : `http://10.52.170.171:3330${previewImage}`
+                        : `http://10.52.170.201:3330${previewImage}`
                     );
                   }}
                 />

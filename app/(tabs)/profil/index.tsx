@@ -67,8 +67,8 @@ const PasswordValidationIndicator: React.FC<
   ];
 
   return (
-    <View className="w-full mt-2 p-3 bg-gray-50 rounded-lg">
-      <Text className="text-sm font-semibold text-gray-600 mb-2">
+    <View className="w-full mt-2 p-3 rounded-lg">
+      <Text className="text-sm font-semibold text-skyDark mb-2">
         Syarat Password:
       </Text>
       {validationItems.map((item) => (

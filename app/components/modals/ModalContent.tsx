@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Text, View, TouchableOpacity, TextInput } from "react-native";
+import { Text, View, TouchableOpacity, TextInput, Alert } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -93,6 +93,31 @@ const ModalContent: React.FC<ModalContentProps> = ({
   }, []);
 
   const handleSubmit = async () => {
+    const phoneRegex = /^[0-9]{10,15}$/;
+
+    if (!nama || !username || !email || !noTlp || !spesialis ) {
+      Alert.alert(
+        "Semua kolom harus diisi",
+        "Pastikan semua kolom telah diisi sebelum melanjutkan."
+      );
+      return;
+    }
+    if (!phoneRegex.test(noTlp)) {
+      Alert.alert(
+        "Nomor Telepon Tidak Valid",
+        "Nomor telepon harus berupa 10-15 digit angka tanpa spasi atau simbol."
+      );
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+      Alert.alert(
+        "Email tidak valid",
+        "Silakan masukkan email dengan format yang benar, contoh: nama@email.com"
+      );
+      return;
+    }
     try {
       const dokterId = await SecureStore.getItemAsync("userId");
       const cleanedDokterId = dokterId?.replace(/"/g, "");
