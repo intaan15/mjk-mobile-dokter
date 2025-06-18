@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from "react";
+<<<<<<< HEAD
 import { Text, View, TouchableOpacity, TextInput, Alert } from "react-native";
+=======
+import {
+  Text,
+  View,
+  TouchableOpacity,
+  TextInput,
+  ScrollView,
+} from "react-native";
+>>>>>>> d884c833b3ffb61e92bfb0b15aa29e04b9f0af4d
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -55,7 +65,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
   const [email, setEmail] = useState("");
   const [noTlp, setNoTlp] = useState("");
   const [spesialis, setSpesialis] = useState("");
-
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [userData, setUserData] = useState<User | null>(null);
 
   useEffect(() => {
@@ -548,22 +558,201 @@ const ModalContent: React.FC<ModalContentProps> = ({
             <Text className="w-full pl-1 text-base font-semibold text-skyDark pt-2">
               Spesialis
             </Text>
-            <TextInput
-              placeholder="Tulang"
-              value={spesialis}
-              onChangeText={setSpesialis}
-              className="border-2 rounded-xl border-gray-400 p-2 w-full"
-              placeholderTextColor="#888"
-            />
-            <View className="flex-row gap-12">
+            <View className="w-full relative" style={{ zIndex: 1000 }}>
+              {/* Custom Dropdown */}
               <TouchableOpacity
-                className="w-2/5 h-10 justify-center rounded-xl mt-6 mb-3 bg-red-700"
+                className="border-2 rounded-xl border-gray-400 p-1 w-full flex-row justify-between items-center"
+                onPress={() => setIsDropdownOpen(!isDropdownOpen)}
+              >
+                <Text
+                  className={`${spesialis ? "text-black" : "text-gray-400"}`}
+                >
+                  {spesialis || "Pilih Spesialis"}
+                </Text>
+                <MaterialIcons
+                  name={
+                    isDropdownOpen ? "keyboard-arrow-up" : "keyboard-arrow-down"
+                  }
+                  size={24}
+                  color="#666"
+                />
+              </TouchableOpacity>
+
+              {/* Dropdown Options with ScrollView */}
+              {isDropdownOpen && (
+                <View
+                  className="absolute top-full left-0 right-0 bg-white border-2 border-gray-400 rounded-xl mt-1 shadow-lg"
+                  style={{
+                    zIndex: 1001,
+                    elevation: 5,
+                    maxHeight: 200, // Batasi tinggi dropdown
+                  }}
+                >
+                  <ScrollView
+                    nestedScrollEnabled={true}
+                    showsVerticalScrollIndicator={true}
+                    style={{ maxHeight: 200 }}
+                  >
+                    <TouchableOpacity
+                      className="p-3 border-b border-gray-200"
+                      onPress={() => {
+                        setSpesialis("Mata");
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      <Text className="text-black">Mata</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      className="p-3 border-b border-gray-200"
+                      onPress={() => {
+                        setSpesialis("Ginjal");
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      <Text className="text-black">Ginjal</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      className="p-3 border-b border-gray-200"
+                      onPress={() => {
+                        setSpesialis("Paru");
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      <Text className="text-black">Paru</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      className="p-3 border-b border-gray-200"
+                      onPress={() => {
+                        setSpesialis("Fisioterapi");
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      <Text className="text-black">Fisioterapi</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      className="p-3 border-b border-gray-200"
+                      onPress={() => {
+                        setSpesialis("THT");
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      <Text className="text-black">THT</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      className="p-3 border-b border-gray-200"
+                      onPress={() => {
+                        setSpesialis("Umum");
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      <Text className="text-black">Umum</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      className="p-3 border-b border-gray-200"
+                      onPress={() => {
+                        setSpesialis("Anak");
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      <Text className="text-black">Anak</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      className="p-3 border-b border-gray-200"
+                      onPress={() => {
+                        setSpesialis("Gigi");
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      <Text className="text-black">Gigi</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      className="p-3 border-b border-gray-200"
+                      onPress={() => {
+                        setSpesialis("Jantung");
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      <Text className="text-black">Jantung</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      className="p-3 border-b border-gray-200"
+                      onPress={() => {
+                        setSpesialis("Kandungan");
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      <Text className="text-black">Kandungan</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      className="p-3 border-b border-gray-200"
+                      onPress={() => {
+                        setSpesialis("Bedah");
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      <Text className="text-black">Bedah</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      className="p-3 border-b border-gray-200"
+                      onPress={() => {
+                        setSpesialis("Syaraf");
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      <Text className="text-black">Syaraf</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      className="p-3 border-b border-gray-200"
+                      onPress={() => {
+                        setSpesialis("Darah");
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      <Text className="text-black">Darah</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      className="p-3 border-b border-gray-200"
+                      onPress={() => {
+                        setSpesialis("Lambung");
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      <Text className="text-black">Lambung</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      className="p-3 border-b border-gray-200"
+                      onPress={() => {
+                        setSpesialis("Hati");
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      <Text className="text-black">Hati</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      className="p-3"
+                      onPress={() => {
+                        setSpesialis("Kulit");
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      <Text className="text-black">Kulit</Text>
+                    </TouchableOpacity>
+                  </ScrollView>
+                </View>
+              )}
+            </View>
+            <View
+              className="flex-row gap-12"
+              style={{ marginTop: isDropdownOpen ? 220 : 24 }}
+            >
+              <TouchableOpacity
+                className="w-2/5 h-10 justify-center rounded-xl mb-3 bg-red-700"
                 onPress={onClose}
               >
                 <Text className="text-white text-center font-bold">Batal</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                className="w-2/5 h-10 justify-center rounded-xl mt-6 mb-3 bg-skyDark"
+                className="w-2/5 h-10 justify-center rounded-xl mb-3 bg-skyDark"
                 onPress={handleSubmit}
               >
                 <Text className="text-white text-center font-bold">Simpan</Text>
