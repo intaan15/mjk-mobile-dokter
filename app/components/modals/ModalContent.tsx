@@ -456,6 +456,62 @@ const ModalContent: React.FC<ModalContentProps> = ({
     onClose?.();
   };
 
+  const handleDeleteProfileImage = async () => {
+    try {
+      const userId = await SecureStore.getItemAsync("userId");
+      const token = await SecureStore.getItemAsync("userToken");
+      const cleanedUserId = userId?.replace(/"/g, "");
+      const cleanedToken = token?.replace(/"/g, "");
+
+      if (!cleanedUserId || !cleanedToken) {
+        alert("User ID atau token tidak ditemukan. Silakan login ulang.");
+        return;
+      }
+
+      const response = await axios.delete(
+        `${BASE_URL}/dokter/delete-profile-image/${cleanedUserId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${cleanedToken}`,
+          },
+        }
+      );
+
+      if (response.status === 200 && response.data.success) {
+        setImage?.(null);
+        alert("Foto profil berhasil dihapus");
+        onUpdateSuccess?.();
+        onClose?.();
+        router.replace("/(tabs)/profil");
+      } else {
+        alert(
+          "Gagal menghapus foto profil: " +
+            (response.data.message || "Respon tidak dikenali")
+        );
+      }
+    } catch (error: any) {
+      console.log("Error deleting profile image:", error);
+
+      if (error.response?.status === 401) {
+        alert("Sesi Anda telah berakhir. Silakan login ulang.");
+        await SecureStore.deleteItemAsync("userToken");
+        await SecureStore.deleteItemAsync("userId");
+        router.replace("/screens/signin");
+      } else if (error.response?.status === 404) {
+        alert("Foto profil tidak ditemukan atau sudah dihapus.");
+        setImage?.(null);
+        onClose?.();
+      } else {
+        const errorMessage =
+          error.response?.data?.message ||
+          error.message ||
+          "Terjadi kesalahan saat menghapus foto profil";
+        alert(`Gagal menghapus foto profil: ${errorMessage}`);
+      }
+    }
+  };
+
   switch (modalType) {
     case "gantifotoprofil":
       return (
@@ -887,19 +943,16 @@ const ModalContent: React.FC<ModalContentProps> = ({
 
           <View className="flex flex-row justify-between items-center px-10">
             <TouchableOpacity className="px-10 py-3" onPress={onClose}>
-              <Text className=" text-center text-skyDark font-medium w-full">
+              <Text className="text-center text-skyDark font-medium w-full">
                 Batal
               </Text>
             </TouchableOpacity>
             <View className="w-[2px] h-10 text-center bg-skyDark my-5" />
             <TouchableOpacity
               className="px-10 py-3"
-              onPress={() => {
-                setImage?.(null);
-                onClose?.();
-              }}
+              onPress={handleDeleteProfileImage}
             >
-              <Text className=" text-center text-red-500 font-medium">
+              <Text className="text-center text-red-500 font-medium">
                 Hapus
               </Text>
             </TouchableOpacity>
