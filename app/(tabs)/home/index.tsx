@@ -62,7 +62,7 @@ export default function HomeScreen() {
 }
 
 const HeaderView = ({ userData }: { userData: any }) => (
-  <View className="flex flex-row justify-between items-center mb-4 w-full px-5 pt-8">
+  <View className="flex flex-row justify-between items-center mb-4 w-full px-5 pt-10">
     <View className="flex flex-row items-center">
       <Text className="text-skyDark text-2xl font-bold">Hi,</Text>
       <MarqueeText
