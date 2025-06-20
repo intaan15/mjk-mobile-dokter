@@ -6,6 +6,7 @@ import {
   TextInput,
   Alert,
   ScrollView,
+  FlatList
 } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -560,7 +561,166 @@ const ModalContent: React.FC<ModalContentProps> = ({
       );
 
     // PROFIL
+    // case "editprofil":
+    //   return (
+    //     <View>
+    //       {/* Ganti Password */}
+    //       <Text className="font-bold text-2xl text-skyDark mt-4 text-center">
+    //         Ubah profil
+    //       </Text>
+    //       <View className="flex flex-col items-center px-5">
+    //         <Text className="w-full pl-1 text-base font-semibold text-skyDark pt-2">
+    //           Nama
+    //         </Text>
+    //         <TextInput
+    //           placeholder="Nama"
+    //           value={nama}
+    //           onChangeText={setNama}
+    //           className="border-2 rounded-xl border-gray-400 p-2 w-full"
+    //           placeholderTextColor="#888"
+    //         />
+    //         <Text className="w-full pl-1 text-base font-semibold text-skyDark pt-2">
+    //           Nama Pengguna
+    //         </Text>
+    //         <TextInput
+    //           placeholder="contoh123"
+    //           value={username}
+    //           onChangeText={setUsername}
+    //           className="border-2 rounded-xl border-gray-400 p-2 w-full"
+    //           placeholderTextColor="#888"
+    //         />
+    //         <Text className="w-full pl-1 text-base font-semibold text-skyDark pt-2">
+    //           Email
+    //         </Text>
+    //         <TextInput
+    //           placeholder="contoh@gmail.com"
+    //           value={email}
+    //           onChangeText={setEmail}
+    //           className="border-2 rounded-xl border-gray-400 p-2 w-full"
+    //           placeholderTextColor="#888"
+    //         />
+    //         <Text className="w-full pl-1 text-base font-semibold text-skyDark pt-2">
+    //           Nomor telepon
+    //         </Text>
+    //         <TextInput
+    //           placeholder="0821312312312"
+    //           value={noTlp}
+    //           onChangeText={setNoTlp}
+    //           className="border-2 rounded-xl border-gray-400 p-2 w-full"
+    //           placeholderTextColor="#888"
+    //         />
+    //         <Text className="w-full pl-1 text-base font-semibold text-skyDark pt-2">
+    //           Spesialis
+    //         </Text>
+    //         <View className="w-full relative" style={{ zIndex: 1000 }}>
+    //           {/* Custom Dropdown */}
+    //           <TouchableOpacity
+    //             className="border-2 rounded-xl border-gray-400 p-1 w-full flex-row justify-between items-center"
+    //             onPress={() => setIsDropdownOpen(!isDropdownOpen)}
+    //           >
+    //             <Text
+    //               className={`${spesialis ? "text-black" : "text-gray-400"}`}
+    //             >
+    //               {spesialis || "Pilih Spesialis"}
+    //             </Text>
+    //             <MaterialIcons
+    //               name={
+    //                 isDropdownOpen ? "keyboard-arrow-up" : "keyboard-arrow-down"
+    //               }
+    //               size={24}
+    //               color="#666"
+    //             />
+    //           </TouchableOpacity>
+
+    //           {/* Dropdown Options with ScrollView */}
+    //           {isDropdownOpen && (
+    //             <View
+    //               className="absolute top-full left-0 right-0 bg-white border-2 border-gray-400 rounded-xl mt-1 shadow-lg"
+    //               style={{
+    //                 zIndex: 1001,
+    //                 elevation: 5,
+    //                 maxHeight: 200, // Batasi tinggi dropdown
+    //               }}
+    //             >
+    //               <ScrollView
+    //                 nestedScrollEnabled={true}
+    //                 showsVerticalScrollIndicator={true}
+    //                 style={{ maxHeight: 200 }}
+    //               >
+    //                 {[
+    //                   "Mata",
+    //                   "Ginjal",
+    //                   "Paru",
+    //                   "Fisioterapi",
+    //                   "THT",
+    //                   "Umum",
+    //                   "Anak",
+    //                   "Gigi",
+    //                   "Jantung",
+    //                   "Kandungan",
+    //                   "Bedah",
+    //                   "Syaraf",
+    //                   "Darah",
+    //                   "Lambung",
+    //                   "Hati",
+    //                   "Kulit",
+    //                 ].map((item, index) => (
+    //                   <TouchableOpacity
+    //                     key={index}
+    //                     className="p-3 border-b border-gray-200"
+    //                     onPress={() => {
+    //                       setSpesialis(item);
+    //                       setIsDropdownOpen(false);
+    //                     }}
+    //                     activeOpacity={0.3}
+    //                   >
+    //                     <Text className="text-black">{item}</Text>
+    //                   </TouchableOpacity>
+    //                 ))}
+    //               </ScrollView>
+    //             </View>
+    //           )}
+    //         </View>
+    //         <View
+    //           className="flex-row gap-12"
+    //           style={{ marginTop: isDropdownOpen ? 220 : 24 }}
+    //         >
+    //           <TouchableOpacity
+    //             className="w-2/5 h-10 justify-center rounded-xl mb-3 bg-red-700"
+    //             onPress={onClose}
+    //           >
+    //             <Text className="text-white text-center font-bold">Batal</Text>
+    //           </TouchableOpacity>
+    //           <TouchableOpacity
+    //             className="w-2/5 h-10 justify-center rounded-xl mb-3 bg-skyDark"
+    //             onPress={handleSubmit}
+    //           >
+    //             <Text className="text-white text-center font-bold">Simpan</Text>
+    //           </TouchableOpacity>
+    //         </View>
+    //       </View>
+    //     </View>
+    //   );
     case "editprofil":
+      const specialisList = [
+        "Mata",
+        "Ginjal",
+        "Paru",
+        "Fisioterapi",
+        "THT",
+        "Umum",
+        "Anak",
+        "Gigi",
+        "Jantung",
+        "Kandungan",
+        "Bedah",
+        "Syaraf",
+        "Darah",
+        "Lambung",
+        "Hati",
+        "Kulit",
+      ];
+
       return (
         <View>
           {/* Ganti Password */}
@@ -631,7 +791,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
                 />
               </TouchableOpacity>
 
-              {/* Dropdown Options with ScrollView */}
+              {/* Dropdown Options with FlatList */}
               {isDropdownOpen && (
                 <View
                   className="absolute top-full left-0 right-0 bg-white border-2 border-gray-400 rounded-xl mt-1 shadow-lg"
@@ -641,32 +801,16 @@ const ModalContent: React.FC<ModalContentProps> = ({
                     maxHeight: 200, // Batasi tinggi dropdown
                   }}
                 >
-                  <ScrollView
-                    nestedScrollEnabled={true}
-                    showsVerticalScrollIndicator={true}
-                    style={{ maxHeight: 200 }}
-                  >
-                    {[
-                      "Mata",
-                      "Ginjal",
-                      "Paru",
-                      "Fisioterapi",
-                      "THT",
-                      "Umum",
-                      "Anak",
-                      "Gigi",
-                      "Jantung",
-                      "Kandungan",
-                      "Bedah",
-                      "Syaraf",
-                      "Darah",
-                      "Lambung",
-                      "Hati",
-                      "Kulit",
-                    ].map((item, index) => (
+                  <FlatList
+                    data={specialisList}
+                    keyExtractor={(item, index) => index.toString()}
+                    renderItem={({ item, index }) => (
                       <TouchableOpacity
-                        key={index}
-                        className="p-3 border-b border-gray-200"
+                        className={`p-3 ${
+                          index < specialisList.length - 1
+                            ? "border-b border-gray-200"
+                            : ""
+                        }`}
                         onPress={() => {
                           setSpesialis(item);
                           setIsDropdownOpen(false);
@@ -675,8 +819,11 @@ const ModalContent: React.FC<ModalContentProps> = ({
                       >
                         <Text className="text-black">{item}</Text>
                       </TouchableOpacity>
-                    ))}
-                  </ScrollView>
+                    )}
+                    nestedScrollEnabled={true}
+                    showsVerticalScrollIndicator={true}
+                    style={{ maxHeight: 200 }}
+                  />
                 </View>
               )}
             </View>
