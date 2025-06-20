@@ -46,13 +46,10 @@ export default function ChatScreen() {
 
   const getJakartaTime = () => {
     const now = new Date();
-    // Konversi ke Jakarta timezone (UTC+7)
-    const jakartaTime = new Date(
-      now.toLocaleString("en-US", {
-        timeZone: "Asia/Jakarta",
-      })
-    );
-    return jakartaTime;
+    // Jakarta = UTC+7, jadi tambahkan 7 jam (7 * 60 * 60 * 1000 ms)
+    const jakartaOffset = 7 * 60 * 60 * 1000;
+    const jakartaTime = new Date(now.getTime() + jakartaOffset);
+    return jakartaTime.toISOString();
   };
 
   // Auto scroll to bottom when new message arrives
@@ -189,11 +186,11 @@ export default function ChatScreen() {
   // ✅ Kirim pesan teks
   const sendMessage = async () => {
     console.log("[DEBUG] Tombol Kirim ditekan");
-    console.log("username:", username);
-    console.log("userId:", userId);
-    console.log("receiverId:", receiverId);
-    console.log("userRole:", userRole);
-    console.log("message:", message);
+    // console.log("username:", username);
+    // console.log("userId:", userId);
+    // console.log("receiverId:", receiverId);
+    // console.log("userRole:", userRole);
+    // console.log("message:", message);
 
     if (message.trim() && username && userId && receiverId) {
       const msgData = {
@@ -205,7 +202,7 @@ export default function ChatScreen() {
         role: userRole,
         waktu: getJakartaTime(),
       };
-
+      console.log(msgData);
       socket.emit("chat message", msgData);
       setMessage("");
     } else {
@@ -379,7 +376,7 @@ export default function ChatScreen() {
                 ref={flatListRef}
                 data={[...messages].reverse()}
                 keyExtractor={(item, index) =>
-                  `message-${index}-${item.waktu || Date.now()}`
+                  `message-${index}-${item.waktu || getJakartaTime()}`
                 }
                 renderItem={renderItem}
                 contentContainerStyle={{
