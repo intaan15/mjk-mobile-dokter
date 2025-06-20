@@ -23,7 +23,11 @@ import axios from "axios";
 import { BASE_URL, BASE_URL2 } from "@env";
 import { useLocalSearchParams } from "expo-router";
 
-const socket = io("http://10.52.170.123:3330", {
+// const socket = io("http://192.168.2.210:3330", {
+//   transports: ["websocket"], //
+// });
+
+const socket = io(`${BASE_URL2}`, {
   transports: ["websocket"], //
 });
 
@@ -39,6 +43,17 @@ export default function ChatScreen() {
   const flatListRef = useRef<FlatList>(null);
 
   const { receiverId } = useLocalSearchParams();
+
+  const getJakartaTime = () => {
+    const now = new Date();
+    // Konversi ke Jakarta timezone (UTC+7)
+    const jakartaTime = new Date(
+      now.toLocaleString("en-US", {
+        timeZone: "Asia/Jakarta",
+      })
+    );
+    return jakartaTime;
+  };
 
   // Auto scroll to bottom when new message arrives
   useEffect(() => {
@@ -188,7 +203,7 @@ export default function ChatScreen() {
         receiverId: receiverId,
         type: "text",
         role: userRole,
-        waktu: new Date().toISOString(),
+        waktu: getJakartaTime(),
       };
 
       socket.emit("chat message", msgData);
@@ -238,7 +253,7 @@ export default function ChatScreen() {
           image: base64Image,
           type: "image",
           role: userRole,
-          waktu: new Date().toISOString(),
+          waktu: getJakartaTime(),
         };
 
         console.log("[DEBUG] 📷 Sending image message:", {
@@ -288,7 +303,8 @@ export default function ChatScreen() {
                   ? item.image
                   : item.image.startsWith("http")
                   ? item.image
-                  : `http://10.52.170.123:3330${item.image}`,
+                  : // : `http://192.168.2.210:3330${item.image}`,
+                    `${BASE_URL2}${previewImage}`, // Path relatif
               }}
               className="w-24 h-32 mt-1 rounded-md"
               resizeMode="cover"
@@ -457,7 +473,8 @@ export default function ChatScreen() {
                       ? previewImage
                       : previewImage.startsWith("http")
                       ? previewImage
-                      : `http://10.52.170.123:3330${previewImage}`,
+                      : // : `http://192.168.2.210:3330${previewImage}`,
+                        `${BASE_URL2}${previewImage}`, // Path relatif
                   }}
                   style={{
                     width: "90%",
@@ -483,7 +500,8 @@ export default function ChatScreen() {
                         ? "Base64 Image"
                         : previewImage.startsWith("http")
                         ? previewImage
-                        : `http://10.52.170.123:3330${previewImage}`
+                        : // : `http://192.168.2.210:3330${previewImage}`
+                          `${BASE_URL2}${previewImage}` // Path relatif
                     );
                   }}
                 />
