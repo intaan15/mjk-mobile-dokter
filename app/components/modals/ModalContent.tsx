@@ -628,60 +628,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
               className="border-2 rounded-xl border-gray-400 p-2 w-full"
               placeholderTextColor="#888"
             />
-            <Text className="w-full pl-1 text-base font-semibold text-skyDark pt-2">
-              Spesialis
-            </Text>
-            <View className="w-full" style={{ zIndex: 1000 }}>
-              <DropDownPicker
-                open={isDropdownOpen}
-                value={spesialis}
-                items={specialisList}
-                setOpen={setIsDropdownOpen}
-                setValue={setSpesialis}
-                placeholder="Pilih Spesialis"
-                style={{
-                  borderWidth: 2,
-                  borderColor: "#9CA3AF",
-                  borderRadius: 12,
-                  minHeight: 40,
-                }}
-                textStyle={{
-                  fontSize: 16,
-                  color: spesialis ? "#000" : "#888",
-                }}
-                placeholderStyle={{
-                  color: "#888",
-                }}
-                dropDownContainerStyle={{
-                  borderWidth: 2,
-                  borderColor: "#9CA3AF",
-                  borderRadius: 12,
-                  maxHeight: 200,
-                  zIndex: 1001,
-                  elevation: 5,
-                }}
-                listItemContainerStyle={{
-                  height: 45,
-                  borderBottomWidth: 2,
-                  borderBottomColor: "#E5E7EB",
-                  paddingHorizontal: "10%",
-                }}
-                listItemLabelStyle={{
-                  color: "#000",
-                }}
-                selectedItemContainerStyle={{
-                  backgroundColor: "#EBF8FF",
-                  borderBottomWidth: 2,
-                  borderBottomColor: "#E5E7EB",
-                }}
-                selectedItemLabelStyle={{
-                  color: "#025F96",
-                  fontWeight: "600",
-                }}
-                closeAfterSelecting={true}
-                searchable={false}
-              />
-            </View>
+            
             <View
               className="flex-row gap-12"
               style={{ marginTop: isDropdownOpen ? 220 : 24 }}
