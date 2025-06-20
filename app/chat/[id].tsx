@@ -23,7 +23,7 @@ import axios from "axios";
 import { BASE_URL, BASE_URL2 } from "@env";
 import { useLocalSearchParams } from "expo-router";
 
-const socket = io("http://10.52.170.201:3330", {
+const socket = io("http://10.52.170.123:3330", {
   transports: ["websocket"], //
 });
 
@@ -39,6 +39,17 @@ export default function ChatScreen() {
   const flatListRef = useRef<FlatList>(null);
 
   const { receiverId } = useLocalSearchParams();
+
+  // Auto scroll to bottom when new message arrives
+  useEffect(() => {
+    if (messages.length > 0 && flatListRef.current) {
+      // Delay scroll to ensure FlatList has rendered
+      setTimeout(() => {
+        flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
+      }, 100);
+    }
+  }, [messages]);
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -69,7 +80,6 @@ export default function ChatScreen() {
 
         if (response.data?.role) {
           setUserRole(response.data.role);
-          // console.log("[DEBUG] Set user role:", response.data.role);
         } else {
           console.warn("Property role tidak ada di response");
         }
@@ -95,10 +105,6 @@ export default function ChatScreen() {
 
         if (res.data?.nama_masyarakat) {
           setReceiverName(res.data.nama_masyarakat);
-          // console.log(
-          //   "[DEBUG] receiverName fetched:",
-          //   res.data.nama_masyarakat
-          // );
         } else {
           console.log("[DEBUG] receiverName not found in response:", res.data);
         }
@@ -112,16 +118,13 @@ export default function ChatScreen() {
 
   useEffect(() => {
     if (userId) {
-      // console.log("[DEBUG] Emitting joinRoom with:", userId);
       socket.emit("joinRoom", userId);
     }
   }, [userId]);
 
-  // DISBALE CHAT
   useEffect(() => {
     const handleErrorMessage = (error) => {
-      // Tampilkan alert atau toast di sini
-      alert(error.message); // atau pakai ToastAndroid, Snackbar, dll
+      alert(error.message);
     };
 
     socket.on("errorMessage", handleErrorMessage);
@@ -136,7 +139,6 @@ export default function ChatScreen() {
     const fetchChatHistory = async () => {
       try {
         if (!userId || !receiverId) {
-          // console.warn("UserId atau receiverId kosong, skip fetch.");
           return;
         }
 
@@ -156,14 +158,9 @@ export default function ChatScreen() {
     fetchChatHistory();
   }, [userId, receiverId]);
 
-  useEffect(() => {
-    // console.log("[DEBUG] Current username:", username);
-  }, [username]);
-
   // ✅ Terima pesan dari socket
   useEffect(() => {
     const handleIncomingMessage = (msg) => {
-      // console.log("[DEBUG] Received message via socket:", msg);
       setMessages((prev) => [...prev, msg]);
     };
 
@@ -194,9 +191,6 @@ export default function ChatScreen() {
         waktu: new Date().toISOString(),
       };
 
-      // console.log("[DEBUG] Sending text message:", msgData);
-      // console.log("[DEBUG] Socket connected:", socket.connected);
-
       socket.emit("chat message", msgData);
       setMessage("");
     } else {
@@ -222,16 +216,13 @@ export default function ChatScreen() {
       }
 
       if (!result.canceled && result.assets?.length > 0) {
-        // ✅ PERBAIKAN: Pastikan format base64 benar
         const asset = result.assets[0];
         let base64Image;
 
-        // Deteksi format gambar dari uri atau default ke jpeg
         const imageFormat =
           asset.uri?.split(".").pop()?.toLowerCase() || "jpeg";
         const mimeType = imageFormat === "png" ? "image/png" : "image/jpeg";
 
-        // Pastikan base64 ada dan dalam format yang benar
         if (asset.base64) {
           base64Image = `data:${mimeType};base64,${asset.base64}`;
         } else {
@@ -244,11 +235,10 @@ export default function ChatScreen() {
           sender: username,
           senderId: userId,
           receiverId: receiverId,
-          image: base64Image, // Pastikan ini base64 lengkap dengan header
+          image: base64Image,
           type: "image",
           role: userRole,
           waktu: new Date().toISOString(),
-          // ✅ Tidak mengirim text untuk image
         };
 
         console.log("[DEBUG] 📷 Sending image message:", {
@@ -261,7 +251,6 @@ export default function ChatScreen() {
           receiverId: imgMsg.receiverId,
         });
 
-        // ✅ Kirim ke socket
         socket.emit("chat message", imgMsg);
 
         console.log("✅ Image message sent successfully");
@@ -296,10 +285,10 @@ export default function ChatScreen() {
             <Image
               source={{
                 uri: item.image.startsWith("data:")
-                  ? item.image // Base64 image dengan header
+                  ? item.image
                   : item.image.startsWith("http")
-                  ? item.image // URL lengkap
-                  : `http://10.52.170.201:3330${item.image}`, // Path relatif
+                  ? item.image
+                  : `http://10.52.170.123:3330${item.image}`,
               }}
               className="w-24 h-32 mt-1 rounded-md"
               resizeMode="cover"
@@ -361,60 +350,77 @@ export default function ChatScreen() {
           />
         </View>
 
-        {/* Main Area */}
-        <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
-        >
-          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        {/* Main Chat Area */}
+        <View style={{ flex: 1 }}>
+          <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+          >
+            {/* Chat Messages */}
             <View style={{ flex: 1 }}>
               <FlatList
                 ref={flatListRef}
                 data={[...messages].reverse()}
-                keyExtractor={(item, index) => index.toString()}
+                keyExtractor={(item, index) =>
+                  `message-${index}-${item.waktu || Date.now()}`
+                }
                 renderItem={renderItem}
                 contentContainerStyle={{
                   padding: 16,
                   flexGrow: 1,
+                  justifyContent: "flex-end", // Align messages to bottom
                 }}
+                style={{ flex: 1 }}
+                showsVerticalScrollIndicator={true}
                 keyboardShouldPersistTaps="handled"
-                inverted={true} // Membalik urutan pesan
+                inverted={true}
+                maintainVisibleContentPosition={{
+                  minIndexForVisible: 0,
+                  autoscrollToTopThreshold: 10,
+                }}
+                removeClippedSubviews={false} // Important for scroll performance
+                initialNumToRender={20}
+                maxToRenderPerBatch={10}
+                windowSize={10}
+                getItemLayout={null} // Let FlatList calculate item heights
               />
+            </View>
 
-              {/* Chat Input - Pastikan ini tetap di bawah */}
-              <View className="px-4 bg-skyDark py-4">
-                <View className="flex-row items-center">
-                  <TouchableOpacity onPress={() => sendImage(false)}>
-                    <Ionicons name="image-outline" size={28} color="gray" />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => sendImage(true)}
-                    className="ml-2"
-                  >
-                    <Ionicons name="camera-outline" size={28} color="gray" />
-                  </TouchableOpacity>
-                  <View className="flex-1 ml-2 mr-2">
-                    <TextInput
-                      className="border border-gray-400 bg-[#C3E9FF] rounded-3xl p-2"
-                      value={message}
-                      onChangeText={setMessage}
-                      placeholder="Tulis pesan..."
-                      multiline
-                      textAlignVertical="top"
-                    />
-                  </View>
-                  <TouchableOpacity
-                    onPress={sendMessage}
-                    className="bg-blue-500 px-4 py-2 rounded-lg mr-1"
-                  >
-                    <Text className="text-white font-semibold">Kirim</Text>
-                  </TouchableOpacity>
+            {/* Chat Input */}
+            <View className="px-4 bg-skyDark py-4" style={{ minHeight: 70 }}>
+              <View className="flex-row items-center">
+                <TouchableOpacity onPress={() => sendImage(false)}>
+                  <Ionicons name="image-outline" size={28} color="gray" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => sendImage(true)}
+                  className="ml-2"
+                >
+                  <Ionicons name="camera-outline" size={28} color="gray" />
+                </TouchableOpacity>
+                <View className="flex-1 ml-2 mr-2">
+                  <TextInput
+                    className="border border-gray-400 bg-[#C3E9FF] rounded-3xl p-2 min-h-[40px]"
+                    value={message}
+                    onChangeText={setMessage}
+                    placeholder="Tulis pesan..."
+                    multiline
+                    textAlignVertical="center"
+                    maxHeight={100}
+                    scrollEnabled={true}
+                  />
                 </View>
+                <TouchableOpacity
+                  onPress={sendMessage}
+                  className="bg-blue-500 px-4 py-2 rounded-lg mr-1"
+                >
+                  <Text className="text-white font-semibold">Kirim</Text>
+                </TouchableOpacity>
               </View>
             </View>
-          </TouchableWithoutFeedback>
-        </KeyboardAvoidingView>
+          </KeyboardAvoidingView>
+        </View>
 
         {/* Preview Modal */}
         <Modal
@@ -451,7 +457,7 @@ export default function ChatScreen() {
                       ? previewImage
                       : previewImage.startsWith("http")
                       ? previewImage
-                      : `http://10.52.170.201:3330${previewImage}`,
+                      : `http://10.52.170.123:3330${previewImage}`,
                   }}
                   style={{
                     width: "90%",
@@ -477,7 +483,7 @@ export default function ChatScreen() {
                         ? "Base64 Image"
                         : previewImage.startsWith("http")
                         ? previewImage
-                        : `http://10.52.170.201:3330${previewImage}`
+                        : `http://10.52.170.123:3330${previewImage}`
                     );
                   }}
                 />
