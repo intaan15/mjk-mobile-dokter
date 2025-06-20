@@ -5,7 +5,8 @@ import {
   TouchableOpacity,
   TextInput,
   Alert,
-  FlatList
+  FlatList,
+  ScrollView,
 } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -19,7 +20,7 @@ import { useRouter } from "expo-router";
 import axios from "axios";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { BASE_URL } from "@env";
-// import { Picker } from "@react-native-picker/picker";
+import DropDownPicker from "react-native-dropdown-picker";
 
 interface ModalContentProps {
   modalType: string;
@@ -562,22 +563,22 @@ const ModalContent: React.FC<ModalContentProps> = ({
     // PROFIL
     case "editprofil":
       const specialisList = [
-        "Mata",
-        "Ginjal",
-        "Paru",
-        "Fisioterapi",
-        "THT",
-        "Umum",
-        "Anak",
-        "Gigi",
-        "Jantung",
-        "Kandungan",
-        "Bedah",
-        "Syaraf",
-        "Darah",
-        "Lambung",
-        "Hati",
-        "Kulit",
+        { label: "Mata", value: "Mata" },
+        { label: "Ginjal", value: "Ginjal" },
+        { label: "Paru", value: "Paru" },
+        { label: "Fisioterapi", value: "Fisioterapi" },
+        { label: "THT", value: "THT" },
+        { label: "Umum", value: "Umum" },
+        { label: "Anak", value: "Anak" },
+        { label: "Gigi", value: "Gigi" },
+        { label: "Jantung", value: "Jantung" },
+        { label: "Kandungan", value: "Kandungan" },
+        { label: "Bedah", value: "Bedah" },
+        { label: "Syaraf", value: "Syaraf" },
+        { label: "Darah", value: "Darah" },
+        { label: "Lambung", value: "Lambung" },
+        { label: "Hati", value: "Hati" },
+        { label: "Kulit", value: "Kulit" },
       ];
 
       return (
@@ -630,61 +631,56 @@ const ModalContent: React.FC<ModalContentProps> = ({
             <Text className="w-full pl-1 text-base font-semibold text-skyDark pt-2">
               Spesialis
             </Text>
-            <View className="w-full relative" style={{ zIndex: 1000 }}>
-              {/* Custom Dropdown */}
-              <TouchableOpacity
-                className="border-2 rounded-xl border-gray-400 p-1 w-full flex-row justify-between items-center"
-                onPress={() => setIsDropdownOpen(!isDropdownOpen)}
-              >
-                <Text
-                  className={`${spesialis ? "text-black" : "text-gray-400"}`}
-                >
-                  {spesialis || "Pilih Spesialis"}
-                </Text>
-                <MaterialIcons
-                  name={
-                    isDropdownOpen ? "keyboard-arrow-up" : "keyboard-arrow-down"
-                  }
-                  size={24}
-                  color="#666"
-                />
-              </TouchableOpacity>
-
-              {/* Dropdown Options with FlatList */}
-              {isDropdownOpen && (
-                <View
-                  className="absolute top-full left-0 right-0 bg-white border-2 border-gray-400 rounded-xl mt-1 shadow-lg"
-                  style={{
-                    zIndex: 1001,
-                    elevation: 5,
-                    maxHeight: 200, // Batasi tinggi dropdown
-                  }}
-                >
-                  <FlatList
-                    data={specialisList}
-                    keyExtractor={(item, index) => index.toString()}
-                    renderItem={({ item, index }) => (
-                      <TouchableOpacity
-                        className={`p-3 ${
-                          index < specialisList.length - 1
-                            ? "border-b border-gray-200"
-                            : ""
-                        }`}
-                        onPress={() => {
-                          setSpesialis(item);
-                          setIsDropdownOpen(false);
-                        }}
-                        activeOpacity={0.3}
-                      >
-                        <Text className="text-black">{item}</Text>
-                      </TouchableOpacity>
-                    )}
-                    nestedScrollEnabled={true}
-                    showsVerticalScrollIndicator={true}
-                    style={{ maxHeight: 200 }}
-                  />
-                </View>
-              )}
+            <View className="w-full" style={{ zIndex: 1000 }}>
+              <DropDownPicker
+                open={isDropdownOpen}
+                value={spesialis}
+                items={specialisList}
+                setOpen={setIsDropdownOpen}
+                setValue={setSpesialis}
+                placeholder="Pilih Spesialis"
+                style={{
+                  borderWidth: 2,
+                  borderColor: "#9CA3AF",
+                  borderRadius: 12,
+                  minHeight: 40,
+                }}
+                textStyle={{
+                  fontSize: 16,
+                  color: spesialis ? "#000" : "#888",
+                }}
+                placeholderStyle={{
+                  color: "#888",
+                }}
+                dropDownContainerStyle={{
+                  borderWidth: 2,
+                  borderColor: "#9CA3AF",
+                  borderRadius: 12,
+                  maxHeight: 200,
+                  zIndex: 1001,
+                  elevation: 5,
+                }}
+                listItemContainerStyle={{
+                  height: 45,
+                  borderBottomWidth: 2,
+                  borderBottomColor: "#E5E7EB",
+                  paddingHorizontal: "10%",
+                }}
+                listItemLabelStyle={{
+                  color: "#000",
+                }}
+                selectedItemContainerStyle={{
+                  backgroundColor: "#EBF8FF",
+                  borderBottomWidth: 2,
+                  borderBottomColor: "#E5E7EB",
+                }}
+                selectedItemLabelStyle={{
+                  color: "#025F96",
+                  fontWeight: "600",
+                }}
+                closeAfterSelecting={true}
+                searchable={false}
+              />
             </View>
             <View
               className="flex-row gap-12"
