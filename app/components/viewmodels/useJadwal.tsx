@@ -51,6 +51,13 @@ export const useScheduleViewModel = () => {
         });
 
       setAvailableDates(datesWithSchedule);
+      
+      const today = new Date().toISOString().split("T")[0];
+      if (datesWithSchedule.includes(today)) {
+        setSelectedDate(new Date());
+      } else if (datesWithSchedule.length > 0) {
+        setSelectedDate(new Date(datesWithSchedule[0]));
+      }
     } catch (err) {
       console.log("Error fetching jadwal:", err);
     }
@@ -96,7 +103,7 @@ export const useScheduleViewModel = () => {
     userId,
     loading,
     refreshing,
-    
+
     // Actions
     fetchJadwal,
     loadData,
