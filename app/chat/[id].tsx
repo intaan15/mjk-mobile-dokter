@@ -23,6 +23,7 @@ import axios from "axios";
 import { BASE_URL, BASE_URL2 } from "@env";
 import { useLocalSearchParams } from "expo-router";
 
+
 // const socket = io("http://192.168.2.210:3330", {
 //   transports: ["websocket"], //
 // });

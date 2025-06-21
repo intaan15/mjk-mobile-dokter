@@ -21,6 +21,8 @@ import axios from "axios";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { BASE_URL } from "@env";
 import DropDownPicker from "react-native-dropdown-picker";
+import * as FileSystem from "expo-file-system";
+import * as ImageManipulator from "expo-image-manipulator";
 
 interface ModalContentProps {
   modalType: string;
@@ -405,13 +407,27 @@ const ModalContent: React.FC<ModalContentProps> = ({
       }
 
       console.log("UserId:", cleanedUserId);
-      console.log("Token ada:", cleanedToken); // Log keberadaan token tanpa expose value
+      console.log("Token ada:", cleanedToken);
+
+      // Cek ukuran file sebelum upload
+      const fileInfo = await FileSystem.getInfoAsync(uri);
+      const fileSizeInMB = fileInfo.size / (1024 * 1024);
+      const maxSizeInMB = 5; // Batas maksimal 5MB
+
+      if (fileSizeInMB > maxSizeInMB) {
+        alert(
+          `Ukuran file (${fileSizeInMB.toFixed(
+            2
+          )} MB) terlalu besar. Maksimal ${maxSizeInMB} MB.`
+        );
+        return;
+      }
 
       const formData = new FormData();
       formData.append("image", {
         uri,
         name: fileName,
-        type: `images/${fileType}`,
+        type: `image/${fileType}`, // Fixed: should be 'image' not 'images'
       } as any);
       formData.append("id", cleanedUserId);
 
@@ -440,7 +456,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
         // navigation.navigate('Login');
       } else if (error.response?.status === 413) {
         alert(
-          "Ukuran file terlalu besar. Silakan pilih gambar yang lebih kecil."
+          "Ukuran file terlalu besar. Silakan pilih gambar yang lebih kecil (maksimal 5MB)."
         );
       } else {
         const errorMessage =
@@ -452,8 +468,96 @@ const ModalContent: React.FC<ModalContentProps> = ({
     }
   };
 
+  // Function to compress image before upload
+  const compressImage = async (uri: string) => {
+    try {
+      const manipulatedImage = await ImageManipulator.manipulateAsync(
+        uri,
+        [
+          { resize: { width: 800 } }, // Resize to max width 800px
+        ],
+        {
+          compress: 0.7, // Compress to 70% quality
+          format: ImageManipulator.SaveFormat.JPEG,
+        }
+      );
+      return manipulatedImage.uri;
+    } catch (error) {
+      console.log("Error compressing image:", error);
+      return uri; // Return original URI if compression fails
+    }
+  };
+
+  // Enhanced upload function with compression
+  const uploadImageToServerWithCompression = async () => {
+    if (!profileImage?.uri) {
+      alert("Silakan pilih gambar terlebih dahulu.");
+      return;
+    }
+
+    try {
+      // Compress image before upload
+      const compressedUri = await compressImage(profileImage.uri);
+
+      // Check compressed file size
+      const fileInfo = await FileSystem.getInfoAsync(compressedUri);
+      const fileSizeInMB = fileInfo.size / (1024 * 1024);
+
+      console.log(`File size after compression: ${fileSizeInMB.toFixed(2)} MB`);
+
+      const fileName = compressedUri.split("/").pop();
+      const fileType = fileName?.split(".").pop();
+
+      // Get user data
+      const userId = await SecureStore.getItemAsync("userId");
+      const token = await SecureStore.getItemAsync("userToken");
+      const cleanedUserId = userId?.replace(/"/g, "");
+      const cleanedToken = token?.replace(/"/g, "");
+
+      if (!cleanedUserId || !cleanedToken) {
+        alert("User ID atau token tidak ditemukan. Silakan login ulang.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("image", {
+        uri: compressedUri,
+        name: fileName,
+        type: `image/${fileType}`,
+      } as any);
+      formData.append("id", cleanedUserId);
+
+      const response = await axios.post(`${BASE_URL}/dokter/upload`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${cleanedToken}`,
+        },
+      });
+
+      console.log("Upload berhasil:", response.data);
+      alert("Foto berhasil diunggah!");
+      onUpdateSuccess?.();
+    } catch (error: any) {
+      console.log("Upload error:", error.response?.data || error.message);
+
+      if (error.response?.status === 401) {
+        alert("Sesi Anda telah berakhir. Silakan login ulang.");
+        await SecureStore.deleteItemAsync("token");
+        await SecureStore.deleteItemAsync("userId");
+      } else if (error.response?.status === 413) {
+        alert("Ukuran file terlalu besar. Coba pilih gambar yang lebih kecil.");
+      } else {
+        const errorMessage =
+          error.response?.data?.message ||
+          error.message ||
+          "Gagal upload gambar";
+        alert(`Upload gagal: ${errorMessage}`);
+      }
+    }
+  };
+
   const handleUpload = async () => {
-    await uploadImageToServer();
+    await uploadImageToServerWithCompression(); // Use compression version
     onClose?.();
   };
 
