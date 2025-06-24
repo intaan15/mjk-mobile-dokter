@@ -322,8 +322,8 @@ export default function ChatScreen() {
       } else {
         console.warn("⚠️ Pengambilan gambar dibatalkan atau tidak valid.");
       }
-    } catch (error) {
-      console.error("❌ Gagal mengirim gambar:", error);
+    } catch (error: any) {
+      console.log("❌ Gagal mengirim gambar:", error);
       alert("Gagal mengirim gambar: " + error.message);
     }
   };

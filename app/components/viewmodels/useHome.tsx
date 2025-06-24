@@ -65,7 +65,7 @@ export class HomeViewModel {
 
         setChatList(enrichedChatList);
       } catch (error) {
-        console.error("Gagal ambil chat list", error);
+        console.log("Gagal ambil chat list", error);
       } finally {
         setLoading(false);
         setRefreshing(false);
@@ -121,7 +121,7 @@ export class HomeViewModel {
         await fetchChatList(cleanedId, token);
         
       } catch (error) {
-        console.error("Gagal ambil data user", error);
+        console.log("Gagal ambil data user", error);
         setRefreshing(false);
         setLoading(false);
       }
@@ -140,7 +140,7 @@ export class HomeViewModel {
         await SecureStore.deleteItemAsync("userId");
         router.replace("/screens/signin");
       } catch (error) {
-        console.error("Error during logout:", error);
+        console.log("Error during logout:", error);
       }
     };
 
