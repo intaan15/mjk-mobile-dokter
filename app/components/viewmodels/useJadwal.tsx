@@ -51,7 +51,7 @@ export const useScheduleViewModel = () => {
         });
 
       setAvailableDates(datesWithSchedule);
-      
+
     } catch (err) {
       console.log("Error fetching jadwal:", err);
     }
@@ -72,13 +72,6 @@ export const useScheduleViewModel = () => {
   const handleDateChange = (date: Date) => {
     console.log("Selected date changed:", date);
     setSelectedDate(date);
-  };
-
-  const handleTimeSelect = (time: string, available: boolean) => {
-    if (available) {
-      setSelectedTime(time);
-      console.log("Waktu dipilih:", time);
-    }
   };
 
   useEffect(() => {
@@ -103,6 +96,5 @@ export const useScheduleViewModel = () => {
     loadData,
     onRefresh,
     handleDateChange,
-    handleTimeSelect,
   };
 };

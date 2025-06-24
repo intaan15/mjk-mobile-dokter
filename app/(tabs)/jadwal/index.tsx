@@ -29,7 +29,6 @@ const ScheduleView = () => {
     loadData,
     onRefresh,
     handleDateChange,
-    handleTimeSelect,
   } = useScheduleViewModel();
 
   useFocusEffect(
@@ -82,6 +81,18 @@ const ScheduleView = () => {
             />
           }
         >
+          <View className="flex-row items-center justify-center gap-10 pb-4 px-4">
+            <View className="flex-row items-center gap-1">
+              <View className="w-5 h-5 bg-gray-300 rounded-md" />
+              <Text className="text-skyDark text-sm font-bold">
+                Tidak Tersedia
+              </Text>
+            </View>
+            <View className="flex-row items-center gap-1">
+              <View className="w-5 h-5 rounded-md border-2 border-skyDark bg-transparent" />
+              <Text className="text-skyDark text-sm font-bold">Tersedia</Text>
+            </View>
+          </View>
           <View className="flex-1 flex-col p-2">
             <DatePickerComponent
               label="Pilih Tanggal"
@@ -124,7 +135,6 @@ const ScheduleView = () => {
                               : "#025F96"
                             : "#D1D5DB",
                         }}
-                        onPress={() => handleTimeSelect(slot.time, slot.available)}
                       >
                         <Text
                           className="text-lg text-skyDark text-center"
