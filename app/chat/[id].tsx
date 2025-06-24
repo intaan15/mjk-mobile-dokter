@@ -23,13 +23,8 @@ import axios from "axios";
 import { BASE_URL, BASE_URL2 } from "@env";
 import { useLocalSearchParams } from "expo-router";
 
-
-// const socket = io("http://192.168.2.210:3330", {
-//   transports: ["websocket"], //
-// });
-
 const socket = io(`${BASE_URL2}`, {
-  transports: ["websocket"], //
+  transports: ["websocket"],
 });
 
 export default function ChatScreen() {
@@ -47,21 +42,86 @@ export default function ChatScreen() {
 
   const getJakartaTime = () => {
     const now = new Date();
-    // Jakarta = UTC+7, jadi tambahkan 7 jam (7 * 60 * 60 * 1000 ms)
     const jakartaOffset = 7 * 60 * 60 * 1000;
     const jakartaTime = new Date(now.getTime() + jakartaOffset);
     return jakartaTime.toISOString();
   };
 
-  // Auto scroll to bottom when new message arrives
-  useEffect(() => {
-    if (messages.length > 0 && flatListRef.current) {
-      // Delay scroll to ensure FlatList has rendered
-      setTimeout(() => {
-        flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
-      }, 100);
+  const formatDateToIndonesian = (dateString: string) => {
+    const date = new Date(dateString);
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    const compareDate = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
+    );
+    const compareToday = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+    );
+    const compareYesterday = new Date(
+      yesterday.getFullYear(),
+      yesterday.getMonth(),
+      yesterday.getDate()
+    );
+
+    if (compareDate.getTime() === compareToday.getTime()) {
+      return "Hari ini";
+    } else if (compareDate.getTime() === compareYesterday.getTime()) {
+      return "Kemarin";
+    } else {
+      const bulanIndonesia = [
+        "Januari",
+        "Februari",
+        "Maret",
+        "April",
+        "Mei",
+        "Juni",
+        "Juli",
+        "Agustus",
+        "September",
+        "Oktober",
+        "November",
+        "Desember",
+      ];
+
+      const tanggal = date.getDate();
+      const bulan = bulanIndonesia[date.getMonth()];
+      const tahun = date.getFullYear();
+
+      return `${tanggal} ${bulan} ${tahun}`;
     }
-  }, [messages]);
+  };
+
+  const groupMessagesByDate = (messages: any[]) => {
+    const grouped: { [key: string]: any[] } = {};
+
+    messages.forEach((message) => {
+      const dateKey = message.waktu
+        ? message.waktu.split("T")[0]
+        : new Date().toISOString().split("T")[0];
+
+      if (!grouped[dateKey]) {
+        grouped[dateKey] = [];
+      }
+      grouped[dateKey].push(message);
+    });
+
+    const groupedArray = Object.keys(grouped)
+      .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
+      .map((date) => ({
+        date,
+        messages: grouped[date].sort(
+          (a, b) => new Date(a.waktu).getTime() - new Date(b.waktu).getTime()
+        ),
+      }));
+
+    return groupedArray;
+  };
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -147,7 +207,6 @@ export default function ChatScreen() {
     };
   }, []);
 
-  // Fetch chat history setelah userId dan receiverId siap
   useEffect(() => {
     const fetchChatHistory = async () => {
       try {
@@ -171,7 +230,6 @@ export default function ChatScreen() {
     fetchChatHistory();
   }, [userId, receiverId]);
 
-  // ✅ Terima pesan dari socket
   useEffect(() => {
     const handleIncomingMessage = (msg) => {
       setMessages((prev) => [...prev, msg]);
@@ -184,14 +242,8 @@ export default function ChatScreen() {
     };
   }, []);
 
-  // ✅ Kirim pesan teks
   const sendMessage = async () => {
     console.log("[DEBUG] Tombol Kirim ditekan");
-    // console.log("username:", username);
-    // console.log("userId:", userId);
-    // console.log("receiverId:", receiverId);
-    // console.log("userRole:", userRole);
-    // console.log("message:", message);
 
     if (message.trim() && username && userId && receiverId) {
       const msgData = {
@@ -276,67 +328,133 @@ export default function ChatScreen() {
     }
   };
 
-  const renderItem = ({ item }) => {
-    const isSender = item.senderId === userId;
-
-    return (
-      <View
-        className={`rounded-[3rem] p-4 px-4 my-1 max-w-[80%] ${
-          isSender ? "bg-skyDark self-end" : "bg-[#C3E9FF] self-start"
-        }`}
-      >
-        {item.type === "image" && item.image ? (
-          <TouchableOpacity
-            onPress={() => {
-              console.log("[DEBUG] 🖼️ Opening preview for image:", item.image);
-              setPreviewImage(item.image);
-            }}
-            onLongPress={() => {
-              console.log("[DEBUG] 📋 Image URI:", item.image);
-            }}
-          >
-            <Image
-              source={{
-                uri: item.image.startsWith("data:")
-                  ? item.image
-                  : item.image.startsWith("http")
-                  ? item.image
-                  : `${BASE_URL2}${item.image}`, // Path relatif
-              }}
-              className="w-24 h-32 mt-1 rounded-md"
-              resizeMode="cover"
-              onError={(error) => {
-                console.log("❌ Error loading image:", error.nativeEvent.error);
-                console.log("❌ Failed image URI:", item.image);
-              }}
-              onLoad={() => {
-                console.log("✅ Image loaded successfully");
-              }}
-            />
-          </TouchableOpacity>
-        ) : item.type === "text" && item.text ? (
-          <Text className={`${isSender ? "text-white" : "text-black"}`}>
-            {item.text}
-          </Text>
-        ) : (
-          <View>
-            <Text
-              className={`${isSender ? "text-white" : "text-black"} italic`}
-            >
-              [Pesan tidak dapat ditampilkan]
-            </Text>
-            <Text
-              className={`${
-                isSender ? "text-white" : "text-black"
-              } text-xs opacity-50`}
-            >
-              Type: {item.type} | HasText: {!!item.text} | HasImage:{" "}
-              {!!item.image}
+  const renderItem = ({ item, index }: { item: any; index: number }) => {
+    if (item.type === "dateSeparator") {
+      return (
+        <View className="items-center mb-5">
+          <View className="bg-gray-200 px-5 py-1 rounded-full">
+            <Text className="text-gray-600 text-sm font-medium">
+              {formatDateToIndonesian(item.date)}
             </Text>
           </View>
+        </View>
+      );
+    }
+
+    const isSender = item.senderId === userId;
+    return (
+      <View className={`mb-2 ${isSender ? "items-end" : "items-start"}`}>
+        <View
+          className={`rounded-2xl p-3 px-4 max-w-[80%] ${
+            isSender ? "bg-skyDark rounded-br-sm" : "bg-skyLight rounded-bl-sm"
+          }`}
+          style={{
+            shadowColor: "#000",
+            shadowOffset: {
+              width: 0,
+              height: 1,
+            },
+            shadowOpacity: 0.08,
+            shadowRadius: 3,
+            elevation: 1,
+          }}
+        >
+          {item.type === "image" && item.image ? (
+            <TouchableOpacity
+              onPress={() => {
+                console.log(
+                  "[DEBUG] 🖼️ Opening preview for image:",
+                  item.image
+                );
+                setPreviewImage(item.image);
+              }}
+              onLongPress={() => {
+                console.log("[DEBUG] 📋 Image URI:", item.image);
+              }}
+            >
+              <Image
+                source={{
+                  uri: item.image.startsWith("data:")
+                    ? item.image
+                    : item.image.startsWith("http")
+                    ? item.image
+                    : `${BASE_URL2}${item.image}`,
+                }}
+                className="w-36 h-44 rounded-lg"
+                resizeMode="cover"
+                onError={(error) => {
+                  console.log(
+                    "❌ Error loading image:",
+                    error.nativeEvent.error
+                  );
+                  console.log("❌ Failed image URI:", item.image);
+                }}
+                onLoad={() => {
+                  console.log("✅ Image loaded successfully");
+                }}
+              />
+            </TouchableOpacity>
+          ) : item.type === "text" && item.text ? (
+            <Text
+              className={`text-sm leading-5 ${
+                isSender ? "text-white" : "text-gray-800"
+              }`}
+            >
+              {item.text}
+            </Text>
+          ) : (
+            <View>
+              <Text
+                className={`${
+                  isSender ? "text-white" : "text-gray-600"
+                } italic text-sm`}
+              >
+                [Pesan tidak dapat ditampilkan]
+              </Text>
+              <Text
+                className={`${
+                  isSender ? "text-white" : "text-gray-500"
+                } text-xs opacity-50 mt-1`}
+              >
+                Type: {item.type} | HasText: {!!item.text} | HasImage:{" "}
+                {!!item.image}
+              </Text>
+            </View>
+          )}
+        </View>
+        {item.waktu && (
+          <Text className="text-xs text-gray-400 mt-1 px-2">
+            {item.waktu.substring(11, 16)}
+          </Text>
         )}
       </View>
     );
+  };
+
+  const prepareMessagesWithDates = () => {
+    const groupedMessages = groupMessagesByDate(messages);
+    const flatData: any[] = [];
+
+    groupedMessages.reverse().forEach((group, groupIndex) => {
+      group.messages
+        .slice()
+        .reverse()
+        .forEach((message, index) => {
+          flatData.push({
+            ...message,
+            id: `message-${group.date}-${index}-${
+              message.waktu || getJakartaTime()
+            }`,
+          });
+        });
+      flatData.push({
+        type: "dateSeparator",
+        date: group.date,
+        id: `date-${group.date}`,
+      });
+    });
+
+    return flatData;
   };
 
   return (
@@ -363,20 +481,18 @@ export default function ChatScreen() {
           />
         </View>
 
-        {/* Main Chat Area dengan KeyboardAvoidingView yang benar */}
+        {/* Area Chat Utama dengan KeyboardAvoidingView yang benar */}
         <KeyboardAvoidingView
           style={{ flex: 1 }}
           behavior={Platform.OS === "ios" ? "padding" : "height"}
-          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0} // Set ke 0
+          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
         >
-          {/* Chat Messages */}
+          {/* Pesan Chat */}
           <View style={{ flex: 1 }}>
             <FlatList
               ref={flatListRef}
-              data={[...messages].reverse()}
-              keyExtractor={(item, index) =>
-                `message-${index}-${item.waktu || getJakartaTime()}`
-              }
+              data={prepareMessagesWithDates()}
+              keyExtractor={(item) => item.id}
               renderItem={renderItem}
               contentContainerStyle={{
                 padding: 16,
@@ -399,41 +515,53 @@ export default function ChatScreen() {
             />
           </View>
 
-          {/* Chat Input - Sekarang di dalam KeyboardAvoidingView */}
+          {/* Input Chat */}
           <View className="px-4 bg-skyDark py-4" style={{ minHeight: 70 }}>
             <View className="flex-row items-center">
               <TouchableOpacity onPress={() => sendImage(false)}>
-                <Ionicons name="image-outline" size={28} color="gray" />
+                <Ionicons name="image-outline" size={28} color="#C3E9FF" />
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => sendImage(true)}
                 className="ml-2"
               >
-                <Ionicons name="camera-outline" size={28} color="gray" />
+                <Ionicons name="camera-outline" size={28} color="#C3E9FF" />
               </TouchableOpacity>
               <View className="flex-1 ml-2 mr-2">
                 <TextInput
-                  className="border border-gray-400 bg-[#C3E9FF] rounded-3xl p-2 min-h-[40px]"
+                  className="border border-skyLight bg-skyLight rounded-3xl p-2 min-h-[40px]"
                   value={message}
                   onChangeText={setMessage}
                   placeholder="Tulis pesan..."
-                  multiline
-                  textAlignVertical="center"
+                  placeholderTextColor="#9CA3AF"
+                  multiline={true}
+                  numberOfLines={Platform.OS === "ios" ? undefined : 1}
+                  textAlignVertical={Platform.OS === "android" ? "top" : "top"}
                   maxHeight={100}
                   scrollEnabled={true}
+                  style={{
+                    fontSize: 14,
+                    lineHeight: 20,
+                    color: "#1F2937",
+                    paddingTop: Platform.OS === "ios" ? 8 : 10,
+                    paddingBottom: Platform.OS === "ios" ? 8 : 10,
+                    paddingHorizontal: 12,
+                    minHeight: 40,
+                    maxHeight: 100,
+                  }}
                 />
               </View>
               <TouchableOpacity
                 onPress={sendMessage}
-                className="bg-blue-500 px-4 py-2 rounded-lg mr-1"
+                className="bg-skyLight p-3 rounded-full mr-1"
               >
-                <Text className="text-white font-semibold">Kirim</Text>
+                <Ionicons name="send" size={20} color="#025F96" />
               </TouchableOpacity>
             </View>
           </View>
         </KeyboardAvoidingView>
 
-        {/* Preview Modal */}
+        {/* Modal Preview */}
         <Modal
           visible={!!previewImage}
           transparent={true}
@@ -441,7 +569,6 @@ export default function ChatScreen() {
           onRequestClose={() => setPreviewImage(null)}
         >
           <View className="flex-1 bg-black/80 justify-center items-center">
-            {/* Close Button */}
             <TouchableOpacity
               onPress={() => {
                 console.log("[DEBUG] 🚫 Closing preview modal");
@@ -452,14 +579,12 @@ export default function ChatScreen() {
               <Ionicons name="close-circle" size={36} color="white" />
             </TouchableOpacity>
 
-            {/* Background Touchable */}
             <TouchableOpacity
               onPress={() => setPreviewImage(null)}
               className="absolute inset-0 bg-transparent"
               activeOpacity={1}
             />
 
-            {/* Image Container */}
             {previewImage && (
               <View className="justify-center items-center w-full h-full p-4">
                 <Image
