@@ -301,8 +301,7 @@ export default function ChatScreen() {
                   ? item.image
                   : item.image.startsWith("http")
                   ? item.image
-                  : // : `http://192.168.2.210:3330${item.image}`,
-                    `${BASE_URL2}${previewImage}`, // Path relatif
+                  : `${BASE_URL2}${item.image}`, // Path relatif
               }}
               className="w-24 h-32 mt-1 rounded-md"
               resizeMode="cover"
@@ -364,77 +363,75 @@ export default function ChatScreen() {
           />
         </View>
 
-        {/* Main Chat Area */}
-        <View style={{ flex: 1 }}>
-          <KeyboardAvoidingView
-            style={{ flex: 1 }}
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
-          >
-            {/* Chat Messages */}
-            <View style={{ flex: 1 }}>
-              <FlatList
-                ref={flatListRef}
-                data={[...messages].reverse()}
-                keyExtractor={(item, index) =>
-                  `message-${index}-${item.waktu || getJakartaTime()}`
-                }
-                renderItem={renderItem}
-                contentContainerStyle={{
-                  padding: 16,
-                  flexGrow: 1,
-                  justifyContent: "flex-end", // Align messages to bottom
-                }}
-                style={{ flex: 1 }}
-                showsVerticalScrollIndicator={true}
-                keyboardShouldPersistTaps="handled"
-                inverted={true}
-                maintainVisibleContentPosition={{
-                  minIndexForVisible: 0,
-                  autoscrollToTopThreshold: 10,
-                }}
-                removeClippedSubviews={false} // Important for scroll performance
-                initialNumToRender={20}
-                maxToRenderPerBatch={10}
-                windowSize={10}
-                getItemLayout={null} // Let FlatList calculate item heights
-              />
-            </View>
+        {/* Main Chat Area dengan KeyboardAvoidingView yang benar */}
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0} // Set ke 0
+        >
+          {/* Chat Messages */}
+          <View style={{ flex: 1 }}>
+            <FlatList
+              ref={flatListRef}
+              data={[...messages].reverse()}
+              keyExtractor={(item, index) =>
+                `message-${index}-${item.waktu || getJakartaTime()}`
+              }
+              renderItem={renderItem}
+              contentContainerStyle={{
+                padding: 16,
+                flexGrow: 1,
+                justifyContent: "flex-end",
+              }}
+              style={{ flex: 1 }}
+              showsVerticalScrollIndicator={true}
+              keyboardShouldPersistTaps="handled"
+              inverted={true}
+              maintainVisibleContentPosition={{
+                minIndexForVisible: 0,
+                autoscrollToTopThreshold: 10,
+              }}
+              removeClippedSubviews={false}
+              initialNumToRender={20}
+              maxToRenderPerBatch={10}
+              windowSize={10}
+              getItemLayout={null}
+            />
+          </View>
 
-            {/* Chat Input */}
-            <View className="px-4 bg-skyDark py-4" style={{ minHeight: 70 }}>
-              <View className="flex-row items-center">
-                <TouchableOpacity onPress={() => sendImage(false)}>
-                  <Ionicons name="image-outline" size={28} color="gray" />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => sendImage(true)}
-                  className="ml-2"
-                >
-                  <Ionicons name="camera-outline" size={28} color="gray" />
-                </TouchableOpacity>
-                <View className="flex-1 ml-2 mr-2">
-                  <TextInput
-                    className="border border-gray-400 bg-[#C3E9FF] rounded-3xl p-2 min-h-[40px]"
-                    value={message}
-                    onChangeText={setMessage}
-                    placeholder="Tulis pesan..."
-                    multiline
-                    textAlignVertical="center"
-                    maxHeight={100}
-                    scrollEnabled={true}
-                  />
-                </View>
-                <TouchableOpacity
-                  onPress={sendMessage}
-                  className="bg-blue-500 px-4 py-2 rounded-lg mr-1"
-                >
-                  <Text className="text-white font-semibold">Kirim</Text>
-                </TouchableOpacity>
+          {/* Chat Input - Sekarang di dalam KeyboardAvoidingView */}
+          <View className="px-4 bg-skyDark py-4" style={{ minHeight: 70 }}>
+            <View className="flex-row items-center">
+              <TouchableOpacity onPress={() => sendImage(false)}>
+                <Ionicons name="image-outline" size={28} color="gray" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => sendImage(true)}
+                className="ml-2"
+              >
+                <Ionicons name="camera-outline" size={28} color="gray" />
+              </TouchableOpacity>
+              <View className="flex-1 ml-2 mr-2">
+                <TextInput
+                  className="border border-gray-400 bg-[#C3E9FF] rounded-3xl p-2 min-h-[40px]"
+                  value={message}
+                  onChangeText={setMessage}
+                  placeholder="Tulis pesan..."
+                  multiline
+                  textAlignVertical="center"
+                  maxHeight={100}
+                  scrollEnabled={true}
+                />
               </View>
+              <TouchableOpacity
+                onPress={sendMessage}
+                className="bg-blue-500 px-4 py-2 rounded-lg mr-1"
+              >
+                <Text className="text-white font-semibold">Kirim</Text>
+              </TouchableOpacity>
             </View>
-          </KeyboardAvoidingView>
-        </View>
+          </View>
+        </KeyboardAvoidingView>
 
         {/* Preview Modal */}
         <Modal
@@ -471,8 +468,7 @@ export default function ChatScreen() {
                       ? previewImage
                       : previewImage.startsWith("http")
                       ? previewImage
-                      : // : `http://192.168.2.210:3330${previewImage}`,
-                        `${BASE_URL2}${previewImage}`, // Path relatif
+                      : `${BASE_URL2}${previewImage}`,
                   }}
                   style={{
                     width: "90%",
@@ -498,8 +494,7 @@ export default function ChatScreen() {
                         ? "Base64 Image"
                         : previewImage.startsWith("http")
                         ? previewImage
-                        : // : `http://192.168.2.210:3330${previewImage}`
-                          `${BASE_URL2}${previewImage}` // Path relatif
+                        : `${BASE_URL2}${previewImage}`
                     );
                   }}
                 />
