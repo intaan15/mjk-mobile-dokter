@@ -9,20 +9,23 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
-  StatusBar,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
 import Background from "../components/background";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
-import ModalTemplate from "@/components/modals/ModalTemplate"; 
+import ModalTemplate from "@/components/modals/ModalTemplate";
 import ModalContent from "@/components/modals/ModalContent";
+import { Ionicons } from "@expo/vector-icons";
 import { BASE_URL } from "@env";
 
 export default function SignIn() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const [modalVisible, setModalVisible] = useState(false);
   const [modalType, setModalType] = useState(""); // tipe pesan: "dokterkosong", "pwsalah", dll
@@ -33,6 +36,7 @@ export default function SignIn() {
       setModalVisible(true);
       return;
     }
+    setIsLoading(true);
 
     try {
       const response = await axios.post(`${BASE_URL}/auth/login_dokter`, {
@@ -41,7 +45,7 @@ export default function SignIn() {
       });
       const { token, userId } = response.data;
       await SecureStore.setItemAsync("userToken", token);
-      await SecureStore.setItemAsync("userId", userId.toString()); 
+      await SecureStore.setItemAsync("userId", userId.toString());
       router.replace("/(tabs)/home");
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
@@ -65,6 +69,8 @@ export default function SignIn() {
         setModalType("galat");
       }
       setModalVisible(true);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -110,24 +116,48 @@ export default function SignIn() {
                   placeholderTextColor="#ccc"
                 />
                 <Text>Kata Sandi</Text>
-                <TextInput
-                  placeholder="Masukkan Kata Sandi"
-                  secureTextEntry
-                  value={password}
-                  onChangeText={setPassword}
-                  className="bg-transparent border-2 border-gray-400 text-black px-4 py-3 rounded-xl"
-                  placeholderTextColor="#ccc"
-                />
+                <View className="relative">
+                  <TextInput
+                    placeholder="Masukkan Kata Sandi"
+                    secureTextEntry={!showPassword}
+                    value={password}
+                    onChangeText={setPassword}
+                    className="bg-transparent border-2 border-gray-400 text-black px-4 py-3 rounded-xl"
+                    placeholderTextColor="#ccc"
+                  />
+                  <TouchableOpacity
+                    onPress={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-2"
+                  >
+                    <Ionicons
+                      name={showPassword ? "eye-off" : "eye"}
+                      size={24}
+                      color="#999"
+                    />
+                  </TouchableOpacity>
+                </View>
               </View>
 
               {/* Tombol Login */}
               <TouchableOpacity
-                className="bg-skyDark py-3 px-6 rounded-xl mt-6 w-4/6 self-center"
+                className={`py-3 rounded-xl items-center mt-6 w-64 self-center flex-row justify-center ${
+                  isLoading ? "bg-[#0459708a]" : "bg-[#025F96]"
+                }`}
                 onPress={handleLogin}
+                disabled={isLoading}
               >
-                <Text className="text-xl font-semibold text-white text-center">
-                  Masuk
-                </Text>
+                {isLoading ? (
+                  <>
+                    <ActivityIndicator
+                      size="small"
+                      color="#ffffff"
+                      style={{ marginRight: 8 }}
+                    />
+                    <Text className="text-white text-lg">Loading...</Text>
+                  </>
+                ) : (
+                  <Text className="text-white text-lg">Masuk</Text>
+                )}
               </TouchableOpacity>
             </View>
           </ScrollView>
@@ -136,11 +166,11 @@ export default function SignIn() {
 
       <ModalTemplate
         isVisible={modalVisible}
-        onClose={() => setModalVisible(false)} // Menutup modal
+        onClose={() => setModalVisible(false)}
       >
         <ModalContent
           modalType={modalType}
-          onClose={() => setModalVisible(false)} // Menutup modal dari dalam content
+          onClose={() => setModalVisible(false)}
         />
       </ModalTemplate>
     </Background>

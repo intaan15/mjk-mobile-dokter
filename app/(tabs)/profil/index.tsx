@@ -117,6 +117,11 @@ function ProfileApp() {
   } = useProfileViewModel();
 
   const [imageLoadError, setImageLoadError] = useState(false);
+  
+  // State untuk show/hide password
+  const [showPasswordLama, setShowPasswordLama] = useState(false);
+  const [showPasswordBaru, setShowPasswordBaru] = useState(false);
+  const [showPasswordKonfirmasi, setShowPasswordKonfirmasi] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -245,26 +250,52 @@ function ProfileApp() {
               <Text className="w-full pl-1 text-base font-semibold text-skyDark pt-2">
                 Kata Sandi Lama
               </Text>
-              <TextInput
-                placeholder="Masukkan Kata Sandi Lama"
-                secureTextEntry
-                value={passwordLama}
-                onChangeText={setPasswordLama}
-                className="border-2 rounded-xl border-gray-400 p-2 w-full"
-                placeholderTextColor="#888"
-              />
+              <View className="relative w-full">
+                <TextInput
+                  placeholder="Masukkan Kata Sandi Lama"
+                  secureTextEntry={!showPasswordLama}
+                  value={passwordLama}
+                  onChangeText={setPasswordLama}
+                  className="border-2 rounded-xl border-gray-400 p-2 w-full pr-12"
+                  placeholderTextColor="#888"
+                />
+                <TouchableOpacity
+                  className="absolute right-3 top-2"
+                  onPress={() => setShowPasswordLama(!showPasswordLama)}
+                >
+                  <Ionicons
+                    name={showPasswordLama ? "eye" : "eye-off"}
+                    size={20}
+                    color="#999"
+                  />
+                </TouchableOpacity>
+              </View>
+
               <Text className="w-full pl-1 text-base font-semibold text-skyDark pt-2">
                 Kata Sandi Baru
               </Text>
-              <TextInput
-                placeholder="Masukkan Kata Sandi Baru"
-                secureTextEntry
-                value={passwordBaru}
-                onChangeText={setPasswordBaru}
-                onFocus={() => setShowPasswordValidation(true)}
-                className="border-2 rounded-xl border-gray-400 p-2 w-full"
-                placeholderTextColor="#888"
-              />
+              <View className="relative w-full">
+                <TextInput
+                  placeholder="Masukkan Kata Sandi Baru"
+                  secureTextEntry={!showPasswordBaru}
+                  value={passwordBaru}
+                  onChangeText={setPasswordBaru}
+                  onFocus={() => setShowPasswordValidation(true)}
+                  className="border-2 rounded-xl border-gray-400 p-2 w-full pr-12"
+                  placeholderTextColor="#888"
+                />
+                <TouchableOpacity
+                  className="absolute right-3 top-2"
+                  onPress={() => setShowPasswordBaru(!showPasswordBaru)}
+                >
+                  <Ionicons
+                    name={showPasswordBaru ? "eye" : "eye-off"}
+                    size={20}
+                    color="#999"
+                  />
+                </TouchableOpacity>
+              </View>
+
               <PasswordValidationIndicator
                 passwordValidation={passwordValidation}
                 showPasswordValidation={showPasswordValidation}
@@ -272,14 +303,27 @@ function ProfileApp() {
               <Text className="w-full pl-1 text-base font-semibold text-skyDark pt-2">
                 Konfirmasi Kata Sandi Baru
               </Text>
-              <TextInput
-                placeholder="Masukkan Konfirmasi Kata Sandi Baru"
-                secureTextEntry
-                value={konfirmasiPassword}
-                onChangeText={setKonfirmasiPassword}
-                className="border-2 rounded-xl border-gray-400 p-2 w-full"
-                placeholderTextColor="#888"
-              />
+              <View className="relative w-full">
+                <TextInput
+                  placeholder="Masukkan Konfirmasi Kata Sandi Baru"
+                  secureTextEntry={!showPasswordKonfirmasi}
+                  value={konfirmasiPassword}
+                  onChangeText={setKonfirmasiPassword}
+                  className="border-2 rounded-xl border-gray-400 p-2 w-full pr-12"
+                  placeholderTextColor="#888"
+                />
+                <TouchableOpacity
+                  className="absolute right-3 top-2"
+                  onPress={() => setShowPasswordKonfirmasi(!showPasswordKonfirmasi)}
+                >
+                  <Ionicons
+                    name={showPasswordKonfirmasi ? "eye" : "eye-off"}
+                    size={20}
+                    color="#999"
+                  />
+                </TouchableOpacity>
+              </View>
+
               <TouchableOpacity
                 className="px-12 py-3 rounded-xl mt-6 bg-skyDark"
                 onPress={handleGantiPassword}
