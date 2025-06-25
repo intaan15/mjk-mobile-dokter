@@ -10,6 +10,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   RefreshControl,
+  AppState,
 } from "react-native";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
@@ -32,13 +33,48 @@ export default function HomeScreen() {
     navigateToChat,
     formatDate,
     getImageUrl,
+    refreshChatList,
   } = viewModel.useHome();
 
+  const appState = useRef(AppState.currentState);
+
+  // Fetch data saat screen focus
   useFocusEffect(
     useCallback(() => {
+      console.log("[DEBUG] HomeScreen focused - fetching data");
       fetchUserData();
     }, [])
   );
+
+  // Handle app state changes untuk refresh saat app kembali ke foreground
+  useEffect(() => {
+    const handleAppStateChange = (nextAppState) => {
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState === "active"
+      ) {
+        console.log("[DEBUG] App came to foreground - refreshing chat list");
+        refreshChatList();
+      }
+      appState.current = nextAppState;
+    };
+
+    const subscription = AppState.addEventListener("change", handleAppStateChange);
+
+    return () => subscription?.remove();
+  }, [refreshChatList]);
+
+  // Auto refresh setiap 30 detik ketika screen aktif
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!loading && !refreshing) {
+        console.log("[DEBUG] Auto refresh chat list");
+        refreshChatList();
+      }
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  }, [loading, refreshing, refreshChatList]);
 
   return (
     <Background>
@@ -56,6 +92,9 @@ export default function HomeScreen() {
           formatDate={formatDate}
           getImageUrl={getImageUrl}
         />
+
+        {/* Real-time indicator */}
+        <RealTimeIndicator />
       </View>
     </Background>
   );
@@ -109,7 +148,7 @@ const ChatListView = ({
   return (
     <ScrollView
       className="px-6 py-4"
-      contentContainerStyle={{ paddingBottom: 80 }}
+      contentContainerStyle={{ paddingBottom: 120 }}
       refreshControl={
         <RefreshControl
           refreshing={refreshing}
@@ -121,15 +160,24 @@ const ChatListView = ({
         />
       }
     >
-      {chatList.map((chat) => (
-        <ChatItemView
-          key={chat._id}
-          chat={chat}
-          onPress={() => onChatPress(chat)}
-          formatDate={formatDate}
-          getImageUrl={getImageUrl}
-        />
-      ))}
+      {chatList.length === 0 ? (
+        <View className="flex justify-center items-center mt-20">
+          <Ionicons name="chatbubbles-outline" size={64} color="#025F96" />
+          <Text className="text-skyDark font-semibold mt-4 text-center">
+            Belum ada chat tersedia
+          </Text>
+        </View>
+      ) : (
+        chatList.map((chat) => (
+          <ChatItemView
+            key={chat._id}
+            chat={chat}
+            onPress={() => onChatPress(chat)}
+            formatDate={formatDate}
+            getImageUrl={getImageUrl}
+          />
+        ))
+      )}
     </ScrollView>
   );
 };
@@ -155,7 +203,7 @@ const ChatItemView = ({
           chat.status === "selesai" ? "bg-lime-200" : "bg-yellow-200"
         }`}
       >
-        {chat.status === "selesai" ? "selesai" : "berlangsung"}
+        {chat.status === "selesai" ? "Selesai" : "Berlangsung"}
       </Text>
     </View>
     
@@ -186,6 +234,11 @@ const ChatItemView = ({
           >
             {chat.lastMessage || "Belum ada pesan"}
           </Text>
+          
+          {/* New message indicator */}
+          {chat.hasUnreadMessage && (
+            <View className="bg-red-500 rounded-full w-3 h-3 ml-2" />
+          )}
         </View>
       </View>
     </View>
@@ -208,6 +261,55 @@ const ProfileImageView = ({ imageUrl }: { imageUrl: string | null }) => (
     )}
   </View>
 );
+
+const RealTimeIndicator = () => {
+  const [isConnected, setIsConnected] = useState(true);
+  const opacity = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    const pulse = Animated.loop(
+      Animated.sequence([
+        Animated.timing(opacity, {
+          toValue: 0.3,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    if (isConnected) {
+      pulse.start();
+    } else {
+      pulse.stop();
+      opacity.setValue(1);
+    }
+
+    return () => pulse.stop();
+  }, [isConnected]);
+
+  return (
+    <View className="absolute bottom-4 right-4">
+      <Animated.View
+        className="flex-row items-center bg-white rounded-full px-3 py-2 shadow-lg"
+        style={{ opacity }}
+      >
+        <View
+          className={`w-2 h-2 rounded-full mr-2 ${
+            isConnected ? "bg-green-500" : "bg-red-500"
+          }`}
+        />
+        <Text className="text-xs text-gray-600">
+          {isConnected ? "Real-time" : "Offline"}
+        </Text>
+      </Animated.View>
+    </View>
+  );
+};
 
 const MarqueeText = ({ text, style }: { text: string; style?: any }) => {
   const screenWidth = Dimensions.get("window").width;

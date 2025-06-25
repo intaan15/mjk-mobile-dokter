@@ -1,10 +1,10 @@
-// components/viewmodels/useHome.js
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import axios from "axios";
 import moment from "moment";
-import { BASE_URL } from "@env";
+import { io } from "socket.io-client";
+import { BASE_URL, BASE_URL2 } from "@env";
 
 interface User {
   nama_dokter: string;
@@ -31,6 +31,41 @@ export class HomeViewModel {
     const [chatList, setChatList] = useState<ChatItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
+    const [socket, setSocket] = useState(null);
+
+    // Initialize Socket.IO connection
+    useEffect(() => {
+      if (dokterId) {
+        const socketInstance = io(`${BASE_URL2}`, {
+          transports: ["websocket"],
+        });
+        
+        setSocket(socketInstance);
+
+        // Join room untuk dokter
+        socketInstance.emit("joinRoom", dokterId);
+
+        // Listen untuk chat message baru
+        socketInstance.on("chat message", (newMessage) => {
+          console.log("[DEBUG] New message received in HomeScreen:", newMessage);
+          
+          // Update chat list ketika ada pesan baru
+          if (newMessage.receiverId === dokterId || newMessage.senderId === dokterId) {
+            refreshChatList();
+          }
+        });
+
+        // Listen untuk update chat list
+        socketInstance.on("chatListUpdate", (data) => {
+          console.log("[DEBUG] Chat list update received:", data);
+          refreshChatList();
+        });
+
+        return () => {
+          socketInstance.disconnect();
+        };
+      }
+    }, [dokterId]);
 
     // Utility function untuk membuat URL gambar
     const getImageUrl = (imagePath: string | null | undefined): string | null => {
@@ -69,6 +104,21 @@ export class HomeViewModel {
       } finally {
         setLoading(false);
         setRefreshing(false);
+      }
+    };
+
+    // Refresh chat list tanpa loading indicator
+    const refreshChatList = async () => {
+      try {
+        const storedId = await SecureStore.getItemAsync("userId");
+        const token = await SecureStore.getItemAsync("userToken");
+        const cleanedId = storedId?.replace(/"/g, "");
+
+        if (cleanedId && token) {
+          await fetchChatList(cleanedId, token);
+        }
+      } catch (error) {
+        console.log("Gagal refresh chat list", error);
       }
     };
 
@@ -136,6 +186,11 @@ export class HomeViewModel {
     // Handle logout
     const handleLogout = async () => {
       try {
+        // Disconnect socket before logout
+        if (socket) {
+          socket.disconnect();
+        }
+        
         await SecureStore.deleteItemAsync("userToken");
         await SecureStore.deleteItemAsync("userId");
         router.replace("/screens/signin");
@@ -164,6 +219,15 @@ export class HomeViewModel {
       return moment(dateString).format("DD/MM/YY");
     };
 
+    // Cleanup socket on unmount
+    useEffect(() => {
+      return () => {
+        if (socket) {
+          socket.disconnect();
+        }
+      };
+    }, [socket]);
+
     return {
       // State
       userData,
@@ -179,6 +243,7 @@ export class HomeViewModel {
       formatDate,
       getImageUrl,
       filterChatsByTab,
+      refreshChatList,
     };
   };
 }
