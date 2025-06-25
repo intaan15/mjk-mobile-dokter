@@ -100,10 +100,10 @@ export const useJadwalViewModel = () => {
       });
 
       // 🔍 DEBUG: Log raw response
-      console.log(
-        "📊 Raw API Response:",
-        JSON.stringify(response.data, null, 2)
-      );
+      // console.log(
+      //   "📊 Raw API Response:",
+      //   JSON.stringify(response.data, null, 2)
+      // );
 
       if (userId) {
         const filtered = response.data.filter(
@@ -111,7 +111,7 @@ export const useJadwalViewModel = () => {
         );
 
         // 🔍 DEBUG: Log filtered data
-        console.log("🎯 Filtered Jadwals:", filtered.length);
+        // console.log("🎯 Filtered Jadwals:", filtered.length);
         
         // Cek apakah ada jadwal baru
         const currentCount = filtered.length;
@@ -139,19 +139,16 @@ export const useJadwalViewModel = () => {
     // Refresh setiap 30 detik
     intervalRef.current = setInterval(() => {
       if (isActiveRef.current) {
-        console.log("🔄 Auto-refreshing jadwal...");
         fetchJadwal(true);
       }
     }, 30000); // 30 detik
 
-    console.log("✅ Auto-refresh started");
   }, []);
 
   const stopAutoRefresh = useCallback(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
-      console.log("🛑 Auto-refresh stopped");
     }
   }, []);
 
