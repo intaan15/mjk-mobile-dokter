@@ -7,7 +7,7 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from "react-native";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { useRouter } from "expo-router";
 import Background from "../../components/background";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -35,6 +35,17 @@ const JadwalView = () => {
     startAutoRefresh,
     stopAutoRefresh,
   } = useJadwalViewModel();
+
+  const sortedJadwals = useMemo(() => {
+    if (!filteredJadwals || filteredJadwals.length === 0) return [];
+    
+    return [...filteredJadwals].sort((a, b) => {
+      const dateA = new Date(a.createdAt);
+      const dateB = new Date(b.createdAt);
+      
+      return dateB - dateA;
+    });
+  }, [filteredJadwals]);
 
   useFocusEffect(
     useCallback(() => {
@@ -99,7 +110,7 @@ const JadwalView = () => {
                 />
               }
             >
-              {filteredJadwals.length === 0 ? (
+              {sortedJadwals.length === 0 ? (
                 <View className="flex items-center justify-center py-20">
                   <Ionicons name="calendar-outline" size={64} color="#94A3B8" />
                   <Text className="text-gray-500 text-lg mt-4 text-center">
@@ -110,7 +121,7 @@ const JadwalView = () => {
                   </Text>
                 </View>
               ) : (
-                filteredJadwals.map((jadwal) => (
+                sortedJadwals.map((jadwal) => (
                   <View
                     key={jadwal._id}
                     className="flex flex-col mb-4 bg-white p-2 rounded-xl shadow-black"

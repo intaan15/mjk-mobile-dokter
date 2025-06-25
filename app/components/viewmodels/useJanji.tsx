@@ -20,6 +20,7 @@ type Jadwal = {
   jam_konsul: string;
   keluhan_pasien: string;
   status_konsul: "menunggu" | "diterima" | "ditolak";
+  createdAt: Date;
 };
 
 export const useJadwalViewModel = () => {
