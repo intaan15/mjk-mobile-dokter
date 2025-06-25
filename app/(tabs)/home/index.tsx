@@ -11,6 +11,10 @@ import {
   ActivityIndicator,
   RefreshControl,
   AppState,
+  AppStateStatus,
+  ImageErrorEventData,
+  NativeSyntheticEvent,
+  LayoutChangeEvent,
 } from "react-native";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
@@ -20,6 +24,56 @@ import { HomeViewModel } from "../../components/viewmodels/useHome";
 import { Ionicons } from "@expo/vector-icons";
 
 const { width } = Dimensions.get("window");
+
+interface ChatItem {
+  _id: string;
+  nama_masyarakat?: string;
+  foto_profil_masyarakat?: string;
+  lastMessage?: string;
+  lastMessageDate: string;
+  status: "berlangsung" | "selesai";
+  hasUnreadMessage?: boolean;
+}
+
+interface GroupedChats {
+  berlangsung: ChatItem[];
+  selesai: ChatItem[];
+}
+
+interface UserData {
+  nama_dokter?: string;
+  [key: string]: any;
+}
+
+interface HeaderViewProps {
+  userData: UserData | null;
+}
+
+interface ChatListViewProps {
+  loading: boolean;
+  refreshing: boolean;
+  onRefresh: () => void;
+  groupedChats: GroupedChats;
+  onChatPress: (chat: ChatItem) => void;
+  formatDate: (date: string) => string;
+  getImageUrl: (path: string | null | undefined) => string | null;
+}
+
+interface ChatItemViewProps {
+  chat: ChatItem;
+  onPress: () => void;
+  formatDate: (date: string) => string;
+  getImageUrl: (path: string | null | undefined) => string | null;
+}
+
+interface ProfileImageViewProps {
+  imageUrl: string | null;
+}
+
+interface MarqueeTextProps {
+  text: string;
+  style?: any;
+}
 
 export default function HomeScreen() {
   const viewModel = new HomeViewModel();
@@ -36,19 +90,18 @@ export default function HomeScreen() {
     refreshChatList,
   } = viewModel.useHome();
 
-  const appState = useRef(AppState.currentState);
+  const appState = useRef<AppStateStatus>(AppState.currentState);
 
   // Fetch data saat screen focus
   useFocusEffect(
     useCallback(() => {
-      console.log("[DEBUG] HomeScreen focused - fetching data");
       fetchUserData();
-    }, [])
+    }, [fetchUserData])
   );
 
   // Handle app state changes untuk refresh saat app kembali ke foreground
   useEffect(() => {
-    const handleAppStateChange = (nextAppState) => {
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
       if (
         appState.current.match(/inactive|background/) &&
         nextAppState === "active"
@@ -77,13 +130,13 @@ export default function HomeScreen() {
   }, [loading, refreshing, refreshChatList]);
 
   // Group chats by status
-  const groupedChats = React.useMemo(() => {
-    const grouped = {
+  const groupedChats = React.useMemo<GroupedChats>(() => {
+    const grouped: GroupedChats = {
       berlangsung: [],
       selesai: []
     };
 
-    chatList.forEach(chat => {
+    (chatList as ChatItem[]).forEach((chat: ChatItem) => {
       if (chat.status === "selesai") {
         grouped.selesai.push(chat);
       } else {
@@ -92,8 +145,12 @@ export default function HomeScreen() {
     });
 
     // Sort each group by last message date (newest first)
-    grouped.berlangsung.sort((a, b) => new Date(b.lastMessageDate) - new Date(a.lastMessageDate));
-    grouped.selesai.sort((a, b) => new Date(b.lastMessageDate) - new Date(a.lastMessageDate));
+    grouped.berlangsung.sort((a: ChatItem, b: ChatItem) => 
+      new Date(b.lastMessageDate).getTime() - new Date(a.lastMessageDate).getTime()
+    );
+    grouped.selesai.sort((a: ChatItem, b: ChatItem) => 
+      new Date(b.lastMessageDate).getTime() - new Date(a.lastMessageDate).getTime()
+    );
 
     return grouped;
   }, [chatList]);
@@ -122,7 +179,7 @@ export default function HomeScreen() {
   );
 }
 
-const HeaderView = ({ userData }: { userData: any }) => (
+const HeaderView: React.FC<HeaderViewProps> = ({ userData }) => (
   <View className="flex flex-row justify-between items-center mb-4 w-full px-5 pt-10">
     <View className="flex flex-row items-center">
       <Text className="text-skyDark text-2xl font-bold">Hi,</Text>
@@ -139,7 +196,7 @@ const HeaderView = ({ userData }: { userData: any }) => (
   </View>
 );
 
-const ChatListView = ({
+const ChatListView: React.FC<ChatListViewProps> = ({
   loading,
   refreshing,
   onRefresh,
@@ -147,14 +204,6 @@ const ChatListView = ({
   onChatPress,
   formatDate,
   getImageUrl,
-}: {
-  loading: boolean;
-  refreshing: boolean;
-  onRefresh: () => void;
-  groupedChats: { berlangsung: any[]; selesai: any[] };
-  onChatPress: (chat: any) => void;
-  formatDate: (date: string) => string;
-  getImageUrl: (path: string) => string | null;
 }) => {
   if (loading) {
     return (
@@ -202,7 +251,7 @@ const ChatListView = ({
                 </Text>
                 <View className="flex-1 h-[2px] bg-skyDark ml-4" />
               </View>
-              {groupedChats.berlangsung.map((chat, index) => (
+              {groupedChats.berlangsung.map((chat: ChatItem, index: number) => (
                 <ChatItemView
                   key={`berlangsung-${chat._id}-${index}`}
                   chat={chat}
@@ -223,7 +272,7 @@ const ChatListView = ({
                 </Text>
                 <View className="flex-1 h-[2px] bg-skyDark ml-4" />
               </View>
-              {groupedChats.selesai.map((chat, index) => (
+              {groupedChats.selesai.map((chat: ChatItem, index: number) => (
                 <ChatItemView
                   key={`selesai-${chat._id}-${index}`}
                   chat={chat}
@@ -240,16 +289,11 @@ const ChatListView = ({
   );
 };
 
-const ChatItemView = ({
+const ChatItemView: React.FC<ChatItemViewProps> = ({
   chat,
   onPress,
   formatDate,
   getImageUrl,
-}: {
-  chat: any;
-  onPress: () => void;
-  formatDate: (date: string) => string;
-  getImageUrl: (path: string) => string | null;
 }) => (
   <TouchableOpacity className="flex flex-col mb-4" onPress={onPress} activeOpacity={0.7}>
 
@@ -292,10 +336,10 @@ const ChatItemView = ({
   </TouchableOpacity>
 );
 
-const ProfileImageView = ({ imageUrl }: { imageUrl: string | null }) => {
-  const [imageLoadError, setImageLoadError] = useState(false);
+const ProfileImageView: React.FC<ProfileImageViewProps> = ({ imageUrl }) => {
+  const [imageLoadError, setImageLoadError] = useState<boolean>(false);
 
-  const handleImageError = (error) => {
+  const handleImageError = (error: NativeSyntheticEvent<ImageErrorEventData>) => {
     console.log("Error loading profile image:", error.nativeEvent.error);
     setImageLoadError(true);
   };
@@ -323,8 +367,8 @@ const ProfileImageView = ({ imageUrl }: { imageUrl: string | null }) => {
   );
 };
 
-const RealTimeIndicator = () => {
-  const [isConnected, setIsConnected] = useState(true);
+const RealTimeIndicator: React.FC = () => {
+  const [isConnected, setIsConnected] = useState<boolean>(true);
   const opacity = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -351,7 +395,7 @@ const RealTimeIndicator = () => {
     }
 
     return () => pulse.stop();
-  }, [isConnected]);
+  }, [isConnected, opacity]);
 
   return (
     <View className="absolute bottom-4 right-4">
@@ -372,12 +416,12 @@ const RealTimeIndicator = () => {
   );
 };
 
-const MarqueeText = ({ text, style }: { text: string; style?: any }) => {
+const MarqueeText: React.FC<MarqueeTextProps> = ({ text, style }) => {
   const screenWidth = Dimensions.get("window").width;
   const containerWidth = screenWidth * 0.7;
 
   const translateX = useRef(new Animated.Value(0)).current;
-  const [textWidth, setTextWidth] = useState(0);
+  const [textWidth, setTextWidth] = useState<number>(0);
   const animationRef = useRef<Animated.CompositeAnimation | null>(null);
 
   useEffect(() => {
@@ -409,7 +453,11 @@ const MarqueeText = ({ text, style }: { text: string; style?: any }) => {
     return () => {
       animationRef.current?.stop();
     };
-  }, [textWidth, containerWidth]);
+  }, [textWidth, containerWidth, translateX]);
+
+  const handleTextLayout = (e: LayoutChangeEvent) => {
+    setTextWidth(e.nativeEvent.layout.width);
+  };
 
   return (
     <View style={[styles.container, { width: containerWidth }]}>
@@ -421,7 +469,7 @@ const MarqueeText = ({ text, style }: { text: string; style?: any }) => {
       >
         <Text
           style={[style, { flexShrink: 0 }]}
-          onLayout={(e) => setTextWidth(e.nativeEvent.layout.width)}
+          onLayout={handleTextLayout}
           numberOfLines={1}
           ellipsizeMode="clip"
         >
