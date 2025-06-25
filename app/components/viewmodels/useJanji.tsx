@@ -1,7 +1,7 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
-import { Alert } from "react-native";
+import { Alert, AppState } from "react-native";
 import { BASE_URL } from "@env";
 
 type Jadwal = {
@@ -27,6 +27,12 @@ export const useJadwalViewModel = () => {
   const [jadwals, setJadwal] = useState<Jadwal[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [isAutoRefreshing, setIsAutoRefreshing] = useState(false);
+  
+  // Refs untuk interval dan tracking
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const lastJadwalCountRef = useRef<number>(0);
+  const isActiveRef = useRef<boolean>(true);
 
   const formatTanggalIndo = (isoDate: string) => {
     const hariIndo = [
@@ -76,8 +82,12 @@ export const useJadwalViewModel = () => {
     return `${baseUrlWithoutApi}/${cleanPath}`;
   };
 
-  const fetchJadwal = async () => {
+  const fetchJadwal = async (isAutoRefresh = false) => {
     try {
+      if (isAutoRefresh) {
+        setIsAutoRefreshing(true);
+      }
+
       const userId = await SecureStore.getItemAsync("userId");
       const token = await SecureStore.getItemAsync("userToken");
 
@@ -94,16 +104,6 @@ export const useJadwalViewModel = () => {
         JSON.stringify(response.data, null, 2)
       );
 
-      // 🔍 DEBUG: Check each jadwal data
-      response.data.forEach((jadwal, index) => {
-        console.log(`📋 Jadwal ${index}:`, {
-          id: jadwal._id,
-          masyarakat_id: jadwal.masyarakat_id,
-          foto_profil: jadwal.masyarakat_id?.foto_profil_masyarakat,
-          nama: jadwal.masyarakat_id?.nama_masyarakat,
-        });
-      });
-
       if (userId) {
         const filtered = response.data.filter(
           (jadwal) => jadwal.dokter_id?._id === userId
@@ -111,13 +111,22 @@ export const useJadwalViewModel = () => {
 
         // 🔍 DEBUG: Log filtered data
         console.log("🎯 Filtered Jadwals:", filtered.length);
-        filtered.forEach((jadwal, index) => {
-          console.log(`✅ Filtered ${index}:`, {
-            id: jadwal._id,
-            foto_profil: jadwal.masyarakat_id?.foto_profil_masyarakat,
-          });
-        });
-
+        
+        // Cek apakah ada jadwal baru
+        const currentCount = filtered.length;
+        const previousCount = lastJadwalCountRef.current;
+        
+        if (isAutoRefresh && currentCount > previousCount && previousCount > 0) {
+          // Ada jadwal baru masuk
+          console.log("🎉 Jadwal baru ditemukan!");
+          Alert.alert(
+            "Jadwal Baru! 🎉",
+            `Anda memiliki ${currentCount - previousCount} jadwal konsultasi baru`,
+            [{ text: "OK", style: "default" }]
+          );
+        }
+        
+        lastJadwalCountRef.current = currentCount;
         setJadwal(filtered);
       }
     } catch (err: any) {
@@ -126,8 +135,62 @@ export const useJadwalViewModel = () => {
     } finally {
       setLoading(false);
       setRefreshing(false);
+      setIsAutoRefreshing(false);
     }
   };
+
+  // Auto-refresh functionality
+  const startAutoRefresh = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+
+    // Refresh setiap 30 detik
+    intervalRef.current = setInterval(() => {
+      if (isActiveRef.current) {
+        console.log("🔄 Auto-refreshing jadwal...");
+        fetchJadwal(true);
+      }
+    }, 30000); // 30 detik
+
+    console.log("✅ Auto-refresh started");
+  }, []);
+
+  const stopAutoRefresh = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+      console.log("🛑 Auto-refresh stopped");
+    }
+  }, []);
+
+  // Handle app state changes
+  useEffect(() => {
+    const handleAppStateChange = (nextAppState: string) => {
+      if (nextAppState === 'active') {
+        isActiveRef.current = true;
+        // Refresh immediately when app comes back to foreground
+        fetchJadwal(true);
+        startAutoRefresh();
+      } else {
+        isActiveRef.current = false;
+        stopAutoRefresh();
+      }
+    };
+
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+
+    return () => {
+      subscription?.remove();
+    };
+  }, [startAutoRefresh, stopAutoRefresh]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      stopAutoRefresh();
+    };
+  }, [stopAutoRefresh]);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -136,6 +199,7 @@ export const useJadwalViewModel = () => {
 
   const loadData = async () => {
     await fetchJadwal();
+    startAutoRefresh();
   };
 
   const updateJadwalStatus = async (
@@ -190,12 +254,28 @@ export const useJadwalViewModel = () => {
       .filter((jadwal) => jadwal.status_konsul === selectedTab);
   };
 
+  // Manual refresh function for pull-to-refresh
+  const handleManualRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchJadwal();
+  }, []);
+
+  // Function to enable/disable auto-refresh
+  const toggleAutoRefresh = useCallback((enabled: boolean) => {
+    if (enabled) {
+      startAutoRefresh();
+    } else {
+      stopAutoRefresh();
+    }
+  }, [startAutoRefresh, stopAutoRefresh]);
+
   return {
     // State
     selectedTab,
     jadwals,
     loading,
     refreshing,
+    isAutoRefreshing,
 
     // Computed
     filteredJadwals: getFilteredJadwals(),
@@ -203,9 +283,12 @@ export const useJadwalViewModel = () => {
     // Actions
     fetchJadwal,
     loadData,
-    onRefresh,
+    onRefresh: handleManualRefresh,
     updateJadwalStatus,
     handleTabChange,
+    toggleAutoRefresh,
+    startAutoRefresh,
+    stopAutoRefresh,
 
     // Utilities
     formatTanggalIndo,
