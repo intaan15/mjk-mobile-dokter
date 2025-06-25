@@ -76,6 +76,28 @@ export default function HomeScreen() {
     return () => clearInterval(interval);
   }, [loading, refreshing, refreshChatList]);
 
+  // Group chats by status
+  const groupedChats = React.useMemo(() => {
+    const grouped = {
+      berlangsung: [],
+      selesai: []
+    };
+
+    chatList.forEach(chat => {
+      if (chat.status === "selesai") {
+        grouped.selesai.push(chat);
+      } else {
+        grouped.berlangsung.push(chat);
+      }
+    });
+
+    // Sort each group by last message date (newest first)
+    grouped.berlangsung.sort((a, b) => new Date(b.lastMessageDate) - new Date(a.lastMessageDate));
+    grouped.selesai.sort((a, b) => new Date(b.lastMessageDate) - new Date(a.lastMessageDate));
+
+    return grouped;
+  }, [chatList]);
+
   return (
     <Background>
       <View className="flex-1">
@@ -87,7 +109,7 @@ export default function HomeScreen() {
           loading={loading}
           refreshing={refreshing}
           onRefresh={onRefresh}
-          chatList={chatList}
+          groupedChats={groupedChats}
           onChatPress={navigateToChat}
           formatDate={formatDate}
           getImageUrl={getImageUrl}
@@ -121,7 +143,7 @@ const ChatListView = ({
   loading,
   refreshing,
   onRefresh,
-  chatList,
+  groupedChats,
   onChatPress,
   formatDate,
   getImageUrl,
@@ -129,7 +151,7 @@ const ChatListView = ({
   loading: boolean;
   refreshing: boolean;
   onRefresh: () => void;
-  chatList: any[];
+  groupedChats: { berlangsung: any[]; selesai: any[] };
   onChatPress: (chat: any) => void;
   formatDate: (date: string) => string;
   getImageUrl: (path: string) => string | null;
@@ -144,6 +166,8 @@ const ChatListView = ({
       </View>
     );
   }
+
+  const totalChats = groupedChats.berlangsung.length + groupedChats.selesai.length;
 
   return (
     <ScrollView
@@ -160,7 +184,7 @@ const ChatListView = ({
         />
       }
     >
-      {chatList.length === 0 ? (
+      {totalChats === 0 ? (
         <View className="flex justify-center items-center mt-20">
           <Ionicons name="chatbubbles-outline" size={64} color="#025F96" />
           <Text className="text-skyDark font-semibold mt-4 text-center">
@@ -168,15 +192,49 @@ const ChatListView = ({
           </Text>
         </View>
       ) : (
-        chatList.map((chat) => (
-          <ChatItemView
-            key={chat._id}
-            chat={chat}
-            onPress={() => onChatPress(chat)}
-            formatDate={formatDate}
-            getImageUrl={getImageUrl}
-          />
-        ))
+        <>
+          {/* Berlangsung Section */}
+          {groupedChats.berlangsung.length > 0 && (
+            <View className="mb-6">
+              <View className="flex flex-row items-center mb-4">
+                <Text className="text-skyDark font-bold text-lg">
+                  Berlangsung
+                </Text>
+                <View className="flex-1 h-[2px] bg-skyDark ml-4" />
+              </View>
+              {groupedChats.berlangsung.map((chat, index) => (
+                <ChatItemView
+                  key={`berlangsung-${chat._id}-${index}`}
+                  chat={chat}
+                  onPress={() => onChatPress(chat)}
+                  formatDate={formatDate}
+                  getImageUrl={getImageUrl}
+                />
+              ))}
+            </View>
+          )}
+
+          {/* Selesai Section */}
+          {groupedChats.selesai.length > 0 && (
+            <View className="mb-6">
+              <View className="flex flex-row items-center mb-4">
+                <Text className="text-skyDark font-bold text-lg">
+                  Selesai
+                </Text>
+                <View className="flex-1 h-[2px] bg-skyDark ml-4" />
+              </View>
+              {groupedChats.selesai.map((chat, index) => (
+                <ChatItemView
+                  key={`selesai-${chat._id}-${index}`}
+                  chat={chat}
+                  onPress={() => onChatPress(chat)}
+                  formatDate={formatDate}
+                  getImageUrl={getImageUrl}
+                />
+              ))}
+            </View>
+          )}
+        </>
       )}
     </ScrollView>
   );
@@ -193,20 +251,8 @@ const ChatItemView = ({
   formatDate: (date: string) => string;
   getImageUrl: (path: string) => string | null;
 }) => (
-  <TouchableOpacity className="flex flex-col" onPress={onPress}>
-    <View className="flex flex-row justify-between">
-      <Text className="p-2 rounded-xl font-bold self-end">
-        Konsultasi Dengan
-      </Text>
-      <Text
-        className={`p-2 rounded-xl self-end ${
-          chat.status === "selesai" ? "bg-lime-200" : "bg-yellow-200"
-        }`}
-      >
-        {chat.status === "selesai" ? "Selesai" : "Berlangsung"}
-      </Text>
-    </View>
-    
+  <TouchableOpacity className="flex flex-col mb-4" onPress={onPress} activeOpacity={0.7}>
+
     <View className="flex flex-row items-center">
       <ProfileImageView
         imageUrl={getImageUrl(chat.foto_profil_masyarakat)}
@@ -215,21 +261,21 @@ const ChatItemView = ({
       <View className="ml-4 flex-1">
         <View className="flex flex-row justify-between items-center">
           <Text
-            className="font-semibold text-lg max-w-[80%] text-skyDark"
+            className="font-semibold text-lg text-skyDark flex-1"
             numberOfLines={1}
             ellipsizeMode="tail"
           >
             {chat.nama_masyarakat || "Masyarakat"}
           </Text>
-          <Text className="text-gray-500 text-sm">
+          <Text className="text-gray-500 text-sm ml-2">
             {formatDate(chat.lastMessageDate)}
           </Text>
         </View>
 
         <View className="flex flex-row justify-between items-center mt-1">
           <Text
-            className="text-gray-700 flex-1"
-            numberOfLines={1}
+            className="text-gray-600 flex-1 mr-2"
+            numberOfLines={2}
             ellipsizeMode="tail"
           >
             {chat.lastMessage || "Belum ada pesan"}
@@ -237,30 +283,45 @@ const ChatItemView = ({
           
           {/* New message indicator */}
           {chat.hasUnreadMessage && (
-            <View className="bg-red-500 rounded-full w-3 h-3 ml-2" />
+            <View className="bg-red-500 rounded-full w-3 h-3" />
           )}
         </View>
       </View>
     </View>
-    <View className="w-full h-[2px] bg-skyDark my-2" />
+    <View className="w-full h-[2px] bg-gray-200 mt-3" />
   </TouchableOpacity>
 );
 
-const ProfileImageView = ({ imageUrl }: { imageUrl: string | null }) => (
-  <View className="h-16 w-16 rounded-full border border-gray-300 bg-gray-100 justify-center items-center">
-    {imageUrl ? (
-      <Image
-        source={{ uri: imageUrl }}
-        className="h-full w-full rounded-full"
-        resizeMode="cover"
-      />
-    ) : (
-      <View className="h-16 w-16 rounded-full border border-gray-300 items-center justify-center bg-gray-200">
-        <Ionicons name="person" size={32} color="#0C4A6E" />
-      </View>
-    )}
-  </View>
-);
+const ProfileImageView = ({ imageUrl }: { imageUrl: string | null }) => {
+  const [imageLoadError, setImageLoadError] = useState(false);
+
+  const handleImageError = (error) => {
+    console.log("Error loading profile image:", error.nativeEvent.error);
+    setImageLoadError(true);
+  };
+
+  const handleImageLoad = () => {
+    setImageLoadError(false);
+  };
+
+  return (
+    <View className="h-16 w-16 rounded-full border border-gray-300 bg-gray-100 justify-center items-center">
+      {imageUrl && !imageLoadError ? (
+        <Image
+          source={{ uri: imageUrl }}
+          className="h-full w-full rounded-full"
+          resizeMode="cover"
+          onError={handleImageError}
+          onLoad={handleImageLoad}
+        />
+      ) : (
+        <View className="h-16 w-16 rounded-full border border-gray-300 items-center justify-center bg-gray-200">
+          <Ionicons name="person" size={32} color="#0C4A6E" />
+        </View>
+      )}
+    </View>
+  );
+};
 
 const RealTimeIndicator = () => {
   const [isConnected, setIsConnected] = useState(true);
