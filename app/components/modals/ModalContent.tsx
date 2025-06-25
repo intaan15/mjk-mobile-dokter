@@ -33,6 +33,10 @@ interface ModalContentProps {
   onUpdateSuccess?: () => void;
   onConfirm?: () => void;
   selectedDate?: Date;
+  onProfileUpdate?: () => void;
+  onScheduleUpdate?: () => void;
+  onImageUpdate?: () => void;
+  onDataRefresh?: () => void;
 }
 
 interface User {
@@ -55,6 +59,11 @@ const ModalContent: React.FC<ModalContentProps> = ({
   onUpdateSuccess,
   onConfirm,
   selectedDate,
+  // New callback props
+  onProfileUpdate,
+  onScheduleUpdate,
+  onImageUpdate,
+  onDataRefresh,
 }) => {
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [endTime, setEndTime] = useState<Date | null>(null);
@@ -101,6 +110,12 @@ const ModalContent: React.FC<ModalContentProps> = ({
 
     fetchUser();
   }, []);
+
+  // Helper function to trigger multiple callbacks
+  const triggerRefreshCallbacks = () => {
+    onUpdateSuccess?.();
+    onDataRefresh?.();
+  };
 
   const handleSubmit = async () => {
     const phoneRegex = /^[0-9]{10,15}$/;
@@ -150,8 +165,13 @@ const ModalContent: React.FC<ModalContentProps> = ({
         }
       );
 
-      // alert("Data berhasil diperbarui!");
-      onUpdateSuccess?.();
+      // Trigger profile update callbacks
+      onProfileUpdate?.();
+      triggerRefreshCallbacks();
+
+      Alert.alert("Sukses", "Data berhasil diperbarui!", [
+        { text: "OK", onPress: () => onClose?.() },
+      ]);
     } catch (error: any) {
       if (error.response) {
         console.log("Gagal update:", error.response.data);
@@ -272,17 +292,42 @@ const ModalContent: React.FC<ModalContentProps> = ({
       );
 
       if (response.data.success) {
-        alert("Jadwal berhasil diubah menjadi default (08.00-16.00)");
-        onClose?.();
-        router.push("/(tabs)/profil");
+        // Trigger schedule update callbacks
+        onScheduleUpdate?.();
+        triggerRefreshCallbacks();
+
+        Alert.alert(
+          "Sukses",
+          "Jadwal berhasil diubah menjadi default (08.00-16.00)",
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                onClose?.();
+                router.push("/(tabs)/profil");
+              },
+            },
+          ]
+        );
       }
     } catch (error: any) {
       if (error.response?.status === 404) {
-        alert("Jadwal tidak ada silahkan atur jadwal terlebih dahulu");
-        onClose?.();
-        router.push("/(tabs)/profil/aturjadwal");
+        Alert.alert(
+          "Jadwal Tidak Ditemukan",
+          "Jadwal tidak ada silahkan atur jadwal terlebih dahulu",
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                onClose?.();
+                router.push("/(tabs)/profil/aturjadwal");
+              },
+            },
+          ]
+        );
       } else {
         console.log("Gagal mengatur jadwal default:", error);
+        alert("Terjadi kesalahan saat mengatur jadwal default.");
       }
     }
   };
@@ -328,9 +373,23 @@ const ModalContent: React.FC<ModalContentProps> = ({
       );
 
       if (response.status === 201) {
-        alert("Jadwal berhasil diatur menjadi default (08.00-16.00)");
-        onClose?.();
-        router.push("/(tabs)/profil");
+        // Trigger schedule update callbacks
+        onScheduleUpdate?.();
+        triggerRefreshCallbacks();
+
+        Alert.alert(
+          "Sukses",
+          "Jadwal berhasil diatur menjadi default (08.00-16.00)",
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                onClose?.();
+                router.push("/(tabs)/profil");
+              },
+            },
+          ]
+        );
       } else {
         alert("Gagal mengatur jadwal default: " + response.data.message);
       }
@@ -365,105 +424,24 @@ const ModalContent: React.FC<ModalContentProps> = ({
       );
 
       if (response.data.success) {
-        alert("Jadwal berhasil dihapus");
-        onClose?.();
-        router.replace("/(tabs)/profil");
+        // Trigger schedule update callbacks
+        onScheduleUpdate?.();
+        triggerRefreshCallbacks();
+
+        Alert.alert("Sukses", "Jadwal berhasil dihapus", [
+          {
+            text: "OK",
+            onPress: () => {
+              onClose?.();
+              router.replace("/(tabs)/profil");
+            },
+          },
+        ]);
       }
     } catch (error: any) {
       if (error.response?.status === 404) {
         onClose?.();
         alert("Tidak ada jadwal pada tanggal ini untuk dihapus.");
-      }
-    }
-  };
-
-  // upload image
-  const uploadImageToServer = async () => {
-    if (!profileImage?.uri) {
-      alert("Silakan pilih gambar terlebih dahulu.");
-      return;
-    }
-
-    const uri = profileImage.uri;
-    const fileName = uri.split("/").pop();
-    const fileType = fileName?.split(".").pop();
-
-    try {
-      // Ambil data user
-      const userId = await SecureStore.getItemAsync("userId");
-      const token = await SecureStore.getItemAsync("userToken");
-      const cleanedUserId = userId?.replace(/"/g, "");
-      const cleanedToken = token?.replace(/"/g, "");
-
-      // Validasi data yang diperlukan
-      if (!cleanedUserId) {
-        alert("User ID tidak ditemukan. Silakan login ulang.");
-        return;
-      }
-
-      if (!cleanedToken) {
-        alert("Token tidak ditemukan. Silakan login ulang.");
-        return;
-      }
-
-      console.log("UserId:", cleanedUserId);
-      console.log("Token ada:", cleanedToken);
-
-      // Cek ukuran file sebelum upload
-      const fileInfo = await FileSystem.getInfoAsync(uri);
-      const fileSizeInMB = fileInfo.size / (1024 * 1024);
-      const maxSizeInMB = 5; // Batas maksimal 5MB
-
-      if (fileSizeInMB > maxSizeInMB) {
-        alert(
-          `Ukuran file (${fileSizeInMB.toFixed(
-            2
-          )} MB) terlalu besar. Maksimal ${maxSizeInMB} MB.`
-        );
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append("image", {
-        uri,
-        name: fileName,
-        type: `image/${fileType}`, // Fixed: should be 'image' not 'images'
-      } as any);
-      formData.append("id", cleanedUserId);
-
-      const response = await axios.post(`${BASE_URL}/dokter/upload`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${cleanedToken}`,
-        },
-      });
-
-      console.log("Upload berhasil:", response.data);
-      alert("Foto berhasil diunggah!");
-      onUpdateSuccess?.();
-    } catch (error: any) {
-      console.log("Upload errorrrr:", error.response?.data || error.message);
-
-      if (error.response?.status === 401) {
-        // Token expired atau tidak valid
-        alert("Sesi Anda telah berakhir. Silakan login ulang.");
-
-        // Hapus token yang expired
-        await SecureStore.deleteItemAsync("token");
-        await SecureStore.deleteItemAsync("userId");
-
-        // Redirect ke login (sesuaikan dengan navigation structure Anda)
-        // navigation.navigate('Login');
-      } else if (error.response?.status === 413) {
-        alert(
-          "Ukuran file terlalu besar. Silakan pilih gambar yang lebih kecil (maksimal 5MB)."
-        );
-      } else {
-        const errorMessage =
-          error.response?.data?.message ||
-          error.message ||
-          "Gagal upload gambar";
-        alert(`Upload gagal: ${errorMessage}`);
       }
     }
   };
@@ -488,7 +466,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
     }
   };
 
-  // Enhanced upload function with compression
+  // Enhanced upload function with compression and callbacks
   const uploadImageToServerWithCompression = async () => {
     if (!profileImage?.uri) {
       alert("Silakan pilih gambar terlebih dahulu.");
@@ -535,8 +513,20 @@ const ModalContent: React.FC<ModalContentProps> = ({
       });
 
       console.log("Upload berhasil:", response.data);
-      alert("Foto berhasil diunggah!");
-      onUpdateSuccess?.();
+
+      // Trigger image update callbacks
+      onImageUpdate?.();
+      triggerRefreshCallbacks();
+
+      Alert.alert("Sukses", "Foto berhasil diunggah!", [
+        {
+          text: "OK",
+          onPress: () => {
+            onClose?.();
+            router.replace("/(tabs)/profil");
+          },
+        },
+      ]);
     } catch (error: any) {
       console.log("Upload error:", error.response?.data || error.message);
 
@@ -544,6 +534,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
         alert("Sesi Anda telah berakhir. Silakan login ulang.");
         await SecureStore.deleteItemAsync("token");
         await SecureStore.deleteItemAsync("userId");
+        router.replace("/screens/signin");
       } else if (error.response?.status === 413) {
         alert("Ukuran file terlalu besar. Coba pilih gambar yang lebih kecil.");
       } else {
@@ -557,8 +548,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
   };
 
   const handleUpload = async () => {
-    await uploadImageToServerWithCompression(); // Use compression version
-    onClose?.();
+    await uploadImageToServerWithCompression();
   };
 
   const handleDeleteProfileImage = async () => {
@@ -585,10 +575,20 @@ const ModalContent: React.FC<ModalContentProps> = ({
 
       if (response.status === 200 && response.data.success) {
         setImage?.(null);
-        alert("Foto profil berhasil dihapus");
-        onUpdateSuccess?.();
-        onClose?.();
-        router.replace("/(tabs)/profil");
+
+        // Trigger image update callbacks
+        onImageUpdate?.();
+        triggerRefreshCallbacks();
+
+        Alert.alert("Sukses", "Foto profil berhasil dihapus", [
+          {
+            text: "OK",
+            onPress: () => {
+              onClose?.();
+              router.replace("/(tabs)/profil");
+            },
+          },
+        ]);
       } else {
         alert(
           "Gagal menghapus foto profil: " +
@@ -606,6 +606,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
       } else if (error.response?.status === 404) {
         alert("Foto profil tidak ditemukan atau sudah dihapus.");
         setImage?.(null);
+        onImageUpdate?.();
         onClose?.();
       } else {
         const errorMessage =
@@ -643,7 +644,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
 
           <TouchableOpacity
             className="mt-5 py-3 bg-green-700 rounded-xl w-full"
-            onPress={uploadImageToServer}
+            onPress={uploadImageToServerWithCompression}
           >
             <Text
               className="text-center text-white font-semibold text-base"
@@ -732,7 +733,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
               className="border-2 rounded-xl border-gray-400 p-2 w-full"
               placeholderTextColor="#888"
             />
-            
+
             <View
               className="flex-row gap-12"
               style={{ marginTop: isDropdownOpen ? 220 : 24 }}
