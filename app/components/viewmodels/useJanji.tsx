@@ -116,16 +116,6 @@ export const useJadwalViewModel = () => {
         const currentCount = filtered.length;
         const previousCount = lastJadwalCountRef.current;
         
-        if (isAutoRefresh && currentCount > previousCount && previousCount > 0) {
-          // Ada jadwal baru masuk
-          console.log("🎉 Jadwal baru ditemukan!");
-          Alert.alert(
-            "Jadwal Baru! 🎉",
-            `Anda memiliki ${currentCount - previousCount} jadwal konsultasi baru`,
-            [{ text: "OK", style: "default" }]
-          );
-        }
-        
         lastJadwalCountRef.current = currentCount;
         setJadwal(filtered);
       }
