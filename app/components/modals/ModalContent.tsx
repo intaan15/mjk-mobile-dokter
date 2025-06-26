@@ -946,7 +946,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
             Anda yakin akan menghapus akun?
           </Text>
 
-          <View className="flex flex-row justify-between items-center 10">
+          <View className="flex flex-row justify-between items-center px-10">
             <TouchableOpacity className="px-10 py-3" onPress={onClose}>
               <Text className=" text-center text-skyDark font-medium w-full">
                 Batal
