@@ -37,6 +37,8 @@ export default function ChatScreen() {
   const [receiverName, setReceiverName] = useState("");
   const [userRole, setUserRole] = useState("");
   const flatListRef = useRef<FlatList>(null);
+  const [statusKonsul, setStatusKonsul] = useState("");
+  const rawParams = useLocalSearchParams();
 
   const { receiverId } = useLocalSearchParams();
 
@@ -262,6 +264,23 @@ export default function ChatScreen() {
       console.warn("Gagal kirim pesan: Ada data kosong.");
     }
   };
+
+  
+  useEffect(() => {
+    const status = Array.isArray(rawParams.status)
+      ? rawParams.status[0]
+      : rawParams.status;
+
+    // Debug logging
+    console.log("[DEBUG] rawParams:", rawParams);
+    console.log("[DEBUG] status from params:", status);
+    console.log("[DEBUG] status type:", typeof status);
+
+    setStatusKonsul(status || "");
+
+    // Debug setelah set
+    console.log("[DEBUG] statusKonsul akan diset ke:", status || "");
+  }, [rawParams]);
 
   const sendImage = async (fromCamera = false) => {
     try {
@@ -516,7 +535,17 @@ export default function ChatScreen() {
           </View>
 
           {/* Input Chat */}
-          <View className="px-4 bg-skyDark py-4" style={{ minHeight: 70 }}>
+          <View className="px-4 bg-skyDark py-4 items-center" style={{ minHeight: 70 }}>
+            {statusKonsul === "selesai" ? (
+              <View className="flex-row items-center justify-center w-11/12">
+                <View className="flex-1 h-[2px] bg-white mr-4" />
+
+                <Text className="text-white text-center font-medium text-base">
+                  Konsultasi telah selesai
+                </Text>
+                <View className="flex-1 h-[2px] bg-white ml-4" />
+              </View>
+            ) : (
             <View className="flex-row items-center">
               <TouchableOpacity onPress={() => sendImage(false)}>
                 <Ionicons name="image-outline" size={28} color="#C3E9FF" />
@@ -558,6 +587,7 @@ export default function ChatScreen() {
                 <Ionicons name="send" size={20} color="#025F96" />
               </TouchableOpacity>
             </View>
+            )}
           </View>
         </KeyboardAvoidingView>
 

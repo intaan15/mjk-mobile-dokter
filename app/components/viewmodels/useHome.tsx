@@ -206,6 +206,7 @@ export class HomeViewModel {
           pathname: "/chat/[id]",
           params: {
             senderId: dokterId,
+            status: chat.status,
             receiverId: chat.participant._id,
           },
         });
